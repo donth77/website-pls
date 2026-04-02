@@ -1,9 +1,169 @@
-<!-- BEGIN:nextjs-agent-rules -->
-# This is NOT the Next.js you know
+# LLM / agent context — website-generator
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+Use this file to restore project context when conversation memory is empty. Prefer reading paths below over guessing from generic Next.js or Prisma tutorials.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+> **Next.js 16 warning:** This version has breaking changes — APIs, conventions, and file structure may differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+
 <!-- END:nextjs-agent-rules -->
 
-# Project context
+Human-oriented setup instructions: [`README.md`](./README.md).
 
-For **this repository** (AI website generator scaffold, Prisma 7 + Postgres, MVP stubs), read [`LLM_CONTEXT.md`](./LLM_CONTEXT.md) when you need paths, constraints, and what is not built yet. Human setup: [`README.md`](./README.md).
+## One-line summary
+
+**AI-powered website generator MVP**: Next.js app + PostgreSQL + Prisma + BullMQ worker + Anthropic orchestrator + Unsplash images + optional Lakera screening; anonymous demo mode with per-IP rate limiting; iteration/refinement on generated sites; structured JSON logging with request correlation IDs.
+
+## Non-negotiables for this repo
+
+1. **Prisma 7 + PostgreSQL** — Client is generated to `src/generated/prisma` (gitignored). Constructor uses `PrismaClient` + `new PrismaPg({ connectionString: process.env.DATABASE_URL })` (see `src/lib/db/prisma.ts`). Prisma 7 requires a driver adapter; this project uses `@prisma/adapter-pg` + `pg`.
+2. **`DATABASE_URL` required** when importing `prisma` — missing env throws at client construction.
+3. **Anonymous + authenticated ownership** — keep `Project.userId` nullable for anonymous mode; `secretToken` per project for preview access control (guest cookie session planned to replace this after auth is implemented).
+4. **Next.js 16** — App Router under `src/app/`. `@/*` maps to `src/*`.
+5. **Package manager is pnpm 10.x** — `package.json` has `packageManager` (Corepack). Use `pnpm install` / `pnpm exec prisma`. Do not add `package-lock.json`. Commit `pnpm-lock.yaml`.
+
+## Tech stack (authoritative)
+
+- Next.js 16, React 19, TypeScript, Tailwind v4, ESLint (next config).
+- **pnpm** + `pnpm-lock.yaml`.
+- Prisma 7, PostgreSQL, `pg`, `@prisma/adapter-pg`, `dotenv` (for Prisma CLI + worker).
+- **Anthropic SDK** for generation; **Unsplash API** for stock images; **Lakera Guard** (optional) for prompt screening.
+- **BullMQ + ioredis** for job queue; **Supabase** for object storage (generated HTML).
+- Auth provider TBD. Embeddings provider TBD for Phase 1 RAG.
+
+## Directory map
+
+| Path                                        | Role                                                                              |
+| ------------------------------------------- | --------------------------------------------------------------------------------- |
+| `prisma/schema.prisma`                      | Models: `User`, `Project`, `Version`, `PublishedSite`; enum `ProjectStatus`       |
+| `prisma.config.ts`                          | Loads `DATABASE_URL`; migrations path                                             |
+| `src/app/page.tsx`                          | Landing page — prompt input, preview, refinement UI                               |
+| `src/app/api/generate/route.ts`             | `POST` — validate, rate-limit, screen, create project/version, enqueue job        |
+| `src/app/api/versions/[versionId]/route.ts` | `GET` — poll job progress (requires `?token=`)                                    |
+| `src/app/api/health/route.ts`               | `GET` — shallow; `GET ?deep=true` — checks DB, Redis, Anthropic                   |
+| `src/app/preview/[versionId]/route.ts`      | `GET` — serve generated HTML from Supabase (requires `?token=`)                   |
+| `src/components/`                           | Extracted UI components (generator-app, preview-panel, chat, etc.)                |
+| `src/hooks/`                                | Custom React hooks (e.g. `use-generation.ts`)                                     |
+| `src/lib/ai/orchestrator.ts`                | `runGenerationPipeline` — structured + fallback paths, images, refinement support |
+| `src/lib/ai/promptSafety.ts`                | Input validation + delimiter wrapping                                             |
+| `src/lib/ai/lakera.ts`                      | Optional Lakera Guard screening (warns on startup if key missing)                 |
+| `src/lib/ai/context.ts`                     | `buildContextForAgent` — hook for Phase 1 RAG                                     |
+| `src/lib/db/prisma.ts`                      | Singleton `PrismaClient` with `PrismaPg` adapter                                  |
+| `src/lib/queue/`                            | BullMQ queue + Redis connection management                                        |
+| `src/lib/supabase/server.ts`                | Supabase admin client + storage helpers                                           |
+| `src/lib/images/unsplash.ts`                | Unsplash photo search with dedup + attribution                                    |
+| `src/lib/logger.ts`                         | Structured JSON logging with component scoping + child loggers                    |
+| `src/lib/rateLimit.ts`                      | Redis-backed sliding-window per-IP rate limiter                                   |
+| `src/workers/generation-worker.ts`          | BullMQ worker — runs pipeline, uploads to Supabase, tracks progress               |
+| `src/generated/prisma/`                     | Generated client — **not in git**; regenerate via `pnpm install`                  |
+
+## Data model
+
+- **Project** — one user-facing "site" effort; holds `prompt`, `status`, `secretToken` (access control), optional `errorMessage` (persisted on failure).
+- **Version** — numbered snapshot per project (`versionNumber`, `promptDelta` for refinements, `storageKey` for Supabase HTML).
+- **PublishedSite** — future: subdomain/custom domain + `storageKey`.
+- **User** — authenticated account (not yet wired).
+- **Ownership** — currently `secretToken` per project; planned: `userId` (authenticated) or `guestSessionId` (anonymous cookie).
+
+## What's implemented
+
+| Feature                                                             | Status |
+| ------------------------------------------------------------------- | ------ |
+| Prompt → generation → preview                                       | Done   |
+| Structured output (Claude 4.5+) + fallback                          | Done   |
+| Unsplash image search (3-tier fallback + attribution)               | Done   |
+| BullMQ queue + worker with progress tracking                        | Done   |
+| Iteration/refinement (edit existing generation)                     | Done   |
+| Per-IP rate limiting (10/hr, Redis-backed)                          | Done   |
+| Secret token access control on preview/status                       | Done   |
+| Lakera prompt screening (optional)                                  | Done   |
+| Structured JSON logging + request correlation IDs                   | Done   |
+| Deep health check (DB + Redis + Anthropic)                          | Done   |
+| Error message persistence on Project                                | Done   |
+| Download HTML                                                       | Done   |
+| UX polish (char counter, Cmd+Enter, prompt examples, elapsed timer) | Done   |
+
+## What's planned (not built)
+
+1. **Phase 1 RAG** — one `.txt`/`.pdf` per project, chunk + embed, top-k retrieval. See RAG section below.
+2. **Auth + anonymous guest mode** — login system + guest cookie session, generation limits, credits. Plan saved in `.claude/plans/jazzy-giggling-twilight.md`.
+3. **Publish + export** — vanity slugs, public Supabase URLs, `POST /api/publish`, `GET /p/[slug]` redirect. See Publish section below.
+4. **Split orchestrator** into intent → blueprint → section code; validation layer.
+
+---
+
+## Auth + anonymous guest mode + credits/paywall (planned)
+
+### Goals
+
+1. Keep the landing page usable without login: allow **a few generations** in anonymous mode.
+2. Add real user accounts with login so we can later introduce monetization and a credits system.
+3. Prevent surprise costs: enforce generation limits and credit deductions server-side.
+
+### Design (minimal UX)
+
+- **Auth provider:** choose one and implement server-side session verification.
+- **Anonymous guest mode:** issue a persistent guest identifier (HttpOnly cookie). Treat it like an account for counting demo generations and (later) credits. Full plan in `.claude/plans/jazzy-giggling-twilight.md`.
+- **Credits enforcement:** resolve owner = authenticated `userId` or `guestSessionId`; verify balance; decrement _before_ enqueuing job.
+
+## Phase 1 RAG (single attachment, no chat)
+
+**Goal:** User attaches **one** text or PDF per generation flow; we chunk + embed, retrieve **top-k** chunks using the **user prompt as the query**, and inject a short context block into `runGenerationPipeline`. UX stays **one page, one Generate button** (optional file input).
+
+### Dependencies & infrastructure
+
+- **Postgres `pgvector`** — enable extension. Store one embedding per chunk.
+- **Embedding provider** — Anthropic has no embedding API; use **OpenAI** `text-embedding-3-small` or similar. New env: `OPENAI_API_KEY`.
+- **PDF text**: server-only library (e.g. `pdf-parse`); **plain text** read as UTF-8. Cap file size (5–10 MB).
+
+### Schema
+
+- **`ProjectSourceDocument`**: `projectId`, `storageKey`, `mimeType`, `originalFilename`, `status`.
+- **`ProjectKnowledgeChunk`**: `id`, `projectId`, `ordinal`, `content`, `embedding` (pgvector).
+
+### Implementation order
+
+1. Migration: pgvector + source/chunk tables.
+2. Lib: `extractTextFromPdf`, `chunkText`, `embedTexts`, `retrieveTopKForPrompt`.
+3. Wire ingestion into `POST /api/generate` (multipart) before enqueue.
+4. Wire retrieval in worker/orchestrator; pass `ragContext` into message builder.
+5. UI: file input + FormData.
+6. Update `.env.example`.
+
+---
+
+## Publish & export (planned)
+
+### Goals
+
+1. **Public HTML** from Supabase Storage via vanity redirect.
+2. **Vanity URL:** optional slug or auto-generated segment → `https://{host}/p/{segment}` → 302 to Supabase public URL.
+
+### Implementation order
+
+1. Supabase bucket policy for `published/*` public read.
+2. Slug validators + segment allocator.
+3. `POST /api/publish` + `GET /p/[slug]` redirect route.
+4. UI: optional slug field + publish button + copy link.
+5. `GET /api/versions/[versionId]/export` — attachment download.
+
+---
+
+## Commands
+
+- `corepack enable` — once per machine
+- `pnpm install` — deps + `postinstall` → `prisma generate`
+- `pnpm dev` — starts **both** Next.js dev server and BullMQ worker
+- `pnpm build` — production build (must pass before merge)
+- `pnpm lint`
+- `pnpm db:push` — sync schema to DB (dev)
+- `pnpm db:migrate` — versioned migrations
+- `pnpm exec prisma generate` — regenerate client only
+
+## Gotchas
+
+- **Do not import `prisma` in Client Components** — server-only; use Server Actions or API routes.
+- **`serverExternalPackages`** in `next.config.ts` includes `pg` and `@prisma/adapter-pg`.
+- **ESLint** ignores `src/generated/**`.
+- **Worker needs `dotenv/config`** — imported at top of `generation-worker.ts`; Next.js loads `.env` automatically but the standalone worker does not.
+- **`pnpm dev` runs the worker via `&` + trap** — both processes start from one command; Ctrl+C kills both.

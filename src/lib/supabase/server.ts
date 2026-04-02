@@ -29,4 +29,3 @@ export function getSupabaseAdmin(): SupabaseClient {
 export function getGeneratedBucket(): string {
   return process.env.SUPABASE_STORAGE_BUCKET ?? "generated-sites";
 }
-

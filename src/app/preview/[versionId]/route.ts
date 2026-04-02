@@ -3,18 +3,27 @@ import { prisma } from "@/lib/db/prisma";
 import { getGeneratedBucket, getSupabaseAdmin } from "@/lib/supabase/server";
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   context: { params: Promise<{ versionId: string }> },
 ) {
   const { versionId } = await context.params;
+  const token = req.nextUrl.searchParams.get("token");
 
   const version = await prisma.version.findUnique({
     where: { id: versionId },
-    select: { id: true, storageKey: true },
+    select: {
+      id: true,
+      storageKey: true,
+      project: { select: { secretToken: true } },
+    },
   });
 
   if (!version?.storageKey) {
     return NextResponse.json({ error: "Preview not ready." }, { status: 404 });
+  }
+
+  if (version.project?.secretToken && version.project.secretToken !== token) {
+    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
   const supabase = getSupabaseAdmin();
@@ -43,4 +52,3 @@ export async function GET(
     },
   });
 }
-

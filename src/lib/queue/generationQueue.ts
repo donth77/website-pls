@@ -17,4 +17,3 @@ export function getGenerationQueue() {
 
   return generationQueue;
 }
-

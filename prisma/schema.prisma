@@ -29,15 +29,17 @@ model User {
 }
 
 model Project {
-  id        String        @id @default(uuid())
-  userId    String?       @map("user_id")
-  user      User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name      String
-  prompt    String?       @db.Text
-  siteSpec  Json?         @map("site_spec")
-  status    ProjectStatus @default(DRAFT)
-  createdAt DateTime      @default(now()) @map("created_at")
-  updatedAt DateTime      @updatedAt @map("updated_at")
+  id          String        @id @default(uuid())
+  userId      String?       @map("user_id")
+  user        User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  prompt      String?       @db.Text
+  siteSpec    Json?         @map("site_spec")
+  status       ProjectStatus @default(DRAFT)
+  errorMessage String?       @map("error_message") @db.Text
+  secretToken  String        @default(uuid()) @map("secret_token")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
 
   versions       Version[]
   publishedSites PublishedSite[]

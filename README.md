@@ -1,143 +1,119 @@
 # WebsitePls (MVP)
 
-An **AI-assisted website generator**: users describe what they want in natural language, and the system eventually produces full pages (layout, copy, and code). The current codebase is a **scaffold** for that MVP—database models, AI pipeline hooks, and a Next.js app—while generation logic is still mostly unimplemented.
+An **AI-powered website generator**: describe what you want in plain language, and the system produces a complete, styled HTML page with real stock photos. Preview it instantly, iterate with refinement prompts, and download the result.
 
-## Product direction (short)
+## What it does today
 
-- **Near term:** anonymous **tech demo** (no authentication). Iterate on prompt → generated site → preview.
-- **Later:** optional accounts, and **bring-your-own API keys** before sharing the product broadly so you are not storing everyone’s provider credentials by default.
-- **Retrieval (RAG):** intentionally **out of scope for the first MVP**; static prompts and structured intermediate steps first. A post-MVP plan exists for embeddings and document grounding.
+- **Prompt → website**: enter a description, get a full responsive HTML page with Tailwind CSS, real Unsplash images, and photo credits.
+- **Iterate**: after generation, describe changes ("make the hero larger", "change colors to blue") and the AI modifies your existing page.
+- **Preview**: live iframe preview with fullscreen and open-in-new-tab options.
+- **Download**: one-click HTML download of any generated site.
+- **Safety**: optional Lakera Guard prompt screening, per-IP rate limiting, delimiter-based prompt injection defense.
+
+## Product direction
+
+- **Near term**: anonymous tech demo with a path to user accounts, credits/paywall, and publishing (vanity URLs).
+- **Planned**: Phase 1 RAG (attach a document for context-aware generation), auth + guest sessions, publish flow.
+- **Later**: bring-your-own API keys, multi-page sites, version history UI.
 
 ## Tech stack
 
-| Layer | Choice |
-| ----- | ------ |
-| App framework | [Next.js](https://nextjs.org) 16 (App Router), React 19 |
-| Language | TypeScript |
-| Styling | Tailwind CSS v4 |
-| Package manager | [pnpm](https://pnpm.io) 10.x (see `package.json` → `packageManager`; [Corepack](https://nodejs.org/api/corepack.html) pins the version) |
-| Database | PostgreSQL |
-| ORM | Prisma 7 (schema in `prisma/schema.prisma`) |
-| DB driver | `pg` via `@prisma/adapter-pg` (Prisma 7 expects a driver adapter for this setup) |
-| Linting | ESLint with `eslint-config-next` |
-
-Optional or planned (not all wired yet): AI provider SDKs, job queues (e.g. BullMQ + Redis), object storage for exports.
-
-## Repository layout
-
-```
-website-generator/
-├── prisma/
-│   └── schema.prisma          # PostgreSQL models (User, Project, Version, PublishedSite)
-├── prisma.config.ts            # Prisma datasource URL from env
-├── pnpm-lock.yaml             # Lockfile (commit this; do not use npm/yarn for installs)
-├── src/
-│   ├── app/                    # Next.js App Router
-│   │   ├── api/health/         # Simple health route
-│   │   ├── layout.tsx
-│   │   └── page.tsx            # Current landing placeholder
-│   ├── generated/prisma/       # Prisma client (generated; gitignored—run `pnpm install` or `pnpm exec prisma generate`)
-│   └── lib/
-│       ├── db/
-│       │   └── prisma.ts       # PrismaClient singleton (requires DATABASE_URL)
-│       └── ai/
-│           ├── context.ts       # buildContextForAgent — extension point for future RAG/context
-│           ├── orchestrator.ts  # Generation pipeline stub
-│           ├── types.ts        # SiteSpec / SiteBlueprint placeholders
-│           ├── agents/         # For per-step LLM agents (empty)
-│           ├── prompts/        # System / few-shot prompts (empty)
-│           └── templates/      # HTML section examples (empty)
-├── .env.example                # Example environment variables
-├── next.config.ts
-├── postcss.config.mjs
-└── tsconfig.json
-```
+| Layer           | Choice                                                                  |
+| --------------- | ----------------------------------------------------------------------- |
+| App framework   | [Next.js](https://nextjs.org) 16 (App Router), React 19                 |
+| Language        | TypeScript                                                              |
+| Styling         | Tailwind CSS v4                                                         |
+| Package manager | [pnpm](https://pnpm.io) 10.x (Corepack-pinned)                          |
+| Database        | PostgreSQL via [Prisma](https://www.prisma.io) 7 + `@prisma/adapter-pg` |
+| Job queue       | [BullMQ](https://docs.bullmq.io) + Redis                                |
+| AI              | [Anthropic SDK](https://docs.anthropic.com) (Claude)                    |
+| Images          | [Unsplash API](https://unsplash.com/developers)                         |
+| Storage         | [Supabase](https://supabase.com) (object storage for generated HTML)    |
+| Screening       | [Lakera Guard](https://www.lakera.ai) (optional)                        |
 
 ## Prerequisites
 
-- Node.js (LTS recommended; Node 20+ so **Corepack** can manage pnpm)
-- [pnpm](https://pnpm.io/installation) — easiest: `corepack enable` then Corepack will use the version in `packageManager`
-- A running **PostgreSQL** instance and a connection string
+- **Node.js 20+** (for Corepack)
+- **PostgreSQL** — local or hosted (e.g. Supabase)
+- **Redis** — local (`redis-server` or Docker) or hosted (e.g. Upstash)
+- **Anthropic API key** — [console.anthropic.com](https://console.anthropic.com)
 
 ## Setup
 
-1. Enable Corepack (once per machine) so the pinned pnpm version is used:
+```bash
+# 1. Enable Corepack (once per machine)
+corepack enable
 
-   ```bash
-   corepack enable
-   ```
+# 2. Install dependencies (runs prisma generate via postinstall)
+pnpm install
 
-2. Clone the repo and install dependencies:
+# 3. Configure environment
+cp .env.example .env
+# Edit .env — set DATABASE_URL, REDIS_URL, ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 
-   ```bash
-   pnpm install
-   ```
+# 4. Push schema to database
+pnpm db:push
 
-   `postinstall` runs `prisma generate`, which recreates `src/generated/prisma/`.
+# 5. Start dev server + worker (single command)
+pnpm dev
+```
 
-3. Copy environment variables:
-
-   ```bash
-   cp .env.example .env
-   ```
-
-   Set `DATABASE_URL` to your PostgreSQL URL (see [Prisma connection strings](https://www.prisma.io/docs/orm/reference/connection-urls)).
-
-4. Push the schema to the database (good for local dev; use migrations when you want versioned SQL):
-
-   ```bash
-   pnpm db:push
-   ```
-
-5. Run the dev server:
-
-   ```bash
-   pnpm dev
-   ```
-
-   Open [http://localhost:3000](http://localhost:3000). Health check: [http://localhost:3000/api/health](http://localhost:3000/api/health).
+Open [http://localhost:3000](http://localhost:3000). Health check: [http://localhost:3000/api/health?deep=true](http://localhost:3000/api/health?deep=true).
 
 ## Scripts
 
-| Command | Purpose |
-| ------- | ------- |
-| `pnpm dev` | Development server |
-| `pnpm build` | Production build |
-| `pnpm start` | Start production server |
-| `pnpm lint` | ESLint |
-| `pnpm db:generate` | Regenerate Prisma client |
-| `pnpm db:push` | Push schema to DB (no migration files) |
-| `pnpm db:migrate` | Create/apply migrations (`prisma migrate dev`) |
-| `pnpm db:studio` | Open Prisma Studio |
+| Command                | Purpose                                                |
+| ---------------------- | ------------------------------------------------------ |
+| `pnpm dev`             | Dev server **+ BullMQ worker** (both processes)        |
+| `pnpm build`           | Production build                                       |
+| `pnpm start`           | Start production server                                |
+| `pnpm lint`            | ESLint                                                 |
+| `pnpm worker:generate` | Run BullMQ worker standalone (if not using `pnpm dev`) |
+| `pnpm db:generate`     | Regenerate Prisma client                               |
+| `pnpm db:push`         | Push schema to DB (no migration files)                 |
+| `pnpm db:migrate`      | Create/apply migrations (`prisma migrate dev`)         |
+| `pnpm db:studio`       | Open Prisma Studio                                     |
 
 ## Environment variables
 
-See `.env.example`. At minimum you need `DATABASE_URL` for any code path that uses `src/lib/db/prisma.ts`.
+See [`.env.example`](.env.example) for full documentation. At minimum:
 
-**`UNSPLASH_ACCESS_KEY`** (optional, recommended) — Generated sites use real photos from Unsplash, matched by each `<img>` alt text. Without the key, images stay as the model's placeholder URLs. Sign up at [unsplash.com/developers](https://unsplash.com/developers), create an app, and paste the Access Key. Free tier is 50 req/hr (demo); apply for production to get 5 000/hr.
+| Variable                    | Required    | Purpose                                                |
+| --------------------------- | ----------- | ------------------------------------------------------ |
+| `DATABASE_URL`              | Yes         | PostgreSQL connection string                           |
+| `REDIS_URL`                 | Yes         | Redis for BullMQ (`redis://` or `rediss://`)           |
+| `ANTHROPIC_API_KEY`         | Yes         | Claude API for generation                              |
+| `SUPABASE_URL`              | Yes         | Supabase project URL                                   |
+| `SUPABASE_SERVICE_ROLE_KEY` | Yes         | Supabase admin key (server-only)                       |
+| `UNSPLASH_ACCESS_KEY`       | Recommended | Real stock photos; without it, images are placeholders |
+| `LAKERA_API_KEY`            | Optional    | Prompt screening; skipped if unset (warning logged)    |
+| `ANTHROPIC_MODEL`           | Optional    | Defaults to `claude-sonnet-4-5-20250514`               |
 
-## Troubleshooting pnpm / Corepack
+## Troubleshooting
 
-**`Unknown options: 'allow-build', 'dangerously-allow-all-builds'`** — Recent Node ships Corepack that installs pnpm using flags only supported by **pnpm 10+**. This repo pins **pnpm 10.15.1** in `packageManager`. Pull the latest `package.json`, then:
+### pnpm / Corepack
+
+**`Unknown options: 'allow-build'`** — Your global pnpm is too old. This repo pins pnpm 10.x:
 
 ```bash
 corepack enable
-corepack use pnpm@10.15.1   # optional: syncs packageManager + runs install
+corepack use pnpm@10.15.1
 pnpm install
 ```
 
-If `pnpm --version` still shows 9.x, an older global pnpm (e.g. from npm or nvm) may be first on your `PATH`. Prefer the Corepack shim: `hash -r` after `corepack enable`, or run `corepack pnpm install` once.
+### Redis / BullMQ worker
 
-## Troubleshooting Redis / `pnpm worker:generate`
+- **Stuck at "Starting..."** — The BullMQ worker may not be running. `pnpm dev` starts both the server and worker; check that Redis is reachable.
+- **`ECONNRESET` with Upstash** — See `.env.example` for TLS and timeout configuration. Try `REDIS_FAMILY=4` for IPv6 issues. For local dev, plain `redis://localhost:6379` is simplest.
 
-**`read ECONNRESET` with Upstash** — BullMQ workers use long-lived and blocking Redis connections. Some managed providers are sensitive to **`ioredis` reconnect behavior**: the library’s default retry backoff can reconnect every 50ms at first, which may worsen reset loops. This repo uses the same **minimum 1s reconnect backoff** BullMQ uses internally, expands **`rediss://` URLs into host/port/password + `tls: {}`** (per Upstash’s BullMQ docs), and defaults **`REDIS_WORKER_DISCONNECT_TIMEOUT=0`** (see `src/lib/queue/redis.ts`). **`REDIS_FAMILY=4`** still helps when IPv6 routing is flaky.
+### Generation takes 1-3 minutes
 
-If problems persist, use **local Redis** for development (`docker run -d -p 6379:6379 redis:7-alpine` and `REDIS_URL=redis://localhost:6379`) and keep Upstash for environments where you’ve validated stability.
+Normal for full-page generation with Claude Sonnet. The progress bar updates as the model streams. For faster (simpler) results, set `ANTHROPIC_MODEL=claude-haiku-4-5-20251001` in `.env`.
 
-## Documentation for automation / LLMs
+## Documentation for agents / LLMs
 
-For **dense, repo-specific context** (architecture, conventions, what is stubbed, where to extend), see [`LLM_CONTEXT.md`](./LLM_CONTEXT.md). It is meant to be pasted or loaded into an assistant when long-term memory is unavailable.
+See [`AGENTS.md`](./AGENTS.md) for dense, repo-specific context: architecture, conventions, what's implemented, what's planned, and where to extend.
 
 ## License
 
-Private project (`"private": true` in `package.json`). Add a license file if you open-source it.
+Private project (`"private": true` in `package.json`).

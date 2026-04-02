@@ -3,18 +3,23 @@ import { prisma } from "@/lib/db/prisma";
 import { getGenerationQueue } from "@/lib/queue/generationQueue";
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   context: { params: Promise<{ versionId: string }> },
 ) {
   const { versionId } = await context.params;
+  const token = req.nextUrl.searchParams.get("token");
 
   const version = await prisma.version.findUnique({
     where: { id: versionId },
-    include: { project: true },
+    include: { project: { select: { status: true, secretToken: true } } },
   });
 
   if (!version) {
     return NextResponse.json({ error: "Not found." }, { status: 404 });
+  }
+
+  if (version.project?.secretToken && version.project.secretToken !== token) {
+    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
   const projectStatus = version.project?.status ?? "DRAFT";
@@ -46,4 +51,3 @@ export async function GET(
     percent,
   });
 }
-

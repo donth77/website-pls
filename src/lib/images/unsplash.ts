@@ -1,3 +1,6 @@
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("unsplash");
 const UNSPLASH_API = "https://api.unsplash.com";
 
 type UnsplashPhoto = {
@@ -51,7 +54,7 @@ export async function searchPhoto(
   });
 
   if (!res.ok) {
-    console.warn(`[unsplash] search failed (${res.status}): ${query}`);
+    log.warn("Search failed", { status: res.status, query });
     return null;
   }
 
@@ -85,7 +88,7 @@ export async function searchPhotos(
 ): Promise<Map<string, SearchResult | null>> {
   const results = new Map<string, SearchResult | null>();
   if (!getAccessKey()) {
-    console.warn("[unsplash] UNSPLASH_ACCESS_KEY is not set — skipping image search");
+    log.warn("UNSPLASH_ACCESS_KEY is not set — skipping image search");
     return results;
   }
 
@@ -97,10 +100,7 @@ export async function searchPhotos(
 
   for (let i = 0; i < unique.length; i++) {
     const s = settled[i];
-    results.set(
-      unique[i].query,
-      s.status === "fulfilled" ? s.value : null,
-    );
+    results.set(unique[i].query, s.status === "fulfilled" ? s.value : null);
   }
 
   return results;

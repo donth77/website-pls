@@ -1,5 +1,7 @@
+import "dotenv/config";
 import { Worker } from "bullmq";
 import { prisma } from "@/lib/db/prisma";
+import { createLogger } from "@/lib/logger";
 import { GENERATION_QUEUE_NAME } from "@/lib/queue/generationQueue";
 import { createWorkerRedis } from "@/lib/queue/redis";
 import { getGeneratedBucket, getSupabaseAdmin } from "@/lib/supabase/server";
@@ -9,8 +11,11 @@ type GenerateJobData = {
   projectId: string;
   versionId: string;
   userPrompt: string;
+  refinementPrompt?: string;
+  requestId?: string;
 };
 
+const baseLog = createLogger("worker");
 const queueConnection = createWorkerRedis();
 const supabase = getSupabaseAdmin();
 const bucket = getGeneratedBucket();
@@ -19,8 +24,16 @@ const worker = new Worker(
   GENERATION_QUEUE_NAME,
   async (job) => {
     const data = job.data as GenerateJobData;
+    const { projectId, versionId, userPrompt, refinementPrompt, requestId } =
+      data;
+    const log = baseLog.child({
+      requestId,
+      projectId,
+      versionId,
+      jobId: job.id,
+    });
 
-    const { projectId, versionId, userPrompt } = data;
+    log.info("Job started", { isRefinement: !!refinementPrompt });
 
     try {
       await prisma.project.update({
@@ -30,9 +43,31 @@ const worker = new Worker(
 
       await job.updateProgress({ step: "Preparing…", percent: 5 });
 
+      // For refinements, fetch the previous version's HTML from Supabase.
+      let previousHtml: string | undefined;
+      if (refinementPrompt) {
+        const prevVersion = await prisma.version.findFirst({
+          where: { projectId, NOT: { id: versionId } },
+          orderBy: { versionNumber: "desc" },
+          select: { storageKey: true },
+        });
+        if (prevVersion?.storageKey) {
+          const { data: blob } = await supabase.storage
+            .from(bucket)
+            .download(prevVersion.storageKey);
+          if (blob) {
+            previousHtml = Buffer.from(await blob.arrayBuffer()).toString(
+              "utf-8",
+            );
+          }
+        }
+      }
+
       const { html } = await runGenerationPipeline({
         projectId,
         userPrompt,
+        previousHtml,
+        refinementPrompt,
         onProgress: (step, percent) => {
           void job.updateProgress({ step, percent });
         },
@@ -63,26 +98,32 @@ const worker = new Worker(
         data: { status: "READY" },
       });
 
+      log.info("Job completed", { storageKey });
       return { storageKey };
     } catch (err) {
-      console.error(`Generation failed for version ${versionId}:`, err);
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      log.error("Job failed", { error: errorMessage });
+
       await prisma.project.update({
         where: { id: projectId },
-        data: { status: "ERROR" },
+        data: { status: "ERROR", errorMessage },
       });
       throw err;
     }
   },
-  { connection: queueConnection },
+  {
+    connection: queueConnection,
+    lockDuration: 300_000,
+    stalledInterval: 60_000,
+  },
 );
 
 worker.on("completed", (job) => {
-  console.log(`Generation completed (jobId=${job.id}).`);
+  baseLog.info("Job completed event", { jobId: job.id });
 });
 
 worker.on("failed", (job, err) => {
-  console.error(`Generation failed (jobId=${job?.id}):`, err);
+  baseLog.error("Job failed event", { jobId: job?.id, error: err.message });
 });
 
-console.log(`Generation worker running. Queue="${GENERATION_QUEUE_NAME}"`);
-
+baseLog.info("Worker started", { queue: GENERATION_QUEUE_NAME });
