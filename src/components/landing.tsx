@@ -1,12 +1,9 @@
 import { ArrowUp, CircleHelp } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { MAX_USER_PROMPT_CHARS } from "@/lib/ai/promptSafety";
+import { GenerationLimit } from "./generation-limit";
 
-const EXAMPLE_PROMPTS = [
-  "A portfolio site for a photographer with a dark theme, image gallery, and contact form",
-  "A landing page for a coffee shop with menu, hours, location map, and online ordering",
-  "A personal blog with a minimalist design, featured posts section, and newsletter signup",
-  "A SaaS product landing page with pricing tiers, feature comparison, and testimonials",
-];
+const EXAMPLE_KEYS = ["example1", "example2", "example3", "example4"] as const;
 
 export interface LandingProps {
   inputValue: string;
@@ -25,6 +22,7 @@ export function Landing({
   isMac,
   onInfoOpen,
 }: LandingProps) {
+  const t = useTranslations("Landing");
   const charRatio = inputValue.length / MAX_USER_PROMPT_CHARS;
   const charCountColor =
     charRatio >= 1
@@ -46,10 +44,10 @@ export function Landing({
         {/* Heading */}
         <div className="mb-8 text-center">
           <h1 className="text-4xl font-semibold tracking-tight text-zinc-900 sm:text-5xl dark:text-zinc-50">
-            What would you like to build?
+            {t("heading")}
           </h1>
           <p className="mt-3 text-base text-zinc-500 dark:text-zinc-400">
-            Describe your website and we&apos;ll generate it in seconds.
+            {t("description")}
           </p>
         </div>
 
@@ -61,17 +59,17 @@ export function Landing({
             value={inputValue}
             onChange={(e) => onInputChange(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder='e.g. "A portfolio site for a photographer with a dark theme and image gallery"'
-            aria-label="Describe the website you want to build"
+            placeholder={t("placeholder")}
+            aria-label={t("inputLabel")}
             maxLength={MAX_USER_PROMPT_CHARS}
             autoFocus
           />
           <button
             type="button"
-            className="absolute right-3 bottom-3 flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 text-white shadow-sm transition hover:bg-zinc-800 disabled:opacity-40 disabled:hover:bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 dark:disabled:hover:bg-zinc-100"
+            className="absolute right-3 bottom-3 flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 text-white shadow-sm transition hover:bg-zinc-800 disabled:opacity-50 disabled:hover:bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 dark:disabled:hover:bg-zinc-100"
             onClick={onSubmit}
             disabled={!canSubmit}
-            aria-label="Generate website"
+            aria-label={t("generate")}
           >
             <ArrowUp className="h-5 w-5" />
           </button>
@@ -93,36 +91,44 @@ export function Landing({
         {/* Example prompts */}
         {!inputValue && (
           <div className="mt-5 flex flex-wrap justify-center gap-2">
-            {EXAMPLE_PROMPTS.map((ex) => (
-              <button
-                key={ex}
-                type="button"
-                className="cursor-pointer rounded-full border border-zinc-200 bg-white px-3.5 py-1.5 text-xs text-zinc-500 shadow-sm transition hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
-                onClick={() => onInputChange(ex)}
-                aria-label={ex}
-              >
-                {ex.length > 55 ? ex.slice(0, 55) + "\u2026" : ex}
-              </button>
-            ))}
+            {EXAMPLE_KEYS.map((key) => {
+              const text = t(key);
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  className="cursor-pointer rounded-full border border-zinc-200 bg-white px-3.5 py-1.5 text-xs text-zinc-500 shadow-sm transition hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+                  onClick={() => onInputChange(text)}
+                  aria-label={text}
+                >
+                  {text.length > 55 ? text.slice(0, 55) + "\u2026" : text}
+                </button>
+              );
+            })}
           </div>
         )}
 
         {/* Keyboard hint */}
-        <p className="mt-4 text-center text-xs text-zinc-400 dark:text-zinc-500">
-          {isMac ? "\u2318" : "Ctrl"}+Enter to generate
+        <p className="mt-4 text-center text-xs text-zinc-500 dark:text-zinc-400">
+          {t("keyboardHint", { key: isMac ? "\u2318" : "Ctrl" })}
         </p>
+
+        {/* Generation limit indicator */}
+        <div className="mt-3">
+          <GenerationLimit />
+        </div>
       </div>
 
       {/* Footer */}
       <div className="absolute bottom-6 flex items-center gap-3">
-        <span className="text-xs font-medium text-zinc-400 dark:text-zinc-500">
+        <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
           WebsitePls
         </span>
         <button
           type="button"
           className="text-zinc-400 transition hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
           onClick={onInfoOpen}
-          aria-label="About this app"
+          aria-label={t("aboutLabel")}
         >
           <CircleHelp className="h-4 w-4" />
         </button>

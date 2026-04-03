@@ -1,0 +1,136 @@
+{
+  "Landing": {
+    "heading": "Apa yang ingin Anda buat?",
+    "description": "Jelaskan situs web Anda dan kami akan membuatnya dalam hitungan detik.",
+    "placeholder": "mis. \"Situs portofolio untuk fotografer dengan tema gelap dan galeri gambar\"",
+    "generate": "Buat situs web",
+    "inputLabel": "Jelaskan situs web yang ingin Anda buat",
+    "keyboardHint": "{key}+Enter untuk membuat",
+    "aboutLabel": "Tentang aplikasi ini",
+    "example1": "Situs portofolio untuk fotografer dengan tema gelap, galeri gambar, dan formulir kontak",
+    "example2": "Halaman arahan untuk kedai kopi dengan menu, jam buka, peta lokasi, dan pemesanan online",
+    "example3": "Blog pribadi dengan desain minimalis, bagian artikel unggulan, dan pendaftaran buletin",
+    "example4": "Halaman arahan produk SaaS dengan paket harga, perbandingan fitur, dan testimoni"
+  },
+  "Chat": {
+    "tab": "Obrolan",
+    "about": "Tentang aplikasi ini",
+    "new": "Baru",
+    "newProject": "Mulai proyek baru",
+    "messagesLabel": "Pesan obrolan",
+    "inputLabel": "Input obrolan",
+    "inputHelp": "Enter untuk mengirim · Shift+Enter untuk baris baru",
+    "send": "Kirim pesan",
+    "placeholderReady": "Jelaskan apa yang ingin diubah…",
+    "placeholderGenerating": "Menunggu pembuatan…",
+    "placeholderDefault": "Jelaskan situs web Anda…"
+  },
+  "Message": {
+    "starting": "Memulai…",
+    "tryAgain": "Coba lagi",
+    "progressLabel": "Progres pembuatan"
+  },
+  "Preview": {
+    "tab": "Pratinjau",
+    "title": "Pratinjau",
+    "showChat": "Tampilkan obrolan",
+    "hideChat": "Sembunyikan obrolan",
+    "fullscreen": "Layar penuh",
+    "exitFullscreen": "Keluar dari layar penuh",
+    "openNewTab": "Buka di tab baru",
+    "downloadHtml": "Unduh HTML",
+    "generating": "Membuat situs web Anda…",
+    "placeholder": "Pratinjau Anda akan muncul di sini"
+  },
+  "Info": {
+    "title": "Tentang WebsitePls",
+    "description": "WebsitePls membuat satu halaman web dari deskripsi Anda menggunakan AI. Anda dapat menyempurnakan hasilnya dengan mengirim pesan lanjutan di obrolan.",
+    "feature1": "Membuat satu halaman berdasarkan deskripsi Anda",
+    "feature2": "Sempurnakan dengan pesan lanjutan",
+    "feature3": "Unduh atau buka di tab baru",
+    "close": "Tutup",
+    "gotIt": "Mengerti"
+  },
+  "Auth": {
+    "signIn": "Masuk",
+    "signOut": "Keluar",
+    "accountMenu": "Menu akun",
+    "user": "Pengguna",
+    "credit": "{count, plural, other {# kredit}}",
+    "myProjects": "Proyek Saya"
+  },
+  "GenerationLimit": {
+    "remaining": "{remaining}/{max} {remaining, plural, other {pembuatan}} gratis tersisa.",
+    "signInMore": "Masuk",
+    "forMore": "untuk lebih banyak.",
+    "noFreeLeft": "Tidak ada pembuatan gratis tersisa.",
+    "toContinue": "untuk melanjutkan."
+  },
+  "Login": {
+    "heading": "Masuk ke WebsitePls",
+    "description": "Masuk untuk menyimpan proyek Anda dan mendapatkan lebih banyak pembuatan.",
+    "emailLabel": "Alamat email",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "Kirim tautan",
+    "sending": "Mengirim...",
+    "orContinueWith": "atau lanjutkan dengan",
+    "google": "Google",
+    "github": "GitHub",
+    "terms": "Dengan masuk, Anda menyetujui ketentuan layanan kami.",
+    "checkEmail": "Periksa email Anda",
+    "emailSent": "Kami mengirim tautan masuk ke {email}",
+    "errorOAuth": "Email ini sudah terkait dengan metode masuk lain.",
+    "errorGeneric": "Terjadi kesalahan. Silakan coba lagi."
+  },
+  "Projects": {
+    "heading": "Proyek Saya",
+    "projectCount": "{count, plural, other {# proyek}}",
+    "newProject": "Proyek baru",
+    "noProjects": "Belum ada proyek. Buat yang pertama!",
+    "preview": "Pratinjau"
+  },
+  "AuthError": {
+    "configuration_title": "Kesalahan server",
+    "configuration_description": "Ada masalah dengan konfigurasi server. Silakan coba lagi nanti.",
+    "accessDenied_title": "Akses ditolak",
+    "accessDenied_description": "Anda tidak memiliki izin untuk masuk.",
+    "verification_title": "Tautan kedaluwarsa",
+    "verification_description": "Tautan masuk tidak lagi berlaku. Mungkin sudah digunakan atau kedaluwarsa. Silakan minta yang baru.",
+    "oauthSignin_title": "Kesalahan masuk",
+    "oauthSignin_description": "Tidak dapat memulai proses masuk. Silakan coba lagi.",
+    "oauthCallback_title": "Kesalahan masuk",
+    "oauthCallback_description": "Terjadi kesalahan saat masuk. Silakan coba lagi.",
+    "oauthAccountNotLinked_title": "Email sudah digunakan",
+    "oauthAccountNotLinked_description": "Email ini sudah terkait dengan metode masuk lain. Silakan masuk menggunakan metode asli Anda (Google, GitHub, atau tautan email).",
+    "default_title": "Terjadi kesalahan",
+    "default_description": "Terjadi kesalahan yang tidak terduga. Silakan coba lagi.",
+    "backToSignIn": "Kembali ke halaman masuk",
+    "goHome": "Ke halaman utama"
+  },
+  "VerifyEmail": {
+    "heading": "Periksa email Anda",
+    "description": "Kami mengirim tautan masuk ke alamat email Anda. Klik tautan tersebut untuk masuk.",
+    "backToSignIn": "Kembali ke halaman masuk"
+  },
+  "Error": {
+    "code": "500",
+    "heading": "Terjadi kesalahan",
+    "description": "Terjadi kesalahan yang tidak terduga. Silakan coba lagi.",
+    "tryAgain": "Coba lagi",
+    "goHome": "Ke halaman utama"
+  },
+  "NotFound": {
+    "code": "404",
+    "heading": "Halaman tidak ditemukan",
+    "description": "Halaman yang Anda cari tidak ada.",
+    "goHome": "Ke halaman utama"
+  },
+  "Metadata": {
+    "siteName": "WebsitePls",
+    "title": "WebsitePls — Generator Situs Web dengan AI",
+    "description": "Jelaskan situs web Anda dan buat dalam hitungan detik dengan AI."
+  },
+  "A11y": {
+    "skipToContent": "Langsung ke konten utama"
+  }
+}

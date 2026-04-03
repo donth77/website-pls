@@ -1,0 +1,136 @@
+{
+  "Landing": {
+    "heading": "Co chcesz zbudować?",
+    "description": "Opisz swoją stronę, a wygenerujemy ją w kilka sekund.",
+    "placeholder": "np. \"Strona portfolio dla fotografa z ciemnym motywem i galerią zdjęć\"",
+    "generate": "Wygeneruj stronę",
+    "inputLabel": "Opisz stronę, którą chcesz zbudować",
+    "keyboardHint": "{key}+Enter, aby wygenerować",
+    "aboutLabel": "O tej aplikacji",
+    "example1": "Strona portfolio dla fotografa z ciemnym motywem, galerią zdjęć i formularzem kontaktowym",
+    "example2": "Strona docelowa dla kawiarni z menu, godzinami otwarcia, mapą lokalizacji i zamówieniami online",
+    "example3": "Osobisty blog z minimalistycznym designem, sekcją wyróżnionych postów i zapisem do newslettera",
+    "example4": "Strona docelowa produktu SaaS z planami cenowymi, porównaniem funkcji i opiniami klientów"
+  },
+  "Chat": {
+    "tab": "Czat",
+    "about": "O tej aplikacji",
+    "new": "Nowy",
+    "newProject": "Rozpocznij nowy projekt",
+    "messagesLabel": "Wiadomości czatu",
+    "inputLabel": "Pole czatu",
+    "inputHelp": "Enter, aby wysłać · Shift+Enter dla nowej linii",
+    "send": "Wyślij wiadomość",
+    "placeholderReady": "Opisz, co chcesz zmienić…",
+    "placeholderGenerating": "Oczekiwanie na generowanie…",
+    "placeholderDefault": "Opisz swoją stronę…"
+  },
+  "Message": {
+    "starting": "Rozpoczynanie…",
+    "tryAgain": "Spróbuj ponownie",
+    "progressLabel": "Postęp generowania"
+  },
+  "Preview": {
+    "tab": "Podgląd",
+    "title": "Podgląd",
+    "showChat": "Pokaż czat",
+    "hideChat": "Ukryj czat",
+    "fullscreen": "Pełny ekran",
+    "exitFullscreen": "Zamknij pełny ekran",
+    "openNewTab": "Otwórz w nowej karcie",
+    "downloadHtml": "Pobierz HTML",
+    "generating": "Generowanie Twojej strony…",
+    "placeholder": "Tutaj pojawi się podgląd"
+  },
+  "Info": {
+    "title": "O WebsitePls",
+    "description": "WebsitePls generuje pojedynczą stronę internetową na podstawie Twojego opisu przy użyciu AI. Możesz udoskonalić wynik, wysyłając kolejne wiadomości na czacie.",
+    "feature1": "Generuje jedną stronę na podstawie Twojego opisu",
+    "feature2": "Udoskonalaj za pomocą kolejnych wiadomości",
+    "feature3": "Pobierz lub otwórz w nowej karcie",
+    "close": "Zamknij",
+    "gotIt": "Rozumiem"
+  },
+  "Auth": {
+    "signIn": "Zaloguj się",
+    "signOut": "Wyloguj się",
+    "accountMenu": "Menu konta",
+    "user": "Użytkownik",
+    "credit": "{count, plural, one {# kredyt} few {# kredyty} many {# kredytów} other {# kredytów}}",
+    "myProjects": "Moje projekty"
+  },
+  "GenerationLimit": {
+    "remaining": "{remaining}/{max} darmowych {remaining, plural, one {generacja pozostała} few {generacje pozostałe} many {generacji pozostałych} other {generacji pozostałych}}.",
+    "signInMore": "Zaloguj się",
+    "forMore": "aby uzyskać więcej.",
+    "noFreeLeft": "Brak darmowych generacji.",
+    "toContinue": "aby kontynuować."
+  },
+  "Login": {
+    "heading": "Zaloguj się do WebsitePls",
+    "description": "Zaloguj się, aby zapisywać projekty i uzyskać więcej generacji.",
+    "emailLabel": "Adres e-mail",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "Wyślij link",
+    "sending": "Wysyłanie...",
+    "orContinueWith": "lub kontynuuj przez",
+    "google": "Google",
+    "github": "GitHub",
+    "terms": "Logując się, akceptujesz nasze warunki korzystania z usługi.",
+    "checkEmail": "Sprawdź swoją pocztę",
+    "emailSent": "Wysłaliśmy link do logowania na adres {email}",
+    "errorOAuth": "Ten adres e-mail jest już powiązany z inną metodą logowania.",
+    "errorGeneric": "Coś poszło nie tak. Spróbuj ponownie."
+  },
+  "Projects": {
+    "heading": "Moje projekty",
+    "projectCount": "{count, plural, one {# projekt} few {# projekty} many {# projektów} other {# projektów}}",
+    "newProject": "Nowy projekt",
+    "noProjects": "Brak projektów. Utwórz swój pierwszy!",
+    "preview": "Podgląd"
+  },
+  "AuthError": {
+    "configuration_title": "Błąd serwera",
+    "configuration_description": "Wystąpił problem z konfiguracją serwera. Spróbuj ponownie później.",
+    "accessDenied_title": "Odmowa dostępu",
+    "accessDenied_description": "Nie masz uprawnień do logowania.",
+    "verification_title": "Link wygasł",
+    "verification_description": "Link do logowania nie jest już ważny. Mógł zostać już użyty lub wygasł. Poproś o nowy.",
+    "oauthSignin_title": "Błąd logowania",
+    "oauthSignin_description": "Nie udało się rozpocząć procesu logowania. Spróbuj ponownie.",
+    "oauthCallback_title": "Błąd logowania",
+    "oauthCallback_description": "Coś poszło nie tak podczas logowania. Spróbuj ponownie.",
+    "oauthAccountNotLinked_title": "E-mail jest już w użyciu",
+    "oauthAccountNotLinked_description": "Ten adres e-mail jest już powiązany z inną metodą logowania. Zaloguj się za pomocą pierwotnej metody (Google, GitHub lub link e-mail).",
+    "default_title": "Coś poszło nie tak",
+    "default_description": "Wystąpił nieoczekiwany błąd. Spróbuj ponownie.",
+    "backToSignIn": "Powrót do logowania",
+    "goHome": "Przejdź do strony głównej"
+  },
+  "VerifyEmail": {
+    "heading": "Sprawdź swoją pocztę",
+    "description": "Wysłaliśmy link do logowania na Twój adres e-mail. Kliknij link, aby się zalogować.",
+    "backToSignIn": "Powrót do logowania"
+  },
+  "Error": {
+    "code": "500",
+    "heading": "Coś poszło nie tak",
+    "description": "Wystąpił nieoczekiwany błąd. Spróbuj ponownie.",
+    "tryAgain": "Spróbuj ponownie",
+    "goHome": "Przejdź do strony głównej"
+  },
+  "NotFound": {
+    "code": "404",
+    "heading": "Nie znaleziono strony",
+    "description": "Strona, której szukasz, nie istnieje.",
+    "goHome": "Przejdź do strony głównej"
+  },
+  "Metadata": {
+    "siteName": "WebsitePls",
+    "title": "WebsitePls — Generator stron internetowych z AI",
+    "description": "Opisz swoją stronę internetową i wygeneruj ją w kilka sekund za pomocą AI."
+  },
+  "A11y": {
+    "skipToContent": "Przejdź do głównej treści"
+  }
+}

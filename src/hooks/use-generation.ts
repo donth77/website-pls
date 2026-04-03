@@ -9,7 +9,6 @@ interface PersistedState {
   phase: "landing" | "builder";
   projectId: string | null;
   versionId: string | null;
-  secretToken: string | null;
   status: GenerationStatus;
   versionNumber: number;
   originalPrompt: string;
@@ -72,9 +71,6 @@ export function useGeneration() {
     init?.status ?? "DRAFT",
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [secretToken, setSecretToken] = useState<string | null>(
-    init?.secretToken ?? null,
-  );
   const [versionNumber, setVersionNumber] = useState(init?.versionNumber ?? 0);
 
   /* ── Timer ── */
@@ -132,7 +128,6 @@ export function useGeneration() {
       phase,
       projectId,
       versionId,
-      secretToken,
       status,
       versionNumber,
       originalPrompt,
@@ -143,7 +138,6 @@ export function useGeneration() {
     phase,
     projectId,
     versionId,
-    secretToken,
     status,
     versionNumber,
     originalPrompt,
@@ -169,6 +163,40 @@ export function useGeneration() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // On restore, detect stale GENERATING sessions (server restarted mid-job).
+  // If still GENERATING after 10s, assume the job is dead and reset.
+  useEffect(() => {
+    if (!init?.versionId || init.status !== "GENERATING") return;
+    const timeout = window.setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/versions/${init.versionId}`, {
+          headers: { accept: "application/json" },
+        });
+        if (!res.ok) {
+          setStatus("ERROR");
+          updateAssistantMessage({
+            content: "Previous generation was interrupted. Please try again.",
+            status: "ERROR",
+          });
+          return;
+        }
+        const json = await res.json();
+        if (json.projectStatus === "ERROR" || json.projectStatus === "DRAFT") {
+          setStatus(json.projectStatus as GenerationStatus);
+          updateAssistantMessage({
+            content: "Previous generation was interrupted. Please try again.",
+            status: "ERROR",
+          });
+        }
+        // If still GENERATING, the poller will pick it up normally.
+      } catch {
+        // Network error — let poller handle it
+      }
+    }, 10_000);
+    return () => window.clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Detect macOS for keyboard hint
   useEffect(() => {
@@ -207,10 +235,9 @@ export function useGeneration() {
     if (status === "READY" || status === "ERROR") return;
 
     let cancelled = false;
-    const tokenParam = secretToken ? `?token=${secretToken}` : "";
     const interval = window.setInterval(async () => {
       try {
-        const res = await fetch(`/api/versions/${versionId}${tokenParam}`, {
+        const res = await fetch(`/api/versions/${versionId}`, {
           method: "GET",
           headers: { accept: "application/json" },
         });
@@ -262,7 +289,7 @@ export function useGeneration() {
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [versionId, status, secretToken, updateAssistantMessage]);
+  }, [versionId, status, updateAssistantMessage]);
 
   /* ═══════════════════════ Handlers ═══════════════════════ */
 
@@ -299,7 +326,6 @@ export function useGeneration() {
       setProjectId(json.projectId);
       setVersionId(json.versionId);
       setVersionNumber(json.versionNumber ?? 1);
-      setSecretToken(json.secretToken ?? null);
       setStatus(json.status as GenerationStatus);
     } catch {
       setStatus("ERROR");
@@ -396,7 +422,6 @@ export function useGeneration() {
     setVersionId(null);
     setStatus("DRAFT");
     setIsSubmitting(false);
-    setSecretToken(null);
     setVersionNumber(0);
     setMobileView("chat");
     currentAssistantMsgId.current = null;
@@ -423,19 +448,13 @@ export function useGeneration() {
 
   function openPreviewInNewTab() {
     if (!versionId) return;
-    window.open(
-      `/preview/${versionId}${secretToken ? `?token=${secretToken}` : ""}`,
-      "_blank",
-      "noopener,noreferrer",
-    );
+    window.open(`/preview/${versionId}`, "_blank", "noopener,noreferrer");
   }
 
   async function downloadPreviewHtml() {
     if (!versionId) return;
     try {
-      const res = await fetch(
-        `/preview/${versionId}${secretToken ? `?token=${secretToken}` : ""}`,
-      );
+      const res = await fetch(`/preview/${versionId}`);
       if (!res.ok) return;
       const html = await res.text();
       const blob = new Blob([html], { type: "text/html" });
@@ -467,7 +486,6 @@ export function useGeneration() {
     isSubmitting,
     versionId,
     versionNumber,
-    secretToken,
     elapsedSeconds,
     // Preview
     isPreviewFullscreen,

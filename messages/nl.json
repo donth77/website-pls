@@ -1,0 +1,136 @@
+{
+  "Landing": {
+    "heading": "Wat wil je bouwen?",
+    "description": "Beschrijf je website en wij genereren deze in enkele seconden.",
+    "placeholder": "bijv. \"Een portfoliosite voor een fotograaf met een donker thema en afbeeldingengalerij\"",
+    "generate": "Website genereren",
+    "inputLabel": "Beschrijf de website die je wilt bouwen",
+    "keyboardHint": "{key}+Enter om te genereren",
+    "aboutLabel": "Over deze app",
+    "example1": "Een portfoliosite voor een fotograaf met een donker thema, afbeeldingengalerij en contactformulier",
+    "example2": "Een landingspagina voor een koffiezaak met menu, openingstijden, locatiekaart en online bestellen",
+    "example3": "Een persoonlijke blog met een minimalistisch ontwerp, uitgelichte berichten en nieuwsbriefaanmelding",
+    "example4": "Een SaaS-productlandingspagina met prijsniveaus, functievergelijking en testimonials"
+  },
+  "Chat": {
+    "tab": "Chat",
+    "about": "Over deze app",
+    "new": "Nieuw",
+    "newProject": "Nieuw project starten",
+    "messagesLabel": "Chatberichten",
+    "inputLabel": "Chatinvoer",
+    "inputHelp": "Enter om te verzenden · Shift+Enter voor nieuwe regel",
+    "send": "Bericht verzenden",
+    "placeholderReady": "Beschrijf wat je wilt wijzigen…",
+    "placeholderGenerating": "Wachten op generatie…",
+    "placeholderDefault": "Beschrijf je website…"
+  },
+  "Message": {
+    "starting": "Starten…",
+    "tryAgain": "Opnieuw proberen",
+    "progressLabel": "Generatievoortgang"
+  },
+  "Preview": {
+    "tab": "Voorbeeld",
+    "title": "Voorbeeld",
+    "showChat": "Chat tonen",
+    "hideChat": "Chat verbergen",
+    "fullscreen": "Volledig scherm",
+    "exitFullscreen": "Volledig scherm sluiten",
+    "openNewTab": "Openen in nieuw tabblad",
+    "downloadHtml": "HTML downloaden",
+    "generating": "Je website wordt gegenereerd…",
+    "placeholder": "Je voorbeeld verschijnt hier"
+  },
+  "Info": {
+    "title": "Over WebsitePls",
+    "description": "WebsitePls genereert een enkele webpagina op basis van je beschrijving met behulp van AI. Je kunt het resultaat verfijnen door vervolgberichten in de chat te sturen.",
+    "feature1": "Genereert één pagina op basis van je prompt",
+    "feature2": "Verfijn met vervolgberichten",
+    "feature3": "Download of open in een nieuw tabblad",
+    "close": "Sluiten",
+    "gotIt": "Begrepen"
+  },
+  "Auth": {
+    "signIn": "Inloggen",
+    "signOut": "Uitloggen",
+    "accountMenu": "Accountmenu",
+    "user": "Gebruiker",
+    "credit": "{count, plural, one {# credit} other {# credits}}",
+    "myProjects": "Mijn projecten"
+  },
+  "GenerationLimit": {
+    "remaining": "{remaining}/{max} gratis {remaining, plural, one {generatie} other {generaties}} over.",
+    "signInMore": "Log in",
+    "forMore": "voor meer.",
+    "noFreeLeft": "Geen gratis generaties meer.",
+    "toContinue": "om door te gaan."
+  },
+  "Login": {
+    "heading": "Inloggen bij WebsitePls",
+    "description": "Log in om je projecten op te slaan en meer generaties te krijgen.",
+    "emailLabel": "E-mailadres",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "Link verzenden",
+    "sending": "Verzenden...",
+    "orContinueWith": "of ga verder met",
+    "google": "Google",
+    "github": "GitHub",
+    "terms": "Door in te loggen ga je akkoord met onze servicevoorwaarden.",
+    "checkEmail": "Controleer je e-mail",
+    "emailSent": "We hebben een inloglink gestuurd naar {email}",
+    "errorOAuth": "Dit e-mailadres is al gekoppeld aan een andere inlogmethode.",
+    "errorGeneric": "Er is iets misgegaan. Probeer het opnieuw."
+  },
+  "Projects": {
+    "heading": "Mijn projecten",
+    "projectCount": "{count, plural, one {# project} other {# projecten}}",
+    "newProject": "Nieuw project",
+    "noProjects": "Nog geen projecten. Maak je eerste!",
+    "preview": "Voorbeeld"
+  },
+  "AuthError": {
+    "configuration_title": "Serverfout",
+    "configuration_description": "Er is een probleem met de serverconfiguratie. Probeer het later opnieuw.",
+    "accessDenied_title": "Toegang geweigerd",
+    "accessDenied_description": "Je hebt geen toestemming om in te loggen.",
+    "verification_title": "Link verlopen",
+    "verification_description": "De inloglink is niet meer geldig. Mogelijk is deze al gebruikt of verlopen. Vraag een nieuwe aan.",
+    "oauthSignin_title": "Inlogfout",
+    "oauthSignin_description": "Het inlogproces kon niet worden gestart. Probeer het opnieuw.",
+    "oauthCallback_title": "Inlogfout",
+    "oauthCallback_description": "Er is iets misgegaan tijdens het inloggen. Probeer het opnieuw.",
+    "oauthAccountNotLinked_title": "E-mailadres al in gebruik",
+    "oauthAccountNotLinked_description": "Dit e-mailadres is al gekoppeld aan een andere inlogmethode. Log in met je oorspronkelijke methode (Google, GitHub of e-maillink).",
+    "default_title": "Er is iets misgegaan",
+    "default_description": "Er is een onverwachte fout opgetreden. Probeer het opnieuw.",
+    "backToSignIn": "Terug naar inloggen",
+    "goHome": "Naar startpagina"
+  },
+  "VerifyEmail": {
+    "heading": "Controleer je e-mail",
+    "description": "We hebben een inloglink naar je e-mailadres gestuurd. Klik op de link om in te loggen.",
+    "backToSignIn": "Terug naar inloggen"
+  },
+  "Error": {
+    "code": "500",
+    "heading": "Er is iets misgegaan",
+    "description": "Er is een onverwachte fout opgetreden. Probeer het opnieuw.",
+    "tryAgain": "Opnieuw proberen",
+    "goHome": "Naar startpagina"
+  },
+  "NotFound": {
+    "code": "404",
+    "heading": "Pagina niet gevonden",
+    "description": "De pagina die je zoekt bestaat niet.",
+    "goHome": "Naar startpagina"
+  },
+  "Metadata": {
+    "siteName": "WebsitePls",
+    "title": "WebsitePls — AI-websitegenerator",
+    "description": "Beschrijf je website en genereer deze in enkele seconden met AI."
+  },
+  "A11y": {
+    "skipToContent": "Ga naar hoofdinhoud"
+  }
+}

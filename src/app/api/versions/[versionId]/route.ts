@@ -1,24 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { getGenerationQueue } from "@/lib/queue/generationQueue";
+import { resolveOwner } from "@/lib/auth/resolveOwner";
 
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ versionId: string }> },
 ) {
   const { versionId } = await context.params;
-  const token = req.nextUrl.searchParams.get("token");
 
   const version = await prisma.version.findUnique({
     where: { id: versionId },
-    include: { project: { select: { status: true, secretToken: true } } },
+    include: {
+      project: {
+        select: {
+          status: true,
+          guestSessionId: true,
+          userId: true,
+        },
+      },
+    },
   });
 
   if (!version) {
     return NextResponse.json({ error: "Not found." }, { status: 404 });
   }
 
-  if (version.project?.secretToken && version.project.secretToken !== token) {
+  // Verify session ownership.
+  const owner = await resolveOwner();
+  const ownsProject =
+    (owner.type === "guest" &&
+      version.project?.guestSessionId === owner.guestSessionId) ||
+    (owner.type === "user" && version.project?.userId === owner.userId);
+  if (!ownsProject) {
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 

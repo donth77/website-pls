@@ -1,0 +1,136 @@
+{
+  "Landing": {
+    "heading": "你想创建什么？",
+    "description": "描述你的网站，我们将在几秒内生成它。",
+    "placeholder": "例如「一个摄影师作品集网站，深色主题，带有图片画廊」",
+    "generate": "生成网站",
+    "inputLabel": "描述你想创建的网站",
+    "keyboardHint": "{key}+Enter 生成",
+    "aboutLabel": "关于此应用",
+    "example1": "一个摄影师作品集网站，深色主题，带有图片画廊和联系表单",
+    "example2": "一个咖啡店着陆页，包含菜单、营业时间、位置地图和在线点餐",
+    "example3": "一个个人博客，极简设计，精选文章板块和邮件订阅",
+    "example4": "一个 SaaS 产品着陆页，包含定价方案、功能对比和用户评价"
+  },
+  "Chat": {
+    "tab": "对话",
+    "about": "关于此应用",
+    "new": "新建",
+    "newProject": "开始新项目",
+    "messagesLabel": "对话消息",
+    "inputLabel": "对话输入",
+    "inputHelp": "Enter 发送 · Shift+Enter 换行",
+    "send": "发送消息",
+    "placeholderReady": "描述要修改的内容…",
+    "placeholderGenerating": "正在等待生成…",
+    "placeholderDefault": "描述你的网站…"
+  },
+  "Message": {
+    "starting": "正在启动…",
+    "tryAgain": "重试",
+    "progressLabel": "生成进度"
+  },
+  "Preview": {
+    "tab": "预览",
+    "title": "预览",
+    "showChat": "显示对话",
+    "hideChat": "隐藏对话",
+    "fullscreen": "全屏",
+    "exitFullscreen": "退出全屏",
+    "openNewTab": "在新标签页中打开",
+    "downloadHtml": "下载 HTML",
+    "generating": "正在生成你的网站…",
+    "placeholder": "预览将在此处显示"
+  },
+  "Info": {
+    "title": "关于 WebsitePls",
+    "description": "WebsitePls 使用 AI 根据你的描述生成单个网页。你可以在对话中发送后续消息来完善结果。",
+    "feature1": "根据你的描述生成一个页面",
+    "feature2": "通过后续消息进行修改",
+    "feature3": "下载或在新标签页中打开",
+    "close": "关闭",
+    "gotIt": "知道了"
+  },
+  "Auth": {
+    "signIn": "登录",
+    "signOut": "退出登录",
+    "accountMenu": "账户菜单",
+    "user": "用户",
+    "credit": "{count, plural, one {# 个积分} other {# 个积分}}",
+    "myProjects": "我的项目"
+  },
+  "GenerationLimit": {
+    "remaining": "剩余 {remaining}/{max} 次免费{remaining, plural, one {生成} other {生成}}。",
+    "signInMore": "登录",
+    "forMore": "获取更多。",
+    "noFreeLeft": "免费生成次数已用完。",
+    "toContinue": "以继续使用。"
+  },
+  "Login": {
+    "heading": "登录 WebsitePls",
+    "description": "登录以保存你的项目并获取更多生成次数。",
+    "emailLabel": "电子邮件地址",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "发送链接",
+    "sending": "发送中...",
+    "orContinueWith": "或使用以下方式继续",
+    "google": "Google",
+    "github": "GitHub",
+    "terms": "登录即表示你同意我们的服务条款。",
+    "checkEmail": "请查看你的邮箱",
+    "emailSent": "我们已向 {email} 发送了登录链接",
+    "errorOAuth": "此电子邮件已关联到其他登录方式。",
+    "errorGeneric": "出了点问题，请重试。"
+  },
+  "Projects": {
+    "heading": "我的项目",
+    "projectCount": "{count, plural, one {# 个项目} other {# 个项目}}",
+    "newProject": "新建项目",
+    "noProjects": "还没有项目，创建你的第一个吧！",
+    "preview": "预览"
+  },
+  "AuthError": {
+    "configuration_title": "服务器错误",
+    "configuration_description": "服务器配置出现问题，请稍后重试。",
+    "accessDenied_title": "访问被拒绝",
+    "accessDenied_description": "你没有登录权限。",
+    "verification_title": "链接已过期",
+    "verification_description": "登录链接已失效，可能已被使用或已过期。请重新申请。",
+    "oauthSignin_title": "登录错误",
+    "oauthSignin_description": "无法启动登录流程，请重试。",
+    "oauthCallback_title": "登录错误",
+    "oauthCallback_description": "登录过程中出现问题，请重试。",
+    "oauthAccountNotLinked_title": "电子邮件已被使用",
+    "oauthAccountNotLinked_description": "此电子邮件已关联到其他登录方式。请使用你原来的方式登录（Google、GitHub 或邮件链接）。",
+    "default_title": "出了点问题",
+    "default_description": "发生了意外错误，请重试。",
+    "backToSignIn": "返回登录",
+    "goHome": "返回首页"
+  },
+  "VerifyEmail": {
+    "heading": "请查看你的邮箱",
+    "description": "我们已向你的电子邮件地址发送了登录链接，请点击链接登录。",
+    "backToSignIn": "返回登录"
+  },
+  "Error": {
+    "code": "500",
+    "heading": "出了点问题",
+    "description": "发生了意外错误，请重试。",
+    "tryAgain": "重试",
+    "goHome": "返回首页"
+  },
+  "NotFound": {
+    "code": "404",
+    "heading": "页面未找到",
+    "description": "你访问的页面不存在。",
+    "goHome": "返回首页"
+  },
+  "Metadata": {
+    "siteName": "WebsitePls",
+    "title": "WebsitePls — AI 网站生成器",
+    "description": "描述你的网站，几秒内即可通过 AI 生成。"
+  },
+  "A11y": {
+    "skipToContent": "跳转到主要内容"
+  }
+}

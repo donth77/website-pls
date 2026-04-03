@@ -1,0 +1,136 @@
+{
+  "Landing": {
+    "heading": "¿Qué te gustaría crear?",
+    "description": "Describe tu sitio web y lo generaremos en segundos.",
+    "placeholder": "ej. «Un portafolio para un fotógrafo con tema oscuro y galería de imágenes»",
+    "generate": "Generar sitio web",
+    "inputLabel": "Describe el sitio web que quieres crear",
+    "keyboardHint": "{key}+Enter para generar",
+    "aboutLabel": "Acerca de esta app",
+    "example1": "Un portafolio para un fotógrafo con tema oscuro, galería de imágenes y formulario de contacto",
+    "example2": "Una landing page para una cafetería con menú, horario, mapa de ubicación y pedidos en línea",
+    "example3": "Un blog personal con diseño minimalista, sección de posts destacados y suscripción al boletín",
+    "example4": "Una landing page de producto SaaS con planes de precios, comparación de funciones y testimonios"
+  },
+  "Chat": {
+    "tab": "Chat",
+    "about": "Acerca de esta app",
+    "new": "Nuevo",
+    "newProject": "Comenzar nuevo proyecto",
+    "messagesLabel": "Mensajes del chat",
+    "inputLabel": "Entrada del chat",
+    "inputHelp": "Enter para enviar · Shift+Enter para nueva línea",
+    "send": "Enviar mensaje",
+    "placeholderReady": "Describe qué quieres cambiar…",
+    "placeholderGenerating": "Esperando la generación…",
+    "placeholderDefault": "Describe tu sitio web…"
+  },
+  "Message": {
+    "starting": "Iniciando…",
+    "tryAgain": "Reintentar",
+    "progressLabel": "Progreso de generación"
+  },
+  "Preview": {
+    "tab": "Vista previa",
+    "title": "Vista previa",
+    "showChat": "Mostrar chat",
+    "hideChat": "Ocultar chat",
+    "fullscreen": "Pantalla completa",
+    "exitFullscreen": "Salir de pantalla completa",
+    "openNewTab": "Abrir en nueva pestaña",
+    "downloadHtml": "Descargar HTML",
+    "generating": "Generando tu sitio web…",
+    "placeholder": "La vista previa aparecerá aquí"
+  },
+  "Info": {
+    "title": "Acerca de WebsitePls",
+    "description": "WebsitePls genera una página web a partir de tu descripción usando IA. Puedes refinar el resultado enviando mensajes de seguimiento en el chat.",
+    "feature1": "Genera una página basada en tu descripción",
+    "feature2": "Refina con mensajes de seguimiento",
+    "feature3": "Descarga o abre en una nueva pestaña",
+    "close": "Cerrar",
+    "gotIt": "Entendido"
+  },
+  "Auth": {
+    "signIn": "Iniciar sesión",
+    "signOut": "Cerrar sesión",
+    "accountMenu": "Menú de cuenta",
+    "user": "Usuario",
+    "credit": "{count, plural, one {# crédito} other {# créditos}}",
+    "myProjects": "Mis proyectos"
+  },
+  "GenerationLimit": {
+    "remaining": "{remaining}/{max} {remaining, plural, one {generación gratuita restante} other {generaciones gratuitas restantes}}.",
+    "signInMore": "Inicia sesión",
+    "forMore": "para obtener más.",
+    "noFreeLeft": "No quedan generaciones gratuitas.",
+    "toContinue": "para continuar."
+  },
+  "Login": {
+    "heading": "Inicia sesión en WebsitePls",
+    "description": "Inicia sesión para guardar tus proyectos y obtener más generaciones.",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "Enviar enlace",
+    "sending": "Enviando...",
+    "orContinueWith": "o continuar con",
+    "google": "Google",
+    "github": "GitHub",
+    "terms": "Al iniciar sesión, aceptas nuestros términos de servicio.",
+    "checkEmail": "Revisa tu correo",
+    "emailSent": "Enviamos un enlace de inicio de sesión a {email}",
+    "errorOAuth": "Este correo ya está asociado con otro método de inicio de sesión.",
+    "errorGeneric": "Algo salió mal. Inténtalo de nuevo."
+  },
+  "Projects": {
+    "heading": "Mis proyectos",
+    "projectCount": "{count, plural, one {# proyecto} other {# proyectos}}",
+    "newProject": "Nuevo proyecto",
+    "noProjects": "Aún no tienes proyectos. ¡Crea el primero!",
+    "preview": "Vista previa"
+  },
+  "AuthError": {
+    "configuration_title": "Error del servidor",
+    "configuration_description": "Hay un problema con la configuración del servidor. Inténtalo más tarde.",
+    "accessDenied_title": "Acceso denegado",
+    "accessDenied_description": "No tienes permiso para iniciar sesión.",
+    "verification_title": "Enlace expirado",
+    "verification_description": "El enlace de inicio de sesión ya no es válido. Es posible que ya se haya usado o haya expirado. Solicita uno nuevo.",
+    "oauthSignin_title": "Error de inicio de sesión",
+    "oauthSignin_description": "No se pudo iniciar el proceso de inicio de sesión. Inténtalo de nuevo.",
+    "oauthCallback_title": "Error de inicio de sesión",
+    "oauthCallback_description": "Algo salió mal durante el inicio de sesión. Inténtalo de nuevo.",
+    "oauthAccountNotLinked_title": "Correo ya en uso",
+    "oauthAccountNotLinked_description": "Este correo ya está asociado con otro método de inicio de sesión. Inicia sesión con tu método original (Google, GitHub o enlace por correo).",
+    "default_title": "Algo salió mal",
+    "default_description": "Ocurrió un error inesperado. Inténtalo de nuevo.",
+    "backToSignIn": "Volver al inicio de sesión",
+    "goHome": "Ir a la página principal"
+  },
+  "VerifyEmail": {
+    "heading": "Revisa tu correo",
+    "description": "Enviamos un enlace de inicio de sesión a tu correo electrónico. Haz clic en el enlace para iniciar sesión.",
+    "backToSignIn": "Volver al inicio de sesión"
+  },
+  "Error": {
+    "code": "500",
+    "heading": "Algo salió mal",
+    "description": "Ocurrió un error inesperado. Inténtalo de nuevo.",
+    "tryAgain": "Reintentar",
+    "goHome": "Ir a la página principal"
+  },
+  "NotFound": {
+    "code": "404",
+    "heading": "Página no encontrada",
+    "description": "La página que buscas no existe.",
+    "goHome": "Ir a la página principal"
+  },
+  "Metadata": {
+    "siteName": "WebsitePls",
+    "title": "WebsitePls — Generador de sitios web con IA",
+    "description": "Describe tu sitio web y genéralo en segundos con IA."
+  },
+  "A11y": {
+    "skipToContent": "Saltar al contenido principal"
+  }
+}

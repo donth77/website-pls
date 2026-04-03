@@ -1,4 +1,5 @@
 import { ArrowUp, CircleHelp, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { ChatMessageBubble } from "./chat-message";
 import type { ChatMessage, GenerationStatus } from "@/lib/types";
 import { MAX_USER_PROMPT_CHARS } from "@/lib/ai/promptSafety";
@@ -40,6 +41,8 @@ export function ChatSidebar({
   messagesEndRef,
   sidebarInputRef,
 }: ChatSidebarProps) {
+  const t = useTranslations("Chat");
+
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -71,7 +74,7 @@ export function ChatSidebar({
             type="button"
             className="rounded-lg p-2 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-600 dark:text-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
             onClick={onInfoOpen}
-            aria-label="About this app"
+            aria-label={t("about")}
           >
             <CircleHelp className="h-4 w-4" />
           </button>
@@ -79,10 +82,10 @@ export function ChatSidebar({
             type="button"
             className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
             onClick={onNewProject}
-            aria-label="Start new project"
+            aria-label={t("newProject")}
           >
             <Plus className="h-3.5 w-3.5" aria-hidden="true" />
-            New
+            {t("new")}
           </button>
         </div>
       </div>
@@ -91,7 +94,7 @@ export function ChatSidebar({
       <div
         className="flex-1 space-y-4 overflow-y-auto px-4 py-4"
         role="log"
-        aria-label="Chat messages"
+        aria-label={t("messagesLabel")}
         aria-live="polite"
       >
         {messages.map((msg) => (
@@ -112,7 +115,7 @@ export function ChatSidebar({
           <textarea
             ref={sidebarInputRef}
             className="block w-full resize-none rounded-xl bg-transparent px-4 py-3 pr-11 text-sm outline-none placeholder:text-zinc-400 dark:placeholder:text-zinc-500"
-            aria-label="Chat input"
+            aria-label={t("inputLabel")}
             aria-describedby="chat-input-help"
             rows={2}
             value={inputValue}
@@ -120,29 +123,29 @@ export function ChatSidebar({
             onKeyDown={handleKeyDown}
             placeholder={
               status === "READY"
-                ? "Describe what to change\u2026"
+                ? t("placeholderReady")
                 : status === "GENERATING"
-                  ? "Waiting for generation\u2026"
-                  : "Describe your website\u2026"
+                  ? t("placeholderGenerating")
+                  : t("placeholderDefault")
             }
             maxLength={MAX_USER_PROMPT_CHARS}
             disabled={isSubmitting || status === "GENERATING"}
           />
           <button
             type="button"
-            className="absolute right-2 bottom-2 flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-900 text-white transition hover:bg-zinc-800 disabled:opacity-40 disabled:hover:bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 dark:disabled:hover:bg-zinc-100"
+            className="absolute right-2 bottom-2 flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-900 text-white transition hover:bg-zinc-800 disabled:opacity-50 disabled:hover:bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 dark:disabled:hover:bg-zinc-100"
             onClick={onSubmit}
             disabled={!canSubmit}
-            aria-label="Send message"
+            aria-label={t("send")}
           >
             <ArrowUp className="h-3.5 w-3.5" />
           </button>
         </div>
         <p
           id="chat-input-help"
-          className="mt-1.5 text-[10px] text-zinc-400 dark:text-zinc-500"
+          className="mt-1.5 text-[10px] text-zinc-500 dark:text-zinc-400"
         >
-          Enter to send &middot; Shift+Enter for newline
+          {t("inputHelp")}
         </p>
       </div>
     </div>

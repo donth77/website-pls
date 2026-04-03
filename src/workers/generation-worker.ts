@@ -69,7 +69,9 @@ const worker = new Worker(
         previousHtml,
         refinementPrompt,
         onProgress: (step, percent) => {
-          void job.updateProgress({ step, percent });
+          job.updateProgress({ step, percent }).catch((e) => {
+            log.warn("Progress update failed", { error: String(e) });
+          });
         },
       });
 
@@ -102,12 +104,48 @@ const worker = new Worker(
       return { storageKey };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
-      log.error("Job failed", { error: errorMessage });
+      const isFinalAttempt = job.attemptsMade >= (job.opts?.attempts ?? 1) - 1;
 
-      await prisma.project.update({
-        where: { id: projectId },
-        data: { status: "ERROR", errorMessage },
+      log.error("Job failed", {
+        error: errorMessage,
+        attempt: job.attemptsMade + 1,
+        maxAttempts: job.opts?.attempts ?? 1,
+        isFinalAttempt,
       });
+
+      if (isFinalAttempt) {
+        // Only mark ERROR and refund on the last attempt — earlier attempts
+        // will be retried by BullMQ and the project stays GENERATING.
+        await prisma.project.update({
+          where: { id: projectId },
+          data: { status: "ERROR", errorMessage },
+        });
+
+        try {
+          const project = await prisma.project.findUnique({
+            where: { id: projectId },
+            select: { userId: true, guestSessionId: true },
+          });
+          if (project?.userId) {
+            await prisma.user.update({
+              where: { id: project.userId },
+              data: { credits: { increment: 1 } },
+            });
+            log.info("Refunded credit to user", { userId: project.userId });
+          } else if (project?.guestSessionId) {
+            await prisma.$queryRawUnsafe(
+              `UPDATE guest_sessions SET generations_used = GREATEST(generations_used - 1, 0) WHERE id = $1`,
+              project.guestSessionId,
+            );
+            log.info("Refunded generation to guest", {
+              guestSessionId: project.guestSessionId,
+            });
+          }
+        } catch (refundErr) {
+          log.warn("Credit refund failed", { error: String(refundErr) });
+        }
+      }
+
       throw err;
     }
   },
@@ -125,5 +163,15 @@ worker.on("completed", (job) => {
 worker.on("failed", (job, err) => {
   baseLog.error("Job failed event", { jobId: job?.id, error: err.message });
 });
+
+// Graceful shutdown: finish the current job before exiting.
+async function shutdown(signal: string) {
+  baseLog.info(`${signal} received, shutting down worker…`);
+  await worker.close();
+  baseLog.info("Worker stopped");
+  process.exit(0);
+}
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
 
 baseLog.info("Worker started", { queue: GENERATION_QUEUE_NAME });

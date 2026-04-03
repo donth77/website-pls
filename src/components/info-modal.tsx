@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export interface InfoModalProps {
   isOpen: boolean;
@@ -7,6 +8,7 @@ export interface InfoModalProps {
 }
 
 export function InfoModal({ isOpen, onClose }: InfoModalProps) {
+  const t = useTranslations("Info");
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -71,26 +73,25 @@ export function InfoModal({ isOpen, onClose }: InfoModalProps) {
             id="mvp-info-title"
             className="text-base font-semibold text-zinc-900 dark:text-zinc-50"
           >
-            About WebsitePls
+            {t("title")}
           </h2>
           <button
             ref={closeButtonRef}
             type="button"
             className="rounded-lg p-2 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-600 dark:text-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
-            aria-label="Close"
+            aria-label={t("close")}
             onClick={onClose}
           >
             <X className="h-4 w-4" />
           </button>
         </div>
         <p className="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-          WebsitePls generates a single web page from your description using AI.
-          You can refine the result by sending follow-up messages in the chat.
+          {t("description")}
         </p>
         <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-zinc-600 dark:text-zinc-400">
-          <li>Generates one page based on your prompt</li>
-          <li>Refine with follow-up messages</li>
-          <li>Download or open in a new tab</li>
+          <li>{t("feature1")}</li>
+          <li>{t("feature2")}</li>
+          <li>{t("feature3")}</li>
         </ul>
         <div className="mt-5 flex justify-end">
           <button
@@ -98,7 +99,7 @@ export function InfoModal({ isOpen, onClose }: InfoModalProps) {
             className="rounded-xl bg-zinc-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
             onClick={onClose}
           >
-            Got it
+            {t("gotIt")}
           </button>
         </div>
       </div>

@@ -1,0 +1,136 @@
+{
+  "Landing": {
+    "heading": "何を作りたいですか？",
+    "description": "ウェブサイトの説明を入力すると、数秒で生成します。",
+    "placeholder": "例：「ダークテーマと画像ギャラリーを備えたフォトグラファー向けのポートフォリオサイト」",
+    "generate": "ウェブサイトを生成",
+    "inputLabel": "作成したいウェブサイトを説明してください",
+    "keyboardHint": "{key}+Enterで生成",
+    "aboutLabel": "このアプリについて",
+    "example1": "ダークテーマ、画像ギャラリー、お問い合わせフォームを備えたフォトグラファー向けポートフォリオサイト",
+    "example2": "メニュー、営業時間、地図、オンライン注文機能を備えたカフェのランディングページ",
+    "example3": "ミニマルなデザイン、注目記事セクション、ニュースレター登録を備えた個人ブログ",
+    "example4": "料金プラン、機能比較、お客様の声を備えたSaaS製品のランディングページ"
+  },
+  "Chat": {
+    "tab": "チャット",
+    "about": "このアプリについて",
+    "new": "新規",
+    "newProject": "新しいプロジェクトを開始",
+    "messagesLabel": "チャットメッセージ",
+    "inputLabel": "チャット入力",
+    "inputHelp": "Enterで送信 · Shift+Enterで改行",
+    "send": "メッセージを送信",
+    "placeholderReady": "変更したい内容を説明してください…",
+    "placeholderGenerating": "生成を待っています…",
+    "placeholderDefault": "ウェブサイトを説明してください…"
+  },
+  "Message": {
+    "starting": "開始中…",
+    "tryAgain": "もう一度試す",
+    "progressLabel": "生成の進捗"
+  },
+  "Preview": {
+    "tab": "プレビュー",
+    "title": "プレビュー",
+    "showChat": "チャットを表示",
+    "hideChat": "チャットを非表示",
+    "fullscreen": "全画面表示",
+    "exitFullscreen": "全画面を終了",
+    "openNewTab": "新しいタブで開く",
+    "downloadHtml": "HTMLをダウンロード",
+    "generating": "ウェブサイトを生成中…",
+    "placeholder": "プレビューがここに表示されます"
+  },
+  "Info": {
+    "title": "WebsitePlsについて",
+    "description": "WebsitePlsはAIを使用して、あなたの説明から単一のウェブページを生成します。チャットでフォローアップメッセージを送信して結果を改善できます。",
+    "feature1": "説明に基づいてページを生成",
+    "feature2": "フォローアップメッセージで改善",
+    "feature3": "ダウンロードまたは新しいタブで開く",
+    "close": "閉じる",
+    "gotIt": "了解"
+  },
+  "Auth": {
+    "signIn": "ログイン",
+    "signOut": "ログアウト",
+    "accountMenu": "アカウントメニュー",
+    "user": "ユーザー",
+    "credit": "{count, plural, one {# クレジット} other {# クレジット}}",
+    "myProjects": "マイプロジェクト"
+  },
+  "GenerationLimit": {
+    "remaining": "無料生成が{remaining}/{max}回残っています。",
+    "signInMore": "ログイン",
+    "forMore": "してさらに利用する。",
+    "noFreeLeft": "無料生成の残りがありません。",
+    "toContinue": "して続行する。"
+  },
+  "Login": {
+    "heading": "WebsitePlsにログイン",
+    "description": "ログインしてプロジェクトを保存し、より多くの生成を利用しましょう。",
+    "emailLabel": "メールアドレス",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "リンクを送信",
+    "sending": "送信中...",
+    "orContinueWith": "または次の方法で続行",
+    "google": "Google",
+    "github": "GitHub",
+    "terms": "ログインすることで、利用規約に同意したものとみなされます。",
+    "checkEmail": "メールを確認してください",
+    "emailSent": "{email}にログインリンクを送信しました",
+    "errorOAuth": "このメールアドレスは既に別のログイン方法に関連付けられています。",
+    "errorGeneric": "問題が発生しました。もう一度お試しください。"
+  },
+  "Projects": {
+    "heading": "マイプロジェクト",
+    "projectCount": "{count, plural, one {# プロジェクト} other {# プロジェクト}}",
+    "newProject": "新しいプロジェクト",
+    "noProjects": "まだプロジェクトがありません。最初のプロジェクトを作成しましょう！",
+    "preview": "プレビュー"
+  },
+  "AuthError": {
+    "configuration_title": "サーバーエラー",
+    "configuration_description": "サーバーの設定に問題があります。後でもう一度お試しください。",
+    "accessDenied_title": "アクセスが拒否されました",
+    "accessDenied_description": "ログインする権限がありません。",
+    "verification_title": "リンクの有効期限切れ",
+    "verification_description": "ログインリンクは無効になりました。既に使用されたか、有効期限が切れた可能性があります。新しいリンクをリクエストしてください。",
+    "oauthSignin_title": "ログインエラー",
+    "oauthSignin_description": "ログインプロセスを開始できませんでした。もう一度お試しください。",
+    "oauthCallback_title": "ログインエラー",
+    "oauthCallback_description": "ログイン中に問題が発生しました。もう一度お試しください。",
+    "oauthAccountNotLinked_title": "メールアドレスは既に使用されています",
+    "oauthAccountNotLinked_description": "このメールアドレスは既に別のログイン方法に関連付けられています。元の方法（Google、GitHub、またはメールリンク）でログインしてください。",
+    "default_title": "問題が発生しました",
+    "default_description": "予期しないエラーが発生しました。もう一度お試しください。",
+    "backToSignIn": "ログインに戻る",
+    "goHome": "ホームページへ"
+  },
+  "VerifyEmail": {
+    "heading": "メールを確認してください",
+    "description": "メールアドレスにログインリンクを送信しました。リンクをクリックしてログインしてください。",
+    "backToSignIn": "ログインに戻る"
+  },
+  "Error": {
+    "code": "500",
+    "heading": "問題が発生しました",
+    "description": "予期しないエラーが発生しました。もう一度お試しください。",
+    "tryAgain": "もう一度試す",
+    "goHome": "ホームページへ"
+  },
+  "NotFound": {
+    "code": "404",
+    "heading": "ページが見つかりません",
+    "description": "お探しのページは存在しません。",
+    "goHome": "ホームページへ"
+  },
+  "Metadata": {
+    "siteName": "WebsitePls",
+    "title": "WebsitePls — AIウェブサイトジェネレーター",
+    "description": "ウェブサイトの説明を入力するだけで、AIが数秒で生成します。"
+  },
+  "A11y": {
+    "skipToContent": "メインコンテンツへスキップ"
+  }
+}

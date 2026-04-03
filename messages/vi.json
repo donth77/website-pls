@@ -1,0 +1,136 @@
+{
+  "Landing": {
+    "heading": "Bạn muốn xây dựng gì?",
+    "description": "Mô tả trang web của bạn và chúng tôi sẽ tạo nó trong vài giây.",
+    "placeholder": "ví dụ: \"Trang portfolio cho nhiếp ảnh gia với giao diện tối và thư viện ảnh\"",
+    "generate": "Tạo trang web",
+    "inputLabel": "Mô tả trang web bạn muốn xây dựng",
+    "keyboardHint": "{key}+Enter để tạo",
+    "aboutLabel": "Về ứng dụng này",
+    "example1": "Trang portfolio cho nhiếp ảnh gia với giao diện tối, thư viện ảnh và biểu mẫu liên hệ",
+    "example2": "Trang giới thiệu cho quán cà phê với thực đơn, giờ mở cửa, bản đồ vị trí và đặt hàng trực tuyến",
+    "example3": "Blog cá nhân với thiết kế tối giản, mục bài viết nổi bật và đăng ký nhận bản tin",
+    "example4": "Trang giới thiệu sản phẩm SaaS với các gói giá, so sánh tính năng và đánh giá khách hàng"
+  },
+  "Chat": {
+    "tab": "Trò chuyện",
+    "about": "Về ứng dụng này",
+    "new": "Mới",
+    "newProject": "Bắt đầu dự án mới",
+    "messagesLabel": "Tin nhắn trò chuyện",
+    "inputLabel": "Ô nhập trò chuyện",
+    "inputHelp": "Enter để gửi · Shift+Enter để xuống dòng",
+    "send": "Gửi tin nhắn",
+    "placeholderReady": "Mô tả những gì bạn muốn thay đổi…",
+    "placeholderGenerating": "Đang chờ tạo…",
+    "placeholderDefault": "Mô tả trang web của bạn…"
+  },
+  "Message": {
+    "starting": "Đang bắt đầu…",
+    "tryAgain": "Thử lại",
+    "progressLabel": "Tiến trình tạo"
+  },
+  "Preview": {
+    "tab": "Xem trước",
+    "title": "Xem trước",
+    "showChat": "Hiện trò chuyện",
+    "hideChat": "Ẩn trò chuyện",
+    "fullscreen": "Toàn màn hình",
+    "exitFullscreen": "Thoát toàn màn hình",
+    "openNewTab": "Mở trong tab mới",
+    "downloadHtml": "Tải HTML",
+    "generating": "Đang tạo trang web của bạn…",
+    "placeholder": "Bản xem trước sẽ xuất hiện ở đây"
+  },
+  "Info": {
+    "title": "Về WebsitePls",
+    "description": "WebsitePls tạo một trang web từ mô tả của bạn bằng AI. Bạn có thể tinh chỉnh kết quả bằng cách gửi tin nhắn tiếp theo trong phần trò chuyện.",
+    "feature1": "Tạo một trang dựa trên mô tả của bạn",
+    "feature2": "Tinh chỉnh bằng tin nhắn tiếp theo",
+    "feature3": "Tải xuống hoặc mở trong tab mới",
+    "close": "Đóng",
+    "gotIt": "Đã hiểu"
+  },
+  "Auth": {
+    "signIn": "Đăng nhập",
+    "signOut": "Đăng xuất",
+    "accountMenu": "Menu tài khoản",
+    "user": "Người dùng",
+    "credit": "{count, plural, other {# tín dụng}}",
+    "myProjects": "Dự án của tôi"
+  },
+  "GenerationLimit": {
+    "remaining": "Còn {remaining}/{max} lượt tạo miễn phí.",
+    "signInMore": "Đăng nhập",
+    "forMore": "để nhận thêm.",
+    "noFreeLeft": "Đã hết lượt tạo miễn phí.",
+    "toContinue": "để tiếp tục."
+  },
+  "Login": {
+    "heading": "Đăng nhập vào WebsitePls",
+    "description": "Đăng nhập để lưu dự án và nhận thêm lượt tạo.",
+    "emailLabel": "Địa chỉ email",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "Gửi liên kết",
+    "sending": "Đang gửi...",
+    "orContinueWith": "hoặc tiếp tục với",
+    "google": "Google",
+    "github": "GitHub",
+    "terms": "Bằng cách đăng nhập, bạn đồng ý với điều khoản dịch vụ của chúng tôi.",
+    "checkEmail": "Kiểm tra email của bạn",
+    "emailSent": "Chúng tôi đã gửi liên kết đăng nhập đến {email}",
+    "errorOAuth": "Email này đã được liên kết với phương thức đăng nhập khác.",
+    "errorGeneric": "Đã xảy ra lỗi. Vui lòng thử lại."
+  },
+  "Projects": {
+    "heading": "Dự án của tôi",
+    "projectCount": "{count, plural, other {# dự án}}",
+    "newProject": "Dự án mới",
+    "noProjects": "Chưa có dự án nào. Hãy tạo dự án đầu tiên!",
+    "preview": "Xem trước"
+  },
+  "AuthError": {
+    "configuration_title": "Lỗi máy chủ",
+    "configuration_description": "Có vấn đề với cấu hình máy chủ. Vui lòng thử lại sau.",
+    "accessDenied_title": "Từ chối truy cập",
+    "accessDenied_description": "Bạn không có quyền đăng nhập.",
+    "verification_title": "Liên kết đã hết hạn",
+    "verification_description": "Liên kết đăng nhập không còn hợp lệ. Có thể đã được sử dụng hoặc hết hạn. Vui lòng yêu cầu liên kết mới.",
+    "oauthSignin_title": "Lỗi đăng nhập",
+    "oauthSignin_description": "Không thể bắt đầu quá trình đăng nhập. Vui lòng thử lại.",
+    "oauthCallback_title": "Lỗi đăng nhập",
+    "oauthCallback_description": "Đã xảy ra lỗi trong quá trình đăng nhập. Vui lòng thử lại.",
+    "oauthAccountNotLinked_title": "Email đã được sử dụng",
+    "oauthAccountNotLinked_description": "Email này đã được liên kết với phương thức đăng nhập khác. Vui lòng đăng nhập bằng phương thức ban đầu (Google, GitHub hoặc liên kết email).",
+    "default_title": "Đã xảy ra lỗi",
+    "default_description": "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.",
+    "backToSignIn": "Quay lại đăng nhập",
+    "goHome": "Về trang chủ"
+  },
+  "VerifyEmail": {
+    "heading": "Kiểm tra email của bạn",
+    "description": "Chúng tôi đã gửi liên kết đăng nhập đến địa chỉ email của bạn. Nhấp vào liên kết để đăng nhập.",
+    "backToSignIn": "Quay lại đăng nhập"
+  },
+  "Error": {
+    "code": "500",
+    "heading": "Đã xảy ra lỗi",
+    "description": "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.",
+    "tryAgain": "Thử lại",
+    "goHome": "Về trang chủ"
+  },
+  "NotFound": {
+    "code": "404",
+    "heading": "Không tìm thấy trang",
+    "description": "Trang bạn đang tìm không tồn tại.",
+    "goHome": "Về trang chủ"
+  },
+  "Metadata": {
+    "siteName": "WebsitePls",
+    "title": "WebsitePls — Trình tạo trang web bằng AI",
+    "description": "Mô tả trang web của bạn và tạo nó trong vài giây với AI."
+  },
+  "A11y": {
+    "skipToContent": "Chuyển đến nội dung chính"
+  }
+}

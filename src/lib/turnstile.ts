@@ -53,8 +53,10 @@ export async function verifyTurnstileToken(
     });
 
     if (!res.ok) {
-      log.error("siteverify HTTP error", { status: res.status });
-      // Fail open — don't block real users if Cloudflare is unreachable.
+      log.error(
+        "Turnstile fail-open: siteverify HTTP error, allowing request through",
+        { status: res.status },
+      );
       return { ok: true };
     }
 
@@ -77,8 +79,10 @@ export async function verifyTurnstileToken(
 
     return { ok: true };
   } catch (err) {
-    log.error("siteverify request failed", { error: String(err) });
-    // Fail open on network errors.
+    log.error(
+      "Turnstile fail-open: siteverify request failed, allowing request through",
+      { error: String(err) },
+    );
     return { ok: true };
   } finally {
     clearTimeout(timer);

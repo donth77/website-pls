@@ -6,12 +6,12 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { GenerationStatus } from "@/lib/types";
 
 export interface PreviewPanelProps {
   status: GenerationStatus;
   versionId: string | null;
-  secretToken: string | null;
   isPreviewFullscreen: boolean;
   previewWrapRef: React.RefObject<HTMLDivElement | null>;
   onToggleFullscreen: () => void;
@@ -25,7 +25,6 @@ export interface PreviewPanelProps {
 export function PreviewPanel({
   status,
   versionId,
-  secretToken,
   isPreviewFullscreen,
   previewWrapRef,
   onToggleFullscreen,
@@ -35,9 +34,8 @@ export function PreviewPanel({
   onToggleSidebar,
   isSidebarCollapsed,
 }: PreviewPanelProps) {
-  const previewSrc = versionId
-    ? `/preview/${versionId}${secretToken ? `?token=${secretToken}` : ""}`
-    : null;
+  const t = useTranslations("Preview");
+  const previewSrc = versionId ? `/preview/${versionId}` : null;
 
   return (
     <div className="flex h-full flex-col">
@@ -46,8 +44,7 @@ export function PreviewPanel({
         <div className="flex items-center gap-2">
           <button
             type="button"
-            title={isSidebarCollapsed ? "Show chat" : "Hide chat"}
-            aria-label={isSidebarCollapsed ? "Show chat" : "Hide chat"}
+            title={isSidebarCollapsed ? t("showChat") : t("hideChat")}
             className="hidden rounded-lg p-2 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 md:flex dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
             onClick={onToggleSidebar}
           >
@@ -58,16 +55,15 @@ export function PreviewPanel({
             )}
           </button>
           <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-            Preview
+            {t("title")}
           </span>
         </div>
         {status === "READY" && versionId && (
           <div className="flex gap-1">
             <button
               type="button"
-              title={isPreviewFullscreen ? "Exit full screen" : "Full screen"}
-              aria-label={
-                isPreviewFullscreen ? "Exit full screen" : "Full screen"
+              title={
+                isPreviewFullscreen ? t("exitFullscreen") : t("fullscreen")
               }
               className="rounded-lg p-2 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
               onClick={onToggleFullscreen}
@@ -80,8 +76,7 @@ export function PreviewPanel({
             </button>
             <button
               type="button"
-              title="Open in new tab"
-              aria-label="Open in new tab"
+              title={t("openNewTab")}
               className="rounded-lg p-2 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
               onClick={onOpenNewTab}
             >
@@ -89,8 +84,7 @@ export function PreviewPanel({
             </button>
             <button
               type="button"
-              title="Download HTML"
-              aria-label="Download HTML"
+              title={t("downloadHtml")}
               className="rounded-lg p-2 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
               onClick={onDownload}
             >
@@ -123,24 +117,17 @@ export function PreviewPanel({
             />
           </div>
         ) : (
-          <div
-            className="flex h-full w-full flex-col items-center justify-center gap-3"
-            role="status"
-            aria-live="polite"
-          >
+          <div className="flex h-full w-full flex-col items-center justify-center gap-3">
             {status === "GENERATING" ? (
               <>
-                <div
-                  className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-200 border-t-indigo-500 dark:border-zinc-700 dark:border-t-indigo-400"
-                  aria-hidden="true"
-                />
-                <p className="text-sm text-zinc-400 dark:text-zinc-500">
-                  {progressStep ?? "Generating your website\u2026"}
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-200 border-t-indigo-500 dark:border-zinc-700 dark:border-t-indigo-400" />
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                  {progressStep ?? t("generating")}
                 </p>
               </>
             ) : (
-              <p className="text-sm text-zinc-400">
-                Your preview will appear here
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                {t("placeholder")}
               </p>
             )}
           </div>

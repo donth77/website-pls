@@ -4,6 +4,7 @@ import { getRedisConnection } from "@/lib/queue/redis";
 import Anthropic from "@anthropic-ai/sdk";
 
 type CheckResult = { ok: boolean; latencyMs: number; error?: string };
+type PublicCheckResult = { ok: boolean; error?: string };
 
 async function checkDb(): Promise<CheckResult> {
   const start = Date.now();
@@ -45,9 +46,14 @@ async function checkAnthropic(): Promise<CheckResult> {
   }
 }
 
+/** Strip latency and error details from public responses. */
+function redact(check: CheckResult): PublicCheckResult {
+  return { ok: check.ok, ...(check.ok ? {} : { error: "unavailable" }) };
+}
+
 /**
  * GET /api/health          → { ok: true } (shallow, for load balancers)
- * GET /api/health?deep=true → checks DB, Redis, Anthropic with latencies
+ * GET /api/health?deep=true → checks DB, Redis, Anthropic (no latency/error details)
  */
 export async function GET(req: NextRequest) {
   const deep = req.nextUrl.searchParams.get("deep") === "true";
@@ -65,7 +71,14 @@ export async function GET(req: NextRequest) {
   const allOk = db.ok && redis.ok && anthropic.ok;
 
   return NextResponse.json(
-    { ok: allOk, checks: { db, redis, anthropic } },
+    {
+      ok: allOk,
+      checks: {
+        db: redact(db),
+        redis: redact(redis),
+        anthropic: redact(anthropic),
+      },
+    },
     { status: allOk ? 200 : 503 },
   );
 }

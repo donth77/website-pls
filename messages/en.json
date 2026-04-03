@@ -1,0 +1,136 @@
+{
+  "Landing": {
+    "heading": "What would you like to build?",
+    "description": "Describe your website and we'll generate it in seconds.",
+    "placeholder": "e.g. \"A portfolio site for a photographer with a dark theme and image gallery\"",
+    "generate": "Generate website",
+    "inputLabel": "Describe the website you want to build",
+    "keyboardHint": "{key}+Enter to generate",
+    "aboutLabel": "About this app",
+    "example1": "A portfolio site for a photographer with a dark theme, image gallery, and contact form",
+    "example2": "A landing page for a coffee shop with menu, hours, location map, and online ordering",
+    "example3": "A personal blog with a minimalist design, featured posts section, and newsletter signup",
+    "example4": "A SaaS product landing page with pricing tiers, feature comparison, and testimonials"
+  },
+  "Chat": {
+    "tab": "Chat",
+    "about": "About this app",
+    "new": "New",
+    "newProject": "Start new project",
+    "messagesLabel": "Chat messages",
+    "inputLabel": "Chat input",
+    "inputHelp": "Enter to send · Shift+Enter for newline",
+    "send": "Send message",
+    "placeholderReady": "Describe what to change…",
+    "placeholderGenerating": "Waiting for generation…",
+    "placeholderDefault": "Describe your website…"
+  },
+  "Message": {
+    "starting": "Starting…",
+    "tryAgain": "Try again",
+    "progressLabel": "Generation progress"
+  },
+  "Preview": {
+    "tab": "Preview",
+    "title": "Preview",
+    "showChat": "Show chat",
+    "hideChat": "Hide chat",
+    "fullscreen": "Full screen",
+    "exitFullscreen": "Exit full screen",
+    "openNewTab": "Open in new tab",
+    "downloadHtml": "Download HTML",
+    "generating": "Generating your website…",
+    "placeholder": "Your preview will appear here"
+  },
+  "Info": {
+    "title": "About WebsitePls",
+    "description": "WebsitePls generates a single web page from your description using AI. You can refine the result by sending follow-up messages in the chat.",
+    "feature1": "Generates one page based on your prompt",
+    "feature2": "Refine with follow-up messages",
+    "feature3": "Download or open in a new tab",
+    "close": "Close",
+    "gotIt": "Got it"
+  },
+  "Auth": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "accountMenu": "Account menu",
+    "user": "User",
+    "credit": "{count, plural, one {# credit} other {# credits}}",
+    "myProjects": "My Projects"
+  },
+  "GenerationLimit": {
+    "remaining": "{remaining}/{max} free {remaining, plural, one {generation} other {generations}} remaining.",
+    "signInMore": "Sign in",
+    "forMore": "for more.",
+    "noFreeLeft": "No free generations left.",
+    "toContinue": "to continue."
+  },
+  "Login": {
+    "heading": "Sign in to WebsitePls",
+    "description": "Sign in to save your projects and get more generations.",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "Send link",
+    "sending": "Sending...",
+    "orContinueWith": "or continue with",
+    "google": "Google",
+    "github": "GitHub",
+    "terms": "By signing in, you agree to our terms of service.",
+    "checkEmail": "Check your email",
+    "emailSent": "We sent a sign-in link to {email}",
+    "errorOAuth": "This email is already associated with another sign-in method.",
+    "errorGeneric": "Something went wrong. Please try again."
+  },
+  "Projects": {
+    "heading": "My Projects",
+    "projectCount": "{count, plural, one {# project} other {# projects}}",
+    "newProject": "New project",
+    "noProjects": "No projects yet. Create your first one!",
+    "preview": "Preview"
+  },
+  "AuthError": {
+    "configuration_title": "Server error",
+    "configuration_description": "There's a problem with the server configuration. Please try again later.",
+    "accessDenied_title": "Access denied",
+    "accessDenied_description": "You don't have permission to sign in.",
+    "verification_title": "Link expired",
+    "verification_description": "The sign-in link is no longer valid. It may have been used already or expired. Please request a new one.",
+    "oauthSignin_title": "Sign-in error",
+    "oauthSignin_description": "Could not start the sign-in process. Please try again.",
+    "oauthCallback_title": "Sign-in error",
+    "oauthCallback_description": "Something went wrong during sign-in. Please try again.",
+    "oauthAccountNotLinked_title": "Email already in use",
+    "oauthAccountNotLinked_description": "This email is already associated with another sign-in method. Please sign in using your original method (Google, GitHub, or email link).",
+    "default_title": "Something went wrong",
+    "default_description": "An unexpected error occurred. Please try again.",
+    "backToSignIn": "Back to sign in",
+    "goHome": "Go to homepage"
+  },
+  "VerifyEmail": {
+    "heading": "Check your email",
+    "description": "We sent a sign-in link to your email address. Click the link to sign in.",
+    "backToSignIn": "Back to sign in"
+  },
+  "Error": {
+    "code": "500",
+    "heading": "Something went wrong",
+    "description": "An unexpected error occurred. Please try again.",
+    "tryAgain": "Try again",
+    "goHome": "Go to homepage"
+  },
+  "NotFound": {
+    "code": "404",
+    "heading": "Page not found",
+    "description": "The page you're looking for doesn't exist.",
+    "goHome": "Go to homepage"
+  },
+  "Metadata": {
+    "siteName": "WebsitePls",
+    "title": "WebsitePls — AI Website Generator",
+    "description": "Describe your website and generate it in seconds with AI."
+  },
+  "A11y": {
+    "skipToContent": "Skip to main content"
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "Landing": {
+    "heading": "Was möchten Sie erstellen?",
+    "description": "Beschreiben Sie Ihre Website und wir generieren sie in Sekunden.",
+    "placeholder": "z. B. \u201EEine Portfolio-Seite für einen Fotografen mit dunklem Design und Bildergalerie\u201C",
+    "generate": "Website generieren",
+    "inputLabel": "Beschreiben Sie die Website, die Sie erstellen möchten",
+    "keyboardHint": "{key}+Eingabe zum Generieren",
+    "aboutLabel": "Über diese App",
+    "example1": "Eine Portfolio-Seite für einen Fotografen mit dunklem Design, Bildergalerie und Kontaktformular",
+    "example2": "Eine Landingpage für ein Café mit Speisekarte, Öffnungszeiten, Standortkarte und Online-Bestellung",
+    "example3": "Ein persönlicher Blog mit minimalistischem Design, Bereich für ausgewählte Beiträge und Newsletter-Anmeldung",
+    "example4": "Eine SaaS-Produkt-Landingpage mit Preisstufen, Funktionsvergleich und Kundenstimmen"
+  },
+  "Chat": {
+    "tab": "Chat",
+    "about": "Über diese App",
+    "new": "Neu",
+    "newProject": "Neues Projekt starten",
+    "messagesLabel": "Chat-Nachrichten",
+    "inputLabel": "Chat-Eingabe",
+    "inputHelp": "Eingabe zum Senden · Umschalt+Eingabe für neue Zeile",
+    "send": "Nachricht senden",
+    "placeholderReady": "Beschreiben Sie, was geändert werden soll…",
+    "placeholderGenerating": "Warten auf Generierung…",
+    "placeholderDefault": "Beschreiben Sie Ihre Website…"
+  },
+  "Message": {
+    "starting": "Wird gestartet…",
+    "tryAgain": "Erneut versuchen",
+    "progressLabel": "Generierungsfortschritt"
+  },
+  "Preview": {
+    "tab": "Vorschau",
+    "title": "Vorschau",
+    "showChat": "Chat anzeigen",
+    "hideChat": "Chat ausblenden",
+    "fullscreen": "Vollbild",
+    "exitFullscreen": "Vollbild beenden",
+    "openNewTab": "In neuem Tab öffnen",
+    "downloadHtml": "HTML herunterladen",
+    "generating": "Ihre Website wird generiert…",
+    "placeholder": "Ihre Vorschau wird hier angezeigt"
+  },
+  "Info": {
+    "title": "Über WebsitePls",
+    "description": "WebsitePls generiert mithilfe von KI eine einzelne Webseite aus Ihrer Beschreibung. Sie können das Ergebnis verfeinern, indem Sie Folgenachrichten im Chat senden.",
+    "feature1": "Generiert eine Seite basierend auf Ihrer Beschreibung",
+    "feature2": "Verfeinern Sie mit Folgenachrichten",
+    "feature3": "Herunterladen oder in neuem Tab öffnen",
+    "close": "Schließen",
+    "gotIt": "Verstanden"
+  },
+  "Auth": {
+    "signIn": "Anmelden",
+    "signOut": "Abmelden",
+    "accountMenu": "Kontomenü",
+    "user": "Benutzer",
+    "credit": "{count, plural, one {# Guthaben} other {# Guthaben}}",
+    "myProjects": "Meine Projekte"
+  },
+  "GenerationLimit": {
+    "remaining": "{remaining}/{max} kostenlose {remaining, plural, one {Generierung} other {Generierungen}} übrig.",
+    "signInMore": "Anmelden",
+    "forMore": "für mehr.",
+    "noFreeLeft": "Keine kostenlosen Generierungen mehr übrig.",
+    "toContinue": "um fortzufahren."
+  },
+  "Login": {
+    "heading": "Bei WebsitePls anmelden",
+    "description": "Melden Sie sich an, um Ihre Projekte zu speichern und mehr Generierungen zu erhalten.",
+    "emailLabel": "E-Mail-Adresse",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "Link senden",
+    "sending": "Wird gesendet...",
+    "orContinueWith": "oder fortfahren mit",
+    "google": "Google",
+    "github": "GitHub",
+    "terms": "Durch die Anmeldung stimmen Sie unseren Nutzungsbedingungen zu.",
+    "checkEmail": "Überprüfen Sie Ihre E-Mail",
+    "emailSent": "Wir haben einen Anmeldelink an {email} gesendet",
+    "errorOAuth": "Diese E-Mail-Adresse ist bereits mit einer anderen Anmeldemethode verknüpft.",
+    "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+  },
+  "Projects": {
+    "heading": "Meine Projekte",
+    "projectCount": "{count, plural, one {# Projekt} other {# Projekte}}",
+    "newProject": "Neues Projekt",
+    "noProjects": "Noch keine Projekte. Erstellen Sie Ihr erstes!",
+    "preview": "Vorschau"
+  },
+  "AuthError": {
+    "configuration_title": "Serverfehler",
+    "configuration_description": "Es gibt ein Problem mit der Serverkonfiguration. Bitte versuchen Sie es später erneut.",
+    "accessDenied_title": "Zugriff verweigert",
+    "accessDenied_description": "Sie haben keine Berechtigung, sich anzumelden.",
+    "verification_title": "Link abgelaufen",
+    "verification_description": "Der Anmeldelink ist nicht mehr gültig. Er wurde möglicherweise bereits verwendet oder ist abgelaufen. Bitte fordern Sie einen neuen an.",
+    "oauthSignin_title": "Anmeldefehler",
+    "oauthSignin_description": "Der Anmeldevorgang konnte nicht gestartet werden. Bitte versuchen Sie es erneut.",
+    "oauthCallback_title": "Anmeldefehler",
+    "oauthCallback_description": "Während der Anmeldung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+    "oauthAccountNotLinked_title": "E-Mail bereits in Verwendung",
+    "oauthAccountNotLinked_description": "Diese E-Mail-Adresse ist bereits mit einer anderen Anmeldemethode verknüpft. Bitte melden Sie sich mit Ihrer ursprünglichen Methode an (Google, GitHub oder E-Mail-Link).",
+    "default_title": "Etwas ist schiefgelaufen",
+    "default_description": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+    "backToSignIn": "Zurück zur Anmeldung",
+    "goHome": "Zur Startseite"
+  },
+  "VerifyEmail": {
+    "heading": "Überprüfen Sie Ihre E-Mail",
+    "description": "Wir haben einen Anmeldelink an Ihre E-Mail-Adresse gesendet. Klicken Sie auf den Link, um sich anzumelden.",
+    "backToSignIn": "Zurück zur Anmeldung"
+  },
+  "Error": {
+    "code": "500",
+    "heading": "Etwas ist schiefgelaufen",
+    "description": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+    "tryAgain": "Erneut versuchen",
+    "goHome": "Zur Startseite"
+  },
+  "NotFound": {
+    "code": "404",
+    "heading": "Seite nicht gefunden",
+    "description": "Die gesuchte Seite existiert nicht.",
+    "goHome": "Zur Startseite"
+  },
+  "Metadata": {
+    "siteName": "WebsitePls",
+    "title": "WebsitePls — KI-Website-Generator",
+    "description": "Beschreiben Sie Ihre Website und generieren Sie sie in Sekunden mit KI."
+  },
+  "A11y": {
+    "skipToContent": "Zum Hauptinhalt springen"
+  }
+}

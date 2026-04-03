@@ -1,0 +1,136 @@
+{
+  "Landing": {
+    "heading": "Que souhaitez-vous créer ?",
+    "description": "Décrivez votre site web et nous le générerons en quelques secondes.",
+    "placeholder": "ex. « Un site portfolio pour un photographe avec un thème sombre et une galerie d'images »",
+    "generate": "Générer le site web",
+    "inputLabel": "Décrivez le site web que vous souhaitez créer",
+    "keyboardHint": "{key}+Entrée pour générer",
+    "aboutLabel": "À propos de cette application",
+    "example1": "Un site portfolio pour un photographe avec un thème sombre, une galerie d'images et un formulaire de contact",
+    "example2": "Une page d'accueil pour un café avec menu, horaires, carte de localisation et commande en ligne",
+    "example3": "Un blog personnel avec un design minimaliste, une section d'articles en vedette et une inscription à la newsletter",
+    "example4": "Une page d'accueil de produit SaaS avec des niveaux de tarification, une comparaison des fonctionnalités et des témoignages"
+  },
+  "Chat": {
+    "tab": "Discussion",
+    "about": "À propos de cette application",
+    "new": "Nouveau",
+    "newProject": "Démarrer un nouveau projet",
+    "messagesLabel": "Messages de la discussion",
+    "inputLabel": "Saisie de la discussion",
+    "inputHelp": "Entrée pour envoyer · Maj+Entrée pour un retour à la ligne",
+    "send": "Envoyer le message",
+    "placeholderReady": "Décrivez ce que vous souhaitez modifier…",
+    "placeholderGenerating": "En attente de la génération…",
+    "placeholderDefault": "Décrivez votre site web…"
+  },
+  "Message": {
+    "starting": "Démarrage…",
+    "tryAgain": "Réessayer",
+    "progressLabel": "Progression de la génération"
+  },
+  "Preview": {
+    "tab": "Aperçu",
+    "title": "Aperçu",
+    "showChat": "Afficher la discussion",
+    "hideChat": "Masquer la discussion",
+    "fullscreen": "Plein écran",
+    "exitFullscreen": "Quitter le plein écran",
+    "openNewTab": "Ouvrir dans un nouvel onglet",
+    "downloadHtml": "Télécharger le HTML",
+    "generating": "Génération de votre site web…",
+    "placeholder": "Votre aperçu apparaîtra ici"
+  },
+  "Info": {
+    "title": "À propos de WebsitePls",
+    "description": "WebsitePls génère une page web unique à partir de votre description en utilisant l'IA. Vous pouvez affiner le résultat en envoyant des messages de suivi dans la discussion.",
+    "feature1": "Génère une page à partir de votre description",
+    "feature2": "Affinez avec des messages de suivi",
+    "feature3": "Téléchargez ou ouvrez dans un nouvel onglet",
+    "close": "Fermer",
+    "gotIt": "Compris"
+  },
+  "Auth": {
+    "signIn": "Se connecter",
+    "signOut": "Se déconnecter",
+    "accountMenu": "Menu du compte",
+    "user": "Utilisateur",
+    "credit": "{count, plural, one {# crédit} other {# crédits}}",
+    "myProjects": "Mes projets"
+  },
+  "GenerationLimit": {
+    "remaining": "{remaining}/{max} {remaining, plural, one {génération gratuite restante} other {générations gratuites restantes}}.",
+    "signInMore": "Connectez-vous",
+    "forMore": "pour en obtenir plus.",
+    "noFreeLeft": "Plus de générations gratuites disponibles.",
+    "toContinue": "pour continuer."
+  },
+  "Login": {
+    "heading": "Connectez-vous à WebsitePls",
+    "description": "Connectez-vous pour sauvegarder vos projets et obtenir plus de générations.",
+    "emailLabel": "Adresse e-mail",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "Envoyer le lien",
+    "sending": "Envoi en cours...",
+    "orContinueWith": "ou continuer avec",
+    "google": "Google",
+    "github": "GitHub",
+    "terms": "En vous connectant, vous acceptez nos conditions d'utilisation.",
+    "checkEmail": "Vérifiez votre e-mail",
+    "emailSent": "Nous avons envoyé un lien de connexion à {email}",
+    "errorOAuth": "Cet e-mail est déjà associé à une autre méthode de connexion.",
+    "errorGeneric": "Une erreur est survenue. Veuillez réessayer."
+  },
+  "Projects": {
+    "heading": "Mes projets",
+    "projectCount": "{count, plural, one {# projet} other {# projets}}",
+    "newProject": "Nouveau projet",
+    "noProjects": "Aucun projet pour l'instant. Créez votre premier !",
+    "preview": "Aperçu"
+  },
+  "AuthError": {
+    "configuration_title": "Erreur du serveur",
+    "configuration_description": "Un problème est survenu avec la configuration du serveur. Veuillez réessayer plus tard.",
+    "accessDenied_title": "Accès refusé",
+    "accessDenied_description": "Vous n'avez pas la permission de vous connecter.",
+    "verification_title": "Lien expiré",
+    "verification_description": "Le lien de connexion n'est plus valide. Il a peut-être déjà été utilisé ou a expiré. Veuillez en demander un nouveau.",
+    "oauthSignin_title": "Erreur de connexion",
+    "oauthSignin_description": "Impossible de démarrer le processus de connexion. Veuillez réessayer.",
+    "oauthCallback_title": "Erreur de connexion",
+    "oauthCallback_description": "Une erreur est survenue lors de la connexion. Veuillez réessayer.",
+    "oauthAccountNotLinked_title": "E-mail déjà utilisé",
+    "oauthAccountNotLinked_description": "Cet e-mail est déjà associé à une autre méthode de connexion. Veuillez vous connecter avec votre méthode d'origine (Google, GitHub ou lien par e-mail).",
+    "default_title": "Une erreur est survenue",
+    "default_description": "Une erreur inattendue s'est produite. Veuillez réessayer.",
+    "backToSignIn": "Retour à la connexion",
+    "goHome": "Aller à la page d'accueil"
+  },
+  "VerifyEmail": {
+    "heading": "Vérifiez votre e-mail",
+    "description": "Nous avons envoyé un lien de connexion à votre adresse e-mail. Cliquez sur le lien pour vous connecter.",
+    "backToSignIn": "Retour à la connexion"
+  },
+  "Error": {
+    "code": "500",
+    "heading": "Une erreur est survenue",
+    "description": "Une erreur inattendue s'est produite. Veuillez réessayer.",
+    "tryAgain": "Réessayer",
+    "goHome": "Aller à la page d'accueil"
+  },
+  "NotFound": {
+    "code": "404",
+    "heading": "Page introuvable",
+    "description": "La page que vous recherchez n'existe pas.",
+    "goHome": "Aller à la page d'accueil"
+  },
+  "Metadata": {
+    "siteName": "WebsitePls",
+    "title": "WebsitePls — Générateur de sites web par IA",
+    "description": "Décrivez votre site web et générez-le en quelques secondes grâce à l'IA."
+  },
+  "A11y": {
+    "skipToContent": "Aller au contenu principal"
+  }
+}

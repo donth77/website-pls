@@ -570,6 +570,12 @@ export async function runGenerationPipeline(input: {
       },
     });
 
+    // Catch stream-level errors so Node doesn't crash from an unhandled
+    // 'error' event before we reach finalMessage().
+    stream.on("error", (err) => {
+      log.warn("Stream error during generation", { error: String(err) });
+    });
+
     // Stream heuristics (no extra LLM calls): infer sub-steps from partial JSON output.
     let lastHeuristicStep: string | null = null;
     let lastEmitAt = 0;

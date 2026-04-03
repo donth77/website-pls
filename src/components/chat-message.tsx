@@ -1,4 +1,5 @@
 import { Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ChatMessage } from "@/lib/types";
 import { formatElapsed } from "@/lib/types";
 
@@ -15,6 +16,8 @@ export function ChatMessageBubble({
   isSubmitting,
   onRetry,
 }: ChatMessageProps) {
+  const t = useTranslations("Message");
+
   if (message.role === "user") {
     return (
       <div className="flex justify-end">
@@ -37,9 +40,9 @@ export function ChatMessageBubble({
         {message.status === "GENERATING" ? (
           <div role="status" aria-live="polite">
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              {message.progressStep ?? "Starting\u2026"}
+              {message.progressStep ?? t("starting")}
               {elapsedSeconds > 0 && (
-                <span className="ml-2 font-mono text-xs text-zinc-400 dark:text-zinc-500">
+                <span className="ml-2 font-mono text-xs text-zinc-500 dark:text-zinc-400">
                   {formatElapsed(elapsedSeconds)}
                 </span>
               )}
@@ -50,7 +53,7 @@ export function ChatMessageBubble({
               aria-valuenow={message.progressPercent ?? 0}
               aria-valuemin={0}
               aria-valuemax={100}
-              aria-label="Generation progress"
+              aria-label={t("progressLabel")}
             >
               <div
                 className="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all duration-700 ease-out"
@@ -69,7 +72,7 @@ export function ChatMessageBubble({
               onClick={onRetry}
               disabled={isSubmitting}
             >
-              Try again
+              {t("tryAgain")}
             </button>
           </div>
         ) : (

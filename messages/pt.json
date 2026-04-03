@@ -1,0 +1,136 @@
+{
+  "Landing": {
+    "heading": "O que você gostaria de criar?",
+    "description": "Descreva seu site e nós o geraremos em segundos.",
+    "placeholder": "ex. «Um portfólio para um fotógrafo com tema escuro e galeria de imagens»",
+    "generate": "Gerar site",
+    "inputLabel": "Descreva o site que você quer criar",
+    "keyboardHint": "{key}+Enter para gerar",
+    "aboutLabel": "Sobre este app",
+    "example1": "Um portfólio para um fotógrafo com tema escuro, galeria de imagens e formulário de contato",
+    "example2": "Uma landing page para uma cafeteria com cardápio, horário de funcionamento, mapa de localização e pedidos online",
+    "example3": "Um blog pessoal com design minimalista, seção de posts em destaque e inscrição na newsletter",
+    "example4": "Uma landing page de produto SaaS com planos de preços, comparação de recursos e depoimentos"
+  },
+  "Chat": {
+    "tab": "Chat",
+    "about": "Sobre este app",
+    "new": "Novo",
+    "newProject": "Iniciar novo projeto",
+    "messagesLabel": "Mensagens do chat",
+    "inputLabel": "Entrada do chat",
+    "inputHelp": "Enter para enviar · Shift+Enter para nova linha",
+    "send": "Enviar mensagem",
+    "placeholderReady": "Descreva o que deseja alterar…",
+    "placeholderGenerating": "Aguardando a geração…",
+    "placeholderDefault": "Descreva seu site…"
+  },
+  "Message": {
+    "starting": "Iniciando…",
+    "tryAgain": "Tentar novamente",
+    "progressLabel": "Progresso da geração"
+  },
+  "Preview": {
+    "tab": "Prévia",
+    "title": "Prévia",
+    "showChat": "Mostrar chat",
+    "hideChat": "Ocultar chat",
+    "fullscreen": "Tela cheia",
+    "exitFullscreen": "Sair da tela cheia",
+    "openNewTab": "Abrir em nova aba",
+    "downloadHtml": "Baixar HTML",
+    "generating": "Gerando seu site…",
+    "placeholder": "A prévia aparecerá aqui"
+  },
+  "Info": {
+    "title": "Sobre o WebsitePls",
+    "description": "O WebsitePls gera uma página web a partir da sua descrição usando IA. Você pode refinar o resultado enviando mensagens de acompanhamento no chat.",
+    "feature1": "Gera uma página com base na sua descrição",
+    "feature2": "Refine com mensagens de acompanhamento",
+    "feature3": "Baixe ou abra em uma nova aba",
+    "close": "Fechar",
+    "gotIt": "Entendi"
+  },
+  "Auth": {
+    "signIn": "Entrar",
+    "signOut": "Sair",
+    "accountMenu": "Menu da conta",
+    "user": "Usuário",
+    "credit": "{count, plural, one {# crédito} other {# créditos}}",
+    "myProjects": "Meus projetos"
+  },
+  "GenerationLimit": {
+    "remaining": "{remaining}/{max} {remaining, plural, one {geração gratuita restante} other {gerações gratuitas restantes}}.",
+    "signInMore": "Entre",
+    "forMore": "para obter mais.",
+    "noFreeLeft": "Nenhuma geração gratuita restante.",
+    "toContinue": "para continuar."
+  },
+  "Login": {
+    "heading": "Entre no WebsitePls",
+    "description": "Entre para salvar seus projetos e obter mais gerações.",
+    "emailLabel": "Endereço de e-mail",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "Enviar link",
+    "sending": "Enviando...",
+    "orContinueWith": "ou continue com",
+    "google": "Google",
+    "github": "GitHub",
+    "terms": "Ao entrar, você concorda com nossos termos de serviço.",
+    "checkEmail": "Verifique seu e-mail",
+    "emailSent": "Enviamos um link de login para {email}",
+    "errorOAuth": "Este e-mail já está associado a outro método de login.",
+    "errorGeneric": "Algo deu errado. Tente novamente."
+  },
+  "Projects": {
+    "heading": "Meus projetos",
+    "projectCount": "{count, plural, one {# projeto} other {# projetos}}",
+    "newProject": "Novo projeto",
+    "noProjects": "Nenhum projeto ainda. Crie o seu primeiro!",
+    "preview": "Prévia"
+  },
+  "AuthError": {
+    "configuration_title": "Erro no servidor",
+    "configuration_description": "Há um problema na configuração do servidor. Tente novamente mais tarde.",
+    "accessDenied_title": "Acesso negado",
+    "accessDenied_description": "Você não tem permissão para entrar.",
+    "verification_title": "Link expirado",
+    "verification_description": "O link de login não é mais válido. Ele pode já ter sido usado ou expirado. Solicite um novo.",
+    "oauthSignin_title": "Erro ao entrar",
+    "oauthSignin_description": "Não foi possível iniciar o processo de login. Tente novamente.",
+    "oauthCallback_title": "Erro ao entrar",
+    "oauthCallback_description": "Algo deu errado durante o login. Tente novamente.",
+    "oauthAccountNotLinked_title": "E-mail já em uso",
+    "oauthAccountNotLinked_description": "Este e-mail já está associado a outro método de login. Entre usando seu método original (Google, GitHub ou link por e-mail).",
+    "default_title": "Algo deu errado",
+    "default_description": "Ocorreu um erro inesperado. Tente novamente.",
+    "backToSignIn": "Voltar ao login",
+    "goHome": "Ir para a página inicial"
+  },
+  "VerifyEmail": {
+    "heading": "Verifique seu e-mail",
+    "description": "Enviamos um link de login para o seu e-mail. Clique no link para entrar.",
+    "backToSignIn": "Voltar ao login"
+  },
+  "Error": {
+    "code": "500",
+    "heading": "Algo deu errado",
+    "description": "Ocorreu um erro inesperado. Tente novamente.",
+    "tryAgain": "Tentar novamente",
+    "goHome": "Ir para a página inicial"
+  },
+  "NotFound": {
+    "code": "404",
+    "heading": "Página não encontrada",
+    "description": "A página que você procura não existe.",
+    "goHome": "Ir para a página inicial"
+  },
+  "Metadata": {
+    "siteName": "WebsitePls",
+    "title": "WebsitePls — Gerador de sites com IA",
+    "description": "Descreva seu site e gere-o em segundos com IA."
+  },
+  "A11y": {
+    "skipToContent": "Pular para o conteúdo principal"
+  }
+}

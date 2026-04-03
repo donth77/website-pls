@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
+import { useTranslations } from "next-intl";
 import { useGeneration } from "@/hooks/use-generation";
 import { Landing } from "./landing";
 import { ChatSidebar } from "./chat-sidebar";
@@ -15,6 +16,8 @@ const MAX_PANEL_FRACTION = 0.5;
 const COLLAPSE_THRESHOLD_REM = 14;
 
 export function GeneratorApp() {
+  const tChat = useTranslations("Chat");
+  const tPreview = useTranslations("Preview");
   const {
     phase,
     mobileView,
@@ -27,7 +30,6 @@ export function GeneratorApp() {
     isSubmitting,
     versionId,
     versionNumber,
-    secretToken,
     elapsedSeconds,
     isPreviewFullscreen,
     previewWrapRef,
@@ -112,7 +114,7 @@ export function GeneratorApp() {
     document.addEventListener("pointerup", onUp);
   }
 
-  function toggleSidebar() {
+  const toggleSidebar = useCallback(() => {
     const el = sidebarPanelRef.current;
     if (el) {
       el.style.transition = "width 300ms ease-out";
@@ -131,7 +133,7 @@ export function GeneratorApp() {
       fractionBeforeCollapse.current = sidebarFraction;
       setIsSidebarCollapsed(true);
     }
-  }
+  }, [isSidebarCollapsed, sidebarFraction]);
 
   /* ═══════════════ Mobile card-swipe ═══════════════ */
   const mobileTrackRef = useRef<HTMLDivElement>(null);
@@ -221,8 +223,7 @@ export function GeneratorApp() {
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, isSidebarCollapsed, sidebarFraction]);
+  }, [phase, toggleSidebar]);
 
   /* ═══════════════ Derived ═══════════════ */
   const generatingMsg = messages.find(
@@ -290,7 +291,7 @@ export function GeneratorApp() {
             }`}
             onClick={() => setMobileView("chat")}
           >
-            Chat
+            {tChat("tab")}
           </button>
           <button
             type="button"
@@ -303,7 +304,7 @@ export function GeneratorApp() {
             }`}
             onClick={() => setMobileView("preview")}
           >
-            Preview
+            {tPreview("tab")}
             {status === "READY" && (
               <>
                 <span
@@ -415,7 +416,6 @@ export function GeneratorApp() {
               <PreviewPanel
                 status={status}
                 versionId={versionId}
-                secretToken={secretToken}
                 isPreviewFullscreen={isPreviewFullscreen}
                 previewWrapRef={previewWrapRef}
                 onToggleFullscreen={() => void togglePreviewFullscreen()}

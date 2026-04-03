@@ -1,0 +1,136 @@
+{
+  "Landing": {
+    "heading": "Ne oluşturmak istersiniz?",
+    "description": "Web sitenizi tanımlayın, birkaç saniye içinde oluşturalım.",
+    "placeholder": "ör. \"Koyu temalı ve resim galerisi olan bir fotoğrafçı portföy sitesi\"",
+    "generate": "Web sitesi oluştur",
+    "inputLabel": "Oluşturmak istediğiniz web sitesini tanımlayın",
+    "keyboardHint": "Oluşturmak için {key}+Enter",
+    "aboutLabel": "Bu uygulama hakkında",
+    "example1": "Koyu tema, resim galerisi ve iletişim formu olan bir fotoğrafçı portföy sitesi",
+    "example2": "Menü, çalışma saatleri, konum haritası ve online sipariş olan bir kafe açılış sayfası",
+    "example3": "Minimalist tasarım, öne çıkan yazılar bölümü ve bülten kaydı olan kişisel bir blog",
+    "example4": "Fiyatlandırma planları, özellik karşılaştırması ve referanslar içeren bir SaaS ürün açılış sayfası"
+  },
+  "Chat": {
+    "tab": "Sohbet",
+    "about": "Bu uygulama hakkında",
+    "new": "Yeni",
+    "newProject": "Yeni proje başlat",
+    "messagesLabel": "Sohbet mesajları",
+    "inputLabel": "Sohbet girişi",
+    "inputHelp": "Göndermek için Enter · Yeni satır için Shift+Enter",
+    "send": "Mesaj gönder",
+    "placeholderReady": "Neleri değiştirmek istediğinizi açıklayın…",
+    "placeholderGenerating": "Oluşturma bekleniyor…",
+    "placeholderDefault": "Web sitenizi tanımlayın…"
+  },
+  "Message": {
+    "starting": "Başlatılıyor…",
+    "tryAgain": "Tekrar dene",
+    "progressLabel": "Oluşturma ilerlemesi"
+  },
+  "Preview": {
+    "tab": "Önizleme",
+    "title": "Önizleme",
+    "showChat": "Sohbeti göster",
+    "hideChat": "Sohbeti gizle",
+    "fullscreen": "Tam ekran",
+    "exitFullscreen": "Tam ekrandan çık",
+    "openNewTab": "Yeni sekmede aç",
+    "downloadHtml": "HTML indir",
+    "generating": "Web siteniz oluşturuluyor…",
+    "placeholder": "Önizlemeniz burada görünecek"
+  },
+  "Info": {
+    "title": "WebsitePls Hakkında",
+    "description": "WebsitePls, yapay zeka kullanarak tanımınızdan tek bir web sayfası oluşturur. Sohbette takip mesajları göndererek sonucu iyileştirebilirsiniz.",
+    "feature1": "İsteminize göre bir sayfa oluşturur",
+    "feature2": "Takip mesajlarıyla iyileştirin",
+    "feature3": "İndirin veya yeni sekmede açın",
+    "close": "Kapat",
+    "gotIt": "Anladım"
+  },
+  "Auth": {
+    "signIn": "Giriş yap",
+    "signOut": "Çıkış yap",
+    "accountMenu": "Hesap menüsü",
+    "user": "Kullanıcı",
+    "credit": "{count, plural, one {# kredi} other {# kredi}}",
+    "myProjects": "Projelerim"
+  },
+  "GenerationLimit": {
+    "remaining": "{remaining}/{max} ücretsiz {remaining, plural, one {oluşturma} other {oluşturma}} kaldı.",
+    "signInMore": "Giriş yapın",
+    "forMore": "daha fazlası için.",
+    "noFreeLeft": "Ücretsiz oluşturma hakkı kalmadı.",
+    "toContinue": "devam etmek için."
+  },
+  "Login": {
+    "heading": "WebsitePls'e giriş yapın",
+    "description": "Projelerinizi kaydetmek ve daha fazla oluşturma hakkı almak için giriş yapın.",
+    "emailLabel": "E-posta adresi",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "Link gönder",
+    "sending": "Gönderiliyor...",
+    "orContinueWith": "veya şununla devam edin",
+    "google": "Google",
+    "github": "GitHub",
+    "terms": "Giriş yaparak hizmet şartlarımızı kabul etmiş olursunuz.",
+    "checkEmail": "E-postanızı kontrol edin",
+    "emailSent": "{email} adresine bir giriş bağlantısı gönderdik",
+    "errorOAuth": "Bu e-posta zaten başka bir giriş yöntemiyle ilişkilendirilmiş.",
+    "errorGeneric": "Bir sorun oluştu. Lütfen tekrar deneyin."
+  },
+  "Projects": {
+    "heading": "Projelerim",
+    "projectCount": "{count, plural, one {# proje} other {# proje}}",
+    "newProject": "Yeni proje",
+    "noProjects": "Henüz proje yok. İlk projenizi oluşturun!",
+    "preview": "Önizleme"
+  },
+  "AuthError": {
+    "configuration_title": "Sunucu hatası",
+    "configuration_description": "Sunucu yapılandırmasında bir sorun var. Lütfen daha sonra tekrar deneyin.",
+    "accessDenied_title": "Erişim reddedildi",
+    "accessDenied_description": "Giriş yapma izniniz yok.",
+    "verification_title": "Bağlantı süresi dolmuş",
+    "verification_description": "Giriş bağlantısı artık geçerli değil. Daha önce kullanılmış veya süresi dolmuş olabilir. Lütfen yeni bir tane isteyin.",
+    "oauthSignin_title": "Giriş hatası",
+    "oauthSignin_description": "Giriş işlemi başlatılamadı. Lütfen tekrar deneyin.",
+    "oauthCallback_title": "Giriş hatası",
+    "oauthCallback_description": "Giriş sırasında bir sorun oluştu. Lütfen tekrar deneyin.",
+    "oauthAccountNotLinked_title": "E-posta zaten kullanımda",
+    "oauthAccountNotLinked_description": "Bu e-posta zaten başka bir giriş yöntemiyle ilişkilendirilmiş. Lütfen orijinal yönteminizle (Google, GitHub veya e-posta bağlantısı) giriş yapın.",
+    "default_title": "Bir sorun oluştu",
+    "default_description": "Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.",
+    "backToSignIn": "Girişe dön",
+    "goHome": "Ana sayfaya git"
+  },
+  "VerifyEmail": {
+    "heading": "E-postanızı kontrol edin",
+    "description": "E-posta adresinize bir giriş bağlantısı gönderdik. Giriş yapmak için bağlantıya tıklayın.",
+    "backToSignIn": "Girişe dön"
+  },
+  "Error": {
+    "code": "500",
+    "heading": "Bir sorun oluştu",
+    "description": "Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.",
+    "tryAgain": "Tekrar dene",
+    "goHome": "Ana sayfaya git"
+  },
+  "NotFound": {
+    "code": "404",
+    "heading": "Sayfa bulunamadı",
+    "description": "Aradığınız sayfa mevcut değil.",
+    "goHome": "Ana sayfaya git"
+  },
+  "Metadata": {
+    "siteName": "WebsitePls",
+    "title": "WebsitePls — Yapay Zeka Web Sitesi Oluşturucu",
+    "description": "Web sitenizi tanımlayın ve yapay zeka ile saniyeler içinde oluşturun."
+  },
+  "A11y": {
+    "skipToContent": "Ana içeriğe geç"
+  }
+}

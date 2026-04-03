@@ -160,6 +160,14 @@ Human-oriented setup instructions: [`README.md`](./README.md).
 - `pnpm db:migrate` — versioned migrations
 - `pnpm exec prisma generate` — regenerate client only
 
+## Database safety
+
+- **NEVER** run `DELETE`, `DROP`, `TRUNCATE`, `UPDATE`, or `ALTER` statements against the database without explicit user confirmation.
+- **NEVER** run `pnpm db:push`, `pnpm db:migrate`, `prisma migrate`, or `prisma db push` without explicit user confirmation.
+- **NEVER** use Prisma Client write methods (`create`, `update`, `delete`, `deleteMany`, `updateMany`, `upsert`, `createMany`) in ad-hoc scripts or REPL sessions without explicit user confirmation.
+- For ad-hoc queries and investigation, use **`SELECT` only**.
+- When a read-only connection string is available (`DATABASE_URL_READONLY`), prefer it for any exploratory or diagnostic queries.
+
 ## Gotchas
 
 - **Do not import `prisma` in Client Components** — server-only; use Server Actions or API routes.

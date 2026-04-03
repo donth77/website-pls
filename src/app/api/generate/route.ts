@@ -7,6 +7,10 @@ import { createLogger } from "@/lib/logger";
 import { prisma } from "@/lib/db/prisma";
 import { ProjectStatus } from "@/generated/prisma/enums";
 import { getGenerationQueue } from "@/lib/queue/generationQueue";
+import {
+  ensureGuestSession,
+  consumeGuestGeneration,
+} from "@/lib/auth/guestSession";
 
 const baseLog = createLogger("api:generate");
 
@@ -34,7 +38,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Per-IP rate limiting: 10 generations per hour.
+    // Resolve client IP for rate limiting.
     const clientIp =
       req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
 
@@ -48,9 +52,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Ensure the caller has a guest session (or authenticated user).
+    const sessionResult = await ensureGuestSession(clientIp);
+    if (!sessionResult.ok) {
+      return NextResponse.json(
+        { error: sessionResult.error, code: sessionResult.code },
+        { status: sessionResult.httpStatus },
+      );
+    }
+    const owner = sessionResult.owner;
+
+    // Per-IP rate limiting: 10 generations per hour (secondary layer).
     try {
+      const rateLimitKey =
+        owner.type === "guest"
+          ? `generate:guest:${owner.guestSessionId}`
+          : `generate:user:${owner.userId}`;
       const rl = await checkRateLimit({
-        key: `generate:${clientIp}`,
+        key: rateLimitKey,
         limit: 10,
         windowSeconds: 3600,
       });
@@ -70,6 +89,35 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // Enforce generation limits (atomic operations).
+    if (owner.type === "guest") {
+      const gen = await consumeGuestGeneration(owner.guestSessionId);
+      if (!gen.allowed) {
+        return NextResponse.json(
+          {
+            error: "You've used all your free generations. Sign up for more!",
+            code: "GENERATION_LIMIT",
+          },
+          { status: 403 },
+        );
+      }
+    } else if (owner.type === "user") {
+      // Atomic credit decrement: only succeeds if credits > 0.
+      const result = await prisma.$queryRawUnsafe<{ credits: number }[]>(
+        `UPDATE users SET credits = credits - 1 WHERE id = $1 AND credits > 0 RETURNING credits`,
+        owner.userId,
+      );
+      if (result.length === 0) {
+        return NextResponse.json(
+          {
+            error: "No credits remaining.",
+            code: "GENERATION_LIMIT",
+          },
+          { status: 403 },
+        );
+      }
+    }
+
     const lakera = await screenUserPromptWithLakera(textToValidate, {
       forwardedFor: req.headers.get("x-forwarded-for"),
     });
@@ -81,9 +129,8 @@ export async function POST(req: NextRequest) {
     }
 
     let projectId: string;
+    let versionId: string;
     let versionNumber: number;
-
-    let secretToken: string;
 
     if (isRefinement) {
       // Iterate on an existing project: look it up and create the next version.
@@ -91,7 +138,8 @@ export async function POST(req: NextRequest) {
         where: { id: existingProjectId },
         select: {
           id: true,
-          secretToken: true,
+          guestSessionId: true,
+          userId: true,
           versions: {
             orderBy: { versionNumber: "desc" as const },
             take: 1,
@@ -105,67 +153,97 @@ export async function POST(req: NextRequest) {
           { status: 404 },
         );
       }
-      projectId = existing.id;
-      secretToken = existing.secretToken;
+
+      // Verify the caller owns this project (security #3).
+      const ownsProject =
+        (owner.type === "guest" &&
+          existing.guestSessionId === owner.guestSessionId) ||
+        (owner.type === "user" && existing.userId === owner.userId);
+      if (!ownsProject) {
+        return NextResponse.json(
+          { error: "Forbidden.", code: "FORBIDDEN" },
+          { status: 403 },
+        );
+      }
+
       const latestVersion = existing.versions[0];
       versionNumber = (latestVersion?.versionNumber ?? 0) + 1;
 
-      await prisma.project.update({
-        where: { id: projectId },
-        data: { status: ProjectStatus.GENERATING },
-      });
+      // Atomic: update project status + create version in one transaction.
+      const [, version] = await prisma.$transaction([
+        prisma.project.update({
+          where: { id: existing.id },
+          data: { status: ProjectStatus.GENERATING },
+        }),
+        prisma.version.create({
+          data: {
+            projectId: existing.id,
+            versionNumber,
+            promptDelta: refinementPrompt,
+          },
+        }),
+      ]);
+
+      projectId = existing.id;
+      versionId = version.id;
     } else {
-      // New generation: create a fresh project.
-      const project = await prisma.project.create({
-        data: {
-          name: "Anonymous Demo",
-          prompt,
-          status: ProjectStatus.GENERATING,
-        },
+      // New generation: create project + first version atomically.
+      const [project, version] = await prisma.$transaction(async (tx) => {
+        const p = await tx.project.create({
+          data: {
+            name: "Anonymous Demo",
+            prompt,
+            status: ProjectStatus.GENERATING,
+            ...(owner.type === "guest"
+              ? { guestSessionId: owner.guestSessionId }
+              : {}),
+            ...(owner.type === "user" ? { userId: owner.userId } : {}),
+          },
+        });
+        const v = await tx.version.create({
+          data: {
+            projectId: p.id,
+            versionNumber: 1,
+          },
+        });
+        return [p, v] as const;
       });
+
       projectId = project.id;
-      secretToken = project.secretToken;
+      versionId = version.id;
       versionNumber = 1;
     }
-
-    const version = await prisma.version.create({
-      data: {
-        projectId,
-        versionNumber,
-        promptDelta: isRefinement ? refinementPrompt : undefined,
-      },
-    });
 
     const queue = getGenerationQueue();
     await queue.add(
       "generate-html",
       {
         projectId,
-        versionId: version.id,
+        versionId,
         userPrompt: prompt,
         refinementPrompt: isRefinement ? refinementPrompt : undefined,
         requestId,
       },
       {
-        jobId: version.id,
+        jobId: versionId,
         attempts: 2,
         backoff: { type: "exponential", delay: 5000 },
+        removeOnComplete: { count: 100 },
         removeOnFail: { count: 50 },
       },
     );
 
     log.info("Generation enqueued", {
       projectId,
-      versionId: version.id,
+      versionId,
       versionNumber,
       isRefinement,
     });
 
     return NextResponse.json({
       projectId,
-      versionId: version.id,
+      versionId,
       versionNumber,
-      secretToken,
       status: ProjectStatus.GENERATING,
     });
   } catch (err) {

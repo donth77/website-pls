@@ -1,0 +1,136 @@
+{
+  "Landing": {
+    "heading": "Vad vill du bygga?",
+    "description": "Beskriv din webbplats och vi genererar den på några sekunder.",
+    "placeholder": "t.ex. \"En portföljsida för en fotograf med mörkt tema och bildgalleri\"",
+    "generate": "Generera webbplats",
+    "inputLabel": "Beskriv webbplatsen du vill bygga",
+    "keyboardHint": "{key}+Enter för att generera",
+    "aboutLabel": "Om den här appen",
+    "example1": "En portföljsida för en fotograf med mörkt tema, bildgalleri och kontaktformulär",
+    "example2": "En landningssida för ett kafé med meny, öppettider, platskarta och onlinebeställning",
+    "example3": "En personlig blogg med minimalistisk design, utvalda inlägg och nyhetsbrevsprenumeration",
+    "example4": "En landningssida för en SaaS-produkt med prisnivåer, funktionsjämförelse och omdömen"
+  },
+  "Chat": {
+    "tab": "Chatt",
+    "about": "Om den här appen",
+    "new": "Ny",
+    "newProject": "Starta nytt projekt",
+    "messagesLabel": "Chattmeddelanden",
+    "inputLabel": "Chattinmatning",
+    "inputHelp": "Enter för att skicka · Shift+Enter för ny rad",
+    "send": "Skicka meddelande",
+    "placeholderReady": "Beskriv vad du vill ändra…",
+    "placeholderGenerating": "Väntar på generering…",
+    "placeholderDefault": "Beskriv din webbplats…"
+  },
+  "Message": {
+    "starting": "Startar…",
+    "tryAgain": "Försök igen",
+    "progressLabel": "Genereringsförlopp"
+  },
+  "Preview": {
+    "tab": "Förhandsgranskning",
+    "title": "Förhandsgranskning",
+    "showChat": "Visa chatt",
+    "hideChat": "Dölj chatt",
+    "fullscreen": "Helskärm",
+    "exitFullscreen": "Avsluta helskärm",
+    "openNewTab": "Öppna i ny flik",
+    "downloadHtml": "Ladda ner HTML",
+    "generating": "Genererar din webbplats…",
+    "placeholder": "Din förhandsgranskning visas här"
+  },
+  "Info": {
+    "title": "Om WebsitePls",
+    "description": "WebsitePls genererar en webbsida utifrån din beskrivning med hjälp av AI. Du kan förfina resultatet genom att skicka uppföljningsmeddelanden i chatten.",
+    "feature1": "Genererar en sida baserat på din beskrivning",
+    "feature2": "Förfina med uppföljningsmeddelanden",
+    "feature3": "Ladda ner eller öppna i en ny flik",
+    "close": "Stäng",
+    "gotIt": "Uppfattat"
+  },
+  "Auth": {
+    "signIn": "Logga in",
+    "signOut": "Logga ut",
+    "accountMenu": "Kontomeny",
+    "user": "Användare",
+    "credit": "{count, plural, one {# kredit} other {# krediter}}",
+    "myProjects": "Mina projekt"
+  },
+  "GenerationLimit": {
+    "remaining": "{remaining}/{max} gratis {remaining, plural, one {generering} other {genereringar}} kvar.",
+    "signInMore": "Logga in",
+    "forMore": "för fler.",
+    "noFreeLeft": "Inga gratis genereringar kvar.",
+    "toContinue": "för att fortsätta."
+  },
+  "Login": {
+    "heading": "Logga in på WebsitePls",
+    "description": "Logga in för att spara dina projekt och få fler genereringar.",
+    "emailLabel": "E-postadress",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "Skicka länk",
+    "sending": "Skickar...",
+    "orContinueWith": "eller fortsätt med",
+    "google": "Google",
+    "github": "GitHub",
+    "terms": "Genom att logga in godkänner du våra användarvillkor.",
+    "checkEmail": "Kontrollera din e-post",
+    "emailSent": "Vi skickade en inloggningslänk till {email}",
+    "errorOAuth": "Denna e-postadress är redan kopplad till en annan inloggningsmetod.",
+    "errorGeneric": "Något gick fel. Försök igen."
+  },
+  "Projects": {
+    "heading": "Mina projekt",
+    "projectCount": "{count, plural, one {# projekt} other {# projekt}}",
+    "newProject": "Nytt projekt",
+    "noProjects": "Inga projekt ännu. Skapa ditt första!",
+    "preview": "Förhandsgranskning"
+  },
+  "AuthError": {
+    "configuration_title": "Serverfel",
+    "configuration_description": "Det finns ett problem med serverkonfigurationen. Försök igen senare.",
+    "accessDenied_title": "Åtkomst nekad",
+    "accessDenied_description": "Du har inte behörighet att logga in.",
+    "verification_title": "Länken har gått ut",
+    "verification_description": "Inloggningslänken är inte längre giltig. Den kan redan ha använts eller gått ut. Begär en ny.",
+    "oauthSignin_title": "Inloggningsfel",
+    "oauthSignin_description": "Kunde inte starta inloggningsprocessen. Försök igen.",
+    "oauthCallback_title": "Inloggningsfel",
+    "oauthCallback_description": "Något gick fel under inloggningen. Försök igen.",
+    "oauthAccountNotLinked_title": "E-postadressen används redan",
+    "oauthAccountNotLinked_description": "Denna e-postadress är redan kopplad till en annan inloggningsmetod. Logga in med din ursprungliga metod (Google, GitHub eller e-postlänk).",
+    "default_title": "Något gick fel",
+    "default_description": "Ett oväntat fel inträffade. Försök igen.",
+    "backToSignIn": "Tillbaka till inloggning",
+    "goHome": "Gå till startsidan"
+  },
+  "VerifyEmail": {
+    "heading": "Kontrollera din e-post",
+    "description": "Vi skickade en inloggningslänk till din e-postadress. Klicka på länken för att logga in.",
+    "backToSignIn": "Tillbaka till inloggning"
+  },
+  "Error": {
+    "code": "500",
+    "heading": "Något gick fel",
+    "description": "Ett oväntat fel inträffade. Försök igen.",
+    "tryAgain": "Försök igen",
+    "goHome": "Gå till startsidan"
+  },
+  "NotFound": {
+    "code": "404",
+    "heading": "Sidan hittades inte",
+    "description": "Sidan du letar efter finns inte.",
+    "goHome": "Gå till startsidan"
+  },
+  "Metadata": {
+    "siteName": "WebsitePls",
+    "title": "WebsitePls — AI-webbplatsgenerator",
+    "description": "Beskriv din webbplats och generera den på några sekunder med AI."
+  },
+  "A11y": {
+    "skipToContent": "Hoppa till huvudinnehållet"
+  }
+}

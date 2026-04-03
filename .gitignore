@@ -44,3 +44,5 @@ next-env.d.ts
 
 # Prisma generated client (run `pnpm install` or `pnpm exec prisma generate`)
 /src/generated/prisma
+
+.claude
