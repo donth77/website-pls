@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { ChatMessage, GenerationStatus } from "@/lib/types";
 import { errorCodeToMessage } from "@/lib/types";
 import { MAX_USER_PROMPT_CHARS } from "@/lib/ai/promptSafety";
 
-const SESSION_KEY = "websitepls:generation";
+export const SESSION_KEY = "websitepls:generation";
 
-interface PersistedState {
+export interface PersistedState {
   phase: "landing" | "builder";
   projectId: string | null;
+  projectName: string | null;
   versionId: string | null;
   status: GenerationStatus;
   versionNumber: number;
@@ -43,6 +45,8 @@ function clearSession() {
 }
 
 export function useGeneration() {
+  const tMsg = useTranslations("Message");
+
   /* ── Restore from sessionStorage on mount ── */
   const restored = useRef(loadSession());
   const init = restored.current;
@@ -63,6 +67,9 @@ export function useGeneration() {
   );
   const [projectId, setProjectId] = useState<string | null>(
     init?.projectId ?? null,
+  );
+  const [projectName, setProjectName] = useState<string | null>(
+    init?.projectName ?? null,
   );
   const [versionId, setVersionId] = useState<string | null>(
     init?.versionId ?? null,
@@ -102,6 +109,7 @@ export function useGeneration() {
     )?.id ?? null,
   );
   const sidebarInputRef = useRef<HTMLTextAreaElement>(null);
+  const landingInputRef = useRef<HTMLTextAreaElement>(null);
   const lastRequestRef = useRef<{
     prompt: string;
     projectId?: string;
@@ -127,6 +135,7 @@ export function useGeneration() {
     saveSession({
       phase,
       projectId,
+      projectName,
       versionId,
       status,
       versionNumber,
@@ -137,6 +146,7 @@ export function useGeneration() {
   }, [
     phase,
     projectId,
+    projectName,
     versionId,
     status,
     versionNumber,
@@ -257,9 +267,9 @@ export function useGeneration() {
 
         if (nextStatus === "READY") {
           updateAssistantMessage({
-            content: "Your website is ready! Check out the preview.",
+            content: tMsg("websiteReady"),
             status: "READY",
-            progressStep: "Complete",
+            progressStep: "complete",
             progressPercent: 100,
           });
           setMobileView("preview");
@@ -289,7 +299,7 @@ export function useGeneration() {
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [versionId, status, updateAssistantMessage]);
+  }, [versionId, status, updateAssistantMessage, tMsg]);
 
   /* ═══════════════════════ Handlers ═══════════════════════ */
 
@@ -324,6 +334,7 @@ export function useGeneration() {
       }
 
       setProjectId(json.projectId);
+      setProjectName(json.projectName ?? null);
       setVersionId(json.versionId);
       setVersionNumber(json.versionNumber ?? 1);
       setStatus(json.status as GenerationStatus);
@@ -363,12 +374,10 @@ export function useGeneration() {
     const assistantMsg: ChatMessage = {
       id: crypto.randomUUID(),
       role: "assistant",
-      content: isRefinement
-        ? "Applying your changes..."
-        : "Building your website...",
+      content: isRefinement ? tMsg("applyingChanges") : tMsg("buildingWebsite"),
       timestamp: Date.now(),
       status: "GENERATING",
-      progressStep: "Starting\u2026",
+      progressStep: "starting",
       progressPercent: 0,
     };
 
@@ -399,10 +408,10 @@ export function useGeneration() {
     const assistantMsg: ChatMessage = {
       id: crypto.randomUUID(),
       role: "assistant",
-      content: "Retrying\u2026",
+      content: tMsg("retrying"),
       timestamp: Date.now(),
       status: "GENERATING",
-      progressStep: "Starting\u2026",
+      progressStep: "starting",
       progressPercent: 0,
     };
 
@@ -419,6 +428,7 @@ export function useGeneration() {
     setInputValue("");
     setOriginalPrompt("");
     setProjectId(null);
+    setProjectName(null);
     setVersionId(null);
     setStatus("DRAFT");
     setIsSubmitting(false);
@@ -430,6 +440,8 @@ export function useGeneration() {
     setElapsedSeconds(0);
     setTurnstileToken(null);
     turnstileResetRef.current?.();
+    // Focus the landing textarea after the phase transition animation starts
+    setTimeout(() => landingInputRef.current?.focus(), 400);
   }
 
   async function togglePreviewFullscreen() {
@@ -484,6 +496,7 @@ export function useGeneration() {
     // Generation
     status,
     isSubmitting,
+    projectName,
     versionId,
     versionNumber,
     elapsedSeconds,
@@ -507,5 +520,6 @@ export function useGeneration() {
     // Refs
     messagesEndRef,
     sidebarInputRef,
+    landingInputRef,
   };
 }

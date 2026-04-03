@@ -28,7 +28,30 @@
   "Message": {
     "starting": "جارٍ البدء…",
     "tryAgain": "حاول مجدداً",
-    "progressLabel": "تقدّم الإنشاء"
+    "progressLabel": "تقدّم الإنشاء",
+    "websiteReady": "Your website is ready!",
+    "buildingWebsite": "Building your website…",
+    "applyingChanges": "Applying your changes…",
+    "generationFailed": "Generation failed. You can try again.",
+    "complete": "Complete",
+    "thoughtFor": "فكّر لمدة {time}",
+    "retrying": "Retrying…"
+  },
+  "Progress": {
+    "generating": "Generating your website…",
+    "applying": "Applying your changes…",
+    "processing": "Processing response…",
+    "searchingPhotos": "Searching for matching photos…",
+    "finalizing": "Finalizing…",
+    "planningLayout": "Planning layout…",
+    "draftingStructure": "Drafting page structure…",
+    "writingSections": "Writing sections…",
+    "stylingPage": "Styling the page…",
+    "choosingImagery": "Choosing imagery…",
+    "placingImages": "Placing images…",
+    "finishingTouches": "Finishing touches…",
+    "starting": "Starting…",
+    "complete": "Complete"
   },
   "Preview": {
     "tab": "معاينة",
@@ -40,7 +63,8 @@
     "openNewTab": "فتح في تبويب جديد",
     "downloadHtml": "تحميل HTML",
     "generating": "جارٍ إنشاء موقعك…",
-    "placeholder": "ستظهر المعاينة هنا"
+    "placeholder": "ستظهر المعاينة هنا",
+    "loading": "جاري تحميل المعاينة…"
   },
   "Info": {
     "title": "حول WebsitePls",
@@ -87,7 +111,23 @@
     "projectCount": "{count, plural, zero {لا مشاريع} one {مشروع واحد} two {مشروعان} few {# مشاريع} many {# مشروعًا} other {# مشروع}}",
     "newProject": "مشروع جديد",
     "noProjects": "لا توجد مشاريع بعد. أنشئ مشروعك الأول!",
-    "preview": "معاينة"
+    "preview": "معاينة",
+    "backToHome": "العودة إلى الرئيسية",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "deleteConfirmTitle": "حذف المشروع؟",
+    "deleteConfirmDescription": "سيتم حذف هذا المشروع وجميع إصداراته نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
+    "deleteConfirmButton": "حذف",
+    "cancelButton": "إلغاء",
+    "deleteError": "فشل حذف المشروع. يرجى المحاولة مرة أخرى.",
+    "deleteGeneratingError": "لا يمكن حذف مشروع أثناء إنشائه.",
+    "rename": "إعادة تسمية",
+    "renameLabel": "اسم المشروع",
+    "renameError": "فشل في إعادة تسمية المشروع.",
+    "moreActions": "المزيد من الإجراءات",
+    "renameTitle": "إعادة تسمية المشروع",
+    "displayName": "الاسم المعروض",
+    "save": "حفظ"
   },
   "AuthError": {
     "configuration_title": "خطأ في الخادم",

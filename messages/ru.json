@@ -28,7 +28,30 @@
   "Message": {
     "starting": "Запуск…",
     "tryAgain": "Попробовать снова",
-    "progressLabel": "Прогресс генерации"
+    "progressLabel": "Прогресс генерации",
+    "websiteReady": "Your website is ready!",
+    "buildingWebsite": "Building your website…",
+    "applyingChanges": "Applying your changes…",
+    "generationFailed": "Generation failed. You can try again.",
+    "complete": "Complete",
+    "thoughtFor": "Думал {time}",
+    "retrying": "Retrying…"
+  },
+  "Progress": {
+    "generating": "Generating your website…",
+    "applying": "Applying your changes…",
+    "processing": "Processing response…",
+    "searchingPhotos": "Searching for matching photos…",
+    "finalizing": "Finalizing…",
+    "planningLayout": "Planning layout…",
+    "draftingStructure": "Drafting page structure…",
+    "writingSections": "Writing sections…",
+    "stylingPage": "Styling the page…",
+    "choosingImagery": "Choosing imagery…",
+    "placingImages": "Placing images…",
+    "finishingTouches": "Finishing touches…",
+    "starting": "Starting…",
+    "complete": "Complete"
   },
   "Preview": {
     "tab": "Предпросмотр",
@@ -40,7 +63,8 @@
     "openNewTab": "Открыть в новой вкладке",
     "downloadHtml": "Скачать HTML",
     "generating": "Генерация вашего сайта…",
-    "placeholder": "Здесь появится предпросмотр"
+    "placeholder": "Здесь появится предпросмотр",
+    "loading": "Загрузка предпросмотра…"
   },
   "Info": {
     "title": "О WebsitePls",
@@ -87,7 +111,23 @@
     "projectCount": "{count, plural, one {# проект} few {# проекта} many {# проектов} other {# проектов}}",
     "newProject": "Новый проект",
     "noProjects": "Проектов пока нет. Создайте свой первый!",
-    "preview": "Предпросмотр"
+    "preview": "Предпросмотр",
+    "backToHome": "На главную",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "deleteConfirmTitle": "Удалить проект?",
+    "deleteConfirmDescription": "Это навсегда удалит проект и все его версии. Это действие нельзя отменить.",
+    "deleteConfirmButton": "Удалить",
+    "cancelButton": "Отмена",
+    "deleteError": "Не удалось удалить проект. Попробуйте ещё раз.",
+    "deleteGeneratingError": "Нельзя удалить проект во время генерации.",
+    "rename": "Переименовать",
+    "renameLabel": "Название проекта",
+    "renameError": "Не удалось переименовать проект.",
+    "moreActions": "Другие действия",
+    "renameTitle": "Переименовать проект",
+    "displayName": "Отображаемое имя",
+    "save": "Сохранить"
   },
   "AuthError": {
     "configuration_title": "Ошибка сервера",

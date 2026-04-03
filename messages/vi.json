@@ -28,7 +28,30 @@
   "Message": {
     "starting": "Đang bắt đầu…",
     "tryAgain": "Thử lại",
-    "progressLabel": "Tiến trình tạo"
+    "progressLabel": "Tiến trình tạo",
+    "websiteReady": "Your website is ready!",
+    "buildingWebsite": "Building your website…",
+    "applyingChanges": "Applying your changes…",
+    "generationFailed": "Generation failed. You can try again.",
+    "complete": "Complete",
+    "thoughtFor": "Đã suy nghĩ {time}",
+    "retrying": "Retrying…"
+  },
+  "Progress": {
+    "generating": "Generating your website…",
+    "applying": "Applying your changes…",
+    "processing": "Processing response…",
+    "searchingPhotos": "Searching for matching photos…",
+    "finalizing": "Finalizing…",
+    "planningLayout": "Planning layout…",
+    "draftingStructure": "Drafting page structure…",
+    "writingSections": "Writing sections…",
+    "stylingPage": "Styling the page…",
+    "choosingImagery": "Choosing imagery…",
+    "placingImages": "Placing images…",
+    "finishingTouches": "Finishing touches…",
+    "starting": "Starting…",
+    "complete": "Complete"
   },
   "Preview": {
     "tab": "Xem trước",
@@ -40,7 +63,8 @@
     "openNewTab": "Mở trong tab mới",
     "downloadHtml": "Tải HTML",
     "generating": "Đang tạo trang web của bạn…",
-    "placeholder": "Bản xem trước sẽ xuất hiện ở đây"
+    "placeholder": "Bản xem trước sẽ xuất hiện ở đây",
+    "loading": "Đang tải bản xem trước…"
   },
   "Info": {
     "title": "Về WebsitePls",
@@ -87,7 +111,23 @@
     "projectCount": "{count, plural, other {# dự án}}",
     "newProject": "Dự án mới",
     "noProjects": "Chưa có dự án nào. Hãy tạo dự án đầu tiên!",
-    "preview": "Xem trước"
+    "preview": "Xem trước",
+    "backToHome": "Quay lại trang chủ",
+    "edit": "Chỉnh sửa",
+    "delete": "Xóa",
+    "deleteConfirmTitle": "Xóa dự án?",
+    "deleteConfirmDescription": "Thao tác này sẽ xóa vĩnh viễn dự án này và tất cả các phiên bản. Hành động này không thể hoàn tác.",
+    "deleteConfirmButton": "Xóa",
+    "cancelButton": "Hủy",
+    "deleteError": "Xóa dự án thất bại. Vui lòng thử lại.",
+    "deleteGeneratingError": "Không thể xóa dự án trong khi đang tạo.",
+    "rename": "Đổi tên",
+    "renameLabel": "Tên dự án",
+    "renameError": "Đổi tên dự án thất bại.",
+    "moreActions": "Thêm thao tác",
+    "renameTitle": "Đổi tên dự án",
+    "displayName": "Tên hiển thị",
+    "save": "Lưu"
   },
   "AuthError": {
     "configuration_title": "Lỗi máy chủ",

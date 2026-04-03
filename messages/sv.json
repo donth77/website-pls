@@ -28,7 +28,30 @@
   "Message": {
     "starting": "Startar…",
     "tryAgain": "Försök igen",
-    "progressLabel": "Genereringsförlopp"
+    "progressLabel": "Genereringsförlopp",
+    "websiteReady": "Your website is ready!",
+    "buildingWebsite": "Building your website…",
+    "applyingChanges": "Applying your changes…",
+    "generationFailed": "Generation failed. You can try again.",
+    "complete": "Complete",
+    "thoughtFor": "Tänkte i {time}",
+    "retrying": "Retrying…"
+  },
+  "Progress": {
+    "generating": "Generating your website…",
+    "applying": "Applying your changes…",
+    "processing": "Processing response…",
+    "searchingPhotos": "Searching for matching photos…",
+    "finalizing": "Finalizing…",
+    "planningLayout": "Planning layout…",
+    "draftingStructure": "Drafting page structure…",
+    "writingSections": "Writing sections…",
+    "stylingPage": "Styling the page…",
+    "choosingImagery": "Choosing imagery…",
+    "placingImages": "Placing images…",
+    "finishingTouches": "Finishing touches…",
+    "starting": "Starting…",
+    "complete": "Complete"
   },
   "Preview": {
     "tab": "Förhandsgranskning",
@@ -40,7 +63,8 @@
     "openNewTab": "Öppna i ny flik",
     "downloadHtml": "Ladda ner HTML",
     "generating": "Genererar din webbplats…",
-    "placeholder": "Din förhandsgranskning visas här"
+    "placeholder": "Din förhandsgranskning visas här",
+    "loading": "Laddar förhandsvisning…"
   },
   "Info": {
     "title": "Om WebsitePls",
@@ -87,7 +111,23 @@
     "projectCount": "{count, plural, one {# projekt} other {# projekt}}",
     "newProject": "Nytt projekt",
     "noProjects": "Inga projekt ännu. Skapa ditt första!",
-    "preview": "Förhandsgranskning"
+    "preview": "Förhandsgranskning",
+    "backToHome": "Tillbaka till startsidan",
+    "edit": "Redigera",
+    "delete": "Radera",
+    "deleteConfirmTitle": "Radera projekt?",
+    "deleteConfirmDescription": "Detta raderar permanent projektet och alla dess versioner. Denna åtgärd kan inte ångras.",
+    "deleteConfirmButton": "Radera",
+    "cancelButton": "Avbryt",
+    "deleteError": "Det gick inte att radera projektet. Försök igen.",
+    "deleteGeneratingError": "Kan inte radera ett projekt medan det genereras.",
+    "rename": "Byt namn",
+    "renameLabel": "Projektnamn",
+    "renameError": "Det gick inte att byta namn på projektet.",
+    "moreActions": "Fler åtgärder",
+    "renameTitle": "Byt namn på projekt",
+    "displayName": "Visningsnamn",
+    "save": "Spara"
   },
   "AuthError": {
     "configuration_title": "Serverfel",

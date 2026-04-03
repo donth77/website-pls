@@ -24,7 +24,7 @@ Human-oriented setup instructions: [`README.md`](./README.md).
 
 ## Tech stack (authoritative)
 
-- Next.js 16, React 19, TypeScript, Tailwind v4, ESLint (next config).
+- Next.js 16, React 19, TypeScript, Tailwind v4, **Ariakit** (accessible UI primitives), ESLint (next config).
 - **pnpm** + `pnpm-lock.yaml`.
 - Prisma 7, PostgreSQL, `pg`, `@prisma/adapter-pg`, `dotenv` (for Prisma CLI + worker).
 - **Anthropic SDK** for generation; **Unsplash API** for stock images; **Lakera Guard** (optional) for prompt screening.
@@ -83,28 +83,16 @@ Human-oriented setup instructions: [`README.md`](./README.md).
 | Download HTML                                                       | Done   |
 | UX polish (char counter, Cmd+Enter, prompt examples, elapsed timer) | Done   |
 
-## What's planned (not built)
+## Possible future directions (not committed)
+
+> These are rough ideas at various stages of exploration — none are committed or fully designed. Sections below capture early research and thinking where it exists.
 
 1. **Phase 1 RAG** — one `.txt`/`.pdf` per project, chunk + embed, top-k retrieval. See RAG section below.
-2. **Auth + anonymous guest mode** — login system + guest cookie session, generation limits, credits. Plan saved in `.claude/plans/jazzy-giggling-twilight.md`.
-3. **Publish + export** — vanity slugs, public Supabase URLs, `POST /api/publish`, `GET /p/[slug]` redirect. See Publish section below.
-4. **Split orchestrator** into intent → blueprint → section code; validation layer.
+2. **Publish + export** — vanity slugs, public Supabase URLs, `POST /api/publish`, `GET /p/[slug]` redirect. See Publish section below.
+3. **Split orchestrator** into intent → blueprint → section code; validation layer.
+4. **Stock video hero backgrounds** — muted autoplay `<video>` in hero sections using Pexels/Pixabay video APIs (Unsplash has no video API). Scoped to one video per page; orchestrator decides when a video hero suits the site type; always include a `poster` image fallback. Medium quality (720p) to limit payload. See research notes below.
 
 ---
-
-## Auth + anonymous guest mode + credits/paywall (planned)
-
-### Goals
-
-1. Keep the landing page usable without login: allow **a few generations** in anonymous mode.
-2. Add real user accounts with login so we can later introduce monetization and a credits system.
-3. Prevent surprise costs: enforce generation limits and credit deductions server-side.
-
-### Design (minimal UX)
-
-- **Auth provider:** choose one and implement server-side session verification.
-- **Anonymous guest mode:** issue a persistent guest identifier (HttpOnly cookie). Treat it like an account for counting demo generations and (later) credits. Full plan in `.claude/plans/jazzy-giggling-twilight.md`.
-- **Credits enforcement:** resolve owner = authenticated `userId` or `guestSessionId`; verify balance; decrement _before_ enqueuing job.
 
 ## Phase 1 RAG (single attachment, no chat)
 
@@ -146,6 +134,33 @@ Human-oriented setup instructions: [`README.md`](./README.md).
 3. `POST /api/publish` + `GET /p/[slug]` redirect route.
 4. UI: optional slug field + publish button + copy link.
 5. `GET /api/versions/[versionId]/export` — attachment download.
+
+---
+
+## Stock video hero backgrounds (planned)
+
+### Research summary
+
+- **Unsplash** has no video API — photos only.
+- **Pexels** video search: `GET https://api.pexels.com/videos/search` — same auth header as photos. Returns `video_files[]` with `quality` (hd/sd), `file_type`, `width`, `height`, `fps`, `link` (direct MP4 URL). Shares the 200 req/hr free rate limit with photo searches.
+- **Pixabay** video search: `GET https://pixabay.com/api/videos/` — same `key` param as photos. Returns `videos` object with `large` (1080p), `medium` (720p), `small` (~360p), `tiny` (~270p) variants, each with `url`, `width`, `height`, `size`. Shares the ~5,000 req/hr limit with photo searches.
+
+### Design constraints
+
+- **One video per page max** (hero section only) — a 10s 720p clip is 2-5 MB.
+- **Muted autoplay loop**: `<video autoplay muted loop playsinline>` with dark overlay + text.
+- **Poster image fallback** via existing image pipeline — required for mobile (iOS/Android restrict autoplay) and slow connections.
+- **Opt-in, not default** — orchestrator decides per-generation whether the site type benefits (e.g., restaurant/travel yes, SaaS pricing page no).
+- **Hotlinking concern** — generated HTML references Pexels/Pixabay CDN URLs directly; less stable than Unsplash's explicit hotlink support. May need to proxy or cache.
+- **Cascade: Pexels → Pixabay** (two tiers, no Unsplash).
+
+### Implementation order
+
+1. `src/lib/videos/pexels-video.ts` + `pixabay-video.ts` — same pattern as image modules.
+2. `src/lib/videos/video-search.ts` — facade with Pexels → Pixabay fallback.
+3. Orchestrator: add video hero decision to blueprint step; new `videoQuery` field in structured output.
+4. Worker: call video search when `videoQuery` is present; inject `<video>` markup with `poster`.
+5. Update `.env.example` (no new keys needed — reuses existing Pexels/Pixabay keys).
 
 ---
 

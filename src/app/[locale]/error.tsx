@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { Button } from "@ariakit/react";
 import { Link } from "@/i18n/navigation";
 
 export default function Error({
@@ -24,13 +25,12 @@ export default function Error({
           {t("description")}
         </p>
         <div className="mt-8 flex justify-center gap-3">
-          <button
-            type="button"
+          <Button
             onClick={reset}
             className="rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
           >
             {t("tryAgain")}
-          </button>
+          </Button>
           <Link
             href="/"
             className="rounded-lg border border-zinc-200 px-4 py-2.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"

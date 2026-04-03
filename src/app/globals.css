@@ -64,6 +64,12 @@ body {
   }
 }
 
+/* Pointer cursor on all clickable elements */
+button,
+[role="button"] {
+  cursor: pointer;
+}
+
 /* Global focus indicators — ensures every interactive element is visible to
    keyboard users without needing per-element Tailwind classes (WCAG 2.4.7). */
 *:focus-visible {

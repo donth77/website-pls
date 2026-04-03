@@ -28,7 +28,30 @@
   "Message": {
     "starting": "Iniciando…",
     "tryAgain": "Reintentar",
-    "progressLabel": "Progreso de generación"
+    "progressLabel": "Progreso de generación",
+    "websiteReady": "Your website is ready!",
+    "buildingWebsite": "Building your website…",
+    "applyingChanges": "Applying your changes…",
+    "generationFailed": "Generation failed. You can try again.",
+    "complete": "Complete",
+    "thoughtFor": "Pensó durante {time}",
+    "retrying": "Retrying…"
+  },
+  "Progress": {
+    "generating": "Generating your website…",
+    "applying": "Applying your changes…",
+    "processing": "Processing response…",
+    "searchingPhotos": "Searching for matching photos…",
+    "finalizing": "Finalizing…",
+    "planningLayout": "Planning layout…",
+    "draftingStructure": "Drafting page structure…",
+    "writingSections": "Writing sections…",
+    "stylingPage": "Styling the page…",
+    "choosingImagery": "Choosing imagery…",
+    "placingImages": "Placing images…",
+    "finishingTouches": "Finishing touches…",
+    "starting": "Starting…",
+    "complete": "Complete"
   },
   "Preview": {
     "tab": "Vista previa",
@@ -40,7 +63,8 @@
     "openNewTab": "Abrir en nueva pestaña",
     "downloadHtml": "Descargar HTML",
     "generating": "Generando tu sitio web…",
-    "placeholder": "La vista previa aparecerá aquí"
+    "placeholder": "La vista previa aparecerá aquí",
+    "loading": "Cargando vista previa…"
   },
   "Info": {
     "title": "Acerca de WebsitePls",
@@ -87,7 +111,23 @@
     "projectCount": "{count, plural, one {# proyecto} other {# proyectos}}",
     "newProject": "Nuevo proyecto",
     "noProjects": "Aún no tienes proyectos. ¡Crea el primero!",
-    "preview": "Vista previa"
+    "preview": "Vista previa",
+    "backToHome": "Volver al inicio",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "deleteConfirmTitle": "¿Eliminar proyecto?",
+    "deleteConfirmDescription": "Esto eliminará permanentemente este proyecto y todas sus versiones. Esta acción no se puede deshacer.",
+    "deleteConfirmButton": "Eliminar",
+    "cancelButton": "Cancelar",
+    "deleteError": "Error al eliminar el proyecto. Inténtalo de nuevo.",
+    "deleteGeneratingError": "No se puede eliminar un proyecto mientras se está generando.",
+    "rename": "Renombrar",
+    "renameLabel": "Nombre del proyecto",
+    "renameError": "Error al renombrar el proyecto.",
+    "moreActions": "Más acciones",
+    "renameTitle": "Renombrar proyecto",
+    "displayName": "Nombre para mostrar",
+    "save": "Guardar"
   },
   "AuthError": {
     "configuration_title": "Error del servidor",

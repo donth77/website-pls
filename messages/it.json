@@ -28,7 +28,30 @@
   "Message": {
     "starting": "Avvio in corso…",
     "tryAgain": "Riprova",
-    "progressLabel": "Avanzamento generazione"
+    "progressLabel": "Avanzamento generazione",
+    "websiteReady": "Your website is ready!",
+    "buildingWebsite": "Building your website…",
+    "applyingChanges": "Applying your changes…",
+    "generationFailed": "Generation failed. You can try again.",
+    "complete": "Complete",
+    "thoughtFor": "Ha pensato per {time}",
+    "retrying": "Retrying…"
+  },
+  "Progress": {
+    "generating": "Generating your website…",
+    "applying": "Applying your changes…",
+    "processing": "Processing response…",
+    "searchingPhotos": "Searching for matching photos…",
+    "finalizing": "Finalizing…",
+    "planningLayout": "Planning layout…",
+    "draftingStructure": "Drafting page structure…",
+    "writingSections": "Writing sections…",
+    "stylingPage": "Styling the page…",
+    "choosingImagery": "Choosing imagery…",
+    "placingImages": "Placing images…",
+    "finishingTouches": "Finishing touches…",
+    "starting": "Starting…",
+    "complete": "Complete"
   },
   "Preview": {
     "tab": "Anteprima",
@@ -40,7 +63,8 @@
     "openNewTab": "Apri in una nuova scheda",
     "downloadHtml": "Scarica HTML",
     "generating": "Generazione del sito web in corso…",
-    "placeholder": "L'anteprima apparirà qui"
+    "placeholder": "L'anteprima apparirà qui",
+    "loading": "Caricamento anteprima…"
   },
   "Info": {
     "title": "Informazioni su WebsitePls",
@@ -87,7 +111,23 @@
     "projectCount": "{count, plural, one {# progetto} other {# progetti}}",
     "newProject": "Nuovo progetto",
     "noProjects": "Ancora nessun progetto. Crea il tuo primo!",
-    "preview": "Anteprima"
+    "preview": "Anteprima",
+    "backToHome": "Torna alla home",
+    "edit": "Modifica",
+    "delete": "Elimina",
+    "deleteConfirmTitle": "Eliminare il progetto?",
+    "deleteConfirmDescription": "Questo eliminerà permanentemente il progetto e tutte le sue versioni. Questa azione non può essere annullata.",
+    "deleteConfirmButton": "Elimina",
+    "cancelButton": "Annulla",
+    "deleteError": "Impossibile eliminare il progetto. Riprova.",
+    "deleteGeneratingError": "Non è possibile eliminare un progetto durante la generazione.",
+    "rename": "Rinomina",
+    "renameLabel": "Nome progetto",
+    "renameError": "Impossibile rinominare il progetto.",
+    "moreActions": "Altre azioni",
+    "renameTitle": "Rinomina progetto",
+    "displayName": "Nome visualizzato",
+    "save": "Salva"
   },
   "AuthError": {
     "configuration_title": "Errore del server",

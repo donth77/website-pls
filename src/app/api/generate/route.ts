@@ -14,6 +14,18 @@ import {
 
 const baseLog = createLogger("api:generate");
 
+const MAX_PROJECT_NAME_LEN = 60;
+
+/** Derive a short project name from the user's prompt. */
+function generateProjectName(prompt: string): string {
+  const trimmed = prompt.replace(/\s+/g, " ").trim();
+  if (trimmed.length <= MAX_PROJECT_NAME_LEN) return trimmed;
+  // Cut at the last word boundary before the limit
+  const cut = trimmed.slice(0, MAX_PROJECT_NAME_LEN);
+  const lastSpace = cut.lastIndexOf(" ");
+  return (lastSpace > 20 ? cut.slice(0, lastSpace) : cut) + "\u2026";
+}
+
 export async function POST(req: NextRequest) {
   const requestId = crypto.randomUUID();
   const log = baseLog.child({ requestId });
@@ -129,6 +141,7 @@ export async function POST(req: NextRequest) {
     }
 
     let projectId: string;
+    let projectName: string;
     let versionId: string;
     let versionNumber: number;
 
@@ -138,6 +151,7 @@ export async function POST(req: NextRequest) {
         where: { id: existingProjectId },
         select: {
           id: true,
+          name: true,
           guestSessionId: true,
           userId: true,
           versions: {
@@ -185,13 +199,14 @@ export async function POST(req: NextRequest) {
       ]);
 
       projectId = existing.id;
+      projectName = existing.name;
       versionId = version.id;
     } else {
       // New generation: create project + first version atomically.
       const [project, version] = await prisma.$transaction(async (tx) => {
         const p = await tx.project.create({
           data: {
-            name: "Anonymous Demo",
+            name: generateProjectName(prompt),
             prompt,
             status: ProjectStatus.GENERATING,
             ...(owner.type === "guest"
@@ -210,6 +225,7 @@ export async function POST(req: NextRequest) {
       });
 
       projectId = project.id;
+      projectName = project.name;
       versionId = version.id;
       versionNumber = 1;
     }
@@ -242,6 +258,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       projectId,
+      projectName,
       versionId,
       versionNumber,
       status: ProjectStatus.GENERATING,

@@ -28,7 +28,30 @@
   "Message": {
     "starting": "Starting…",
     "tryAgain": "Try again",
-    "progressLabel": "Generation progress"
+    "progressLabel": "Generation progress",
+    "websiteReady": "Your website is ready!",
+    "buildingWebsite": "Building your website…",
+    "applyingChanges": "Applying your changes…",
+    "generationFailed": "Generation failed. You can try again.",
+    "complete": "Complete",
+    "retrying": "Retrying…",
+    "thoughtFor": "Thought for {time}"
+  },
+  "Progress": {
+    "starting": "Starting…",
+    "complete": "Complete",
+    "generating": "Generating your website…",
+    "applying": "Applying your changes…",
+    "processing": "Processing response…",
+    "searchingPhotos": "Searching for matching photos…",
+    "finalizing": "Finalizing…",
+    "planningLayout": "Planning layout…",
+    "draftingStructure": "Drafting page structure…",
+    "writingSections": "Writing sections…",
+    "stylingPage": "Styling the page…",
+    "choosingImagery": "Choosing imagery…",
+    "placingImages": "Placing images…",
+    "finishingTouches": "Finishing touches…"
   },
   "Preview": {
     "tab": "Preview",
@@ -40,7 +63,8 @@
     "openNewTab": "Open in new tab",
     "downloadHtml": "Download HTML",
     "generating": "Generating your website…",
-    "placeholder": "Your preview will appear here"
+    "placeholder": "Your preview will appear here",
+    "loading": "Loading preview…"
   },
   "Info": {
     "title": "About WebsitePls",
@@ -87,7 +111,23 @@
     "projectCount": "{count, plural, one {# project} other {# projects}}",
     "newProject": "New project",
     "noProjects": "No projects yet. Create your first one!",
-    "preview": "Preview"
+    "preview": "Preview",
+    "backToHome": "Back to home",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteConfirmTitle": "Delete project?",
+    "deleteConfirmDescription": "This will permanently delete this project and all its versions. This action cannot be undone.",
+    "deleteConfirmButton": "Delete",
+    "cancelButton": "Cancel",
+    "deleteError": "Failed to delete project. Please try again.",
+    "deleteGeneratingError": "Cannot delete a project while it is generating.",
+    "rename": "Rename",
+    "renameLabel": "Project name",
+    "renameError": "Failed to rename project.",
+    "moreActions": "More actions",
+    "renameTitle": "Rename project",
+    "displayName": "Display name",
+    "save": "Save"
   },
   "AuthError": {
     "configuration_title": "Server error",

@@ -28,7 +28,30 @@
   "Message": {
     "starting": "Memulai…",
     "tryAgain": "Coba lagi",
-    "progressLabel": "Progres pembuatan"
+    "progressLabel": "Progres pembuatan",
+    "websiteReady": "Your website is ready!",
+    "buildingWebsite": "Building your website…",
+    "applyingChanges": "Applying your changes…",
+    "generationFailed": "Generation failed. You can try again.",
+    "complete": "Complete",
+    "thoughtFor": "Berpikir selama {time}",
+    "retrying": "Retrying…"
+  },
+  "Progress": {
+    "generating": "Generating your website…",
+    "applying": "Applying your changes…",
+    "processing": "Processing response…",
+    "searchingPhotos": "Searching for matching photos…",
+    "finalizing": "Finalizing…",
+    "planningLayout": "Planning layout…",
+    "draftingStructure": "Drafting page structure…",
+    "writingSections": "Writing sections…",
+    "stylingPage": "Styling the page…",
+    "choosingImagery": "Choosing imagery…",
+    "placingImages": "Placing images…",
+    "finishingTouches": "Finishing touches…",
+    "starting": "Starting…",
+    "complete": "Complete"
   },
   "Preview": {
     "tab": "Pratinjau",
@@ -40,7 +63,8 @@
     "openNewTab": "Buka di tab baru",
     "downloadHtml": "Unduh HTML",
     "generating": "Membuat situs web Anda…",
-    "placeholder": "Pratinjau Anda akan muncul di sini"
+    "placeholder": "Pratinjau Anda akan muncul di sini",
+    "loading": "Memuat pratinjau…"
   },
   "Info": {
     "title": "Tentang WebsitePls",
@@ -87,7 +111,23 @@
     "projectCount": "{count, plural, other {# proyek}}",
     "newProject": "Proyek baru",
     "noProjects": "Belum ada proyek. Buat yang pertama!",
-    "preview": "Pratinjau"
+    "preview": "Pratinjau",
+    "backToHome": "Kembali ke beranda",
+    "edit": "Edit",
+    "delete": "Hapus",
+    "deleteConfirmTitle": "Hapus proyek?",
+    "deleteConfirmDescription": "Ini akan menghapus proyek ini dan semua versinya secara permanen. Tindakan ini tidak dapat dibatalkan.",
+    "deleteConfirmButton": "Hapus",
+    "cancelButton": "Batal",
+    "deleteError": "Gagal menghapus proyek. Silakan coba lagi.",
+    "deleteGeneratingError": "Tidak dapat menghapus proyek saat sedang dibuat.",
+    "rename": "Ganti nama",
+    "renameLabel": "Nama proyek",
+    "renameError": "Gagal mengganti nama proyek.",
+    "moreActions": "Tindakan lainnya",
+    "renameTitle": "Ganti nama proyek",
+    "displayName": "Nama tampilan",
+    "save": "Simpan"
   },
   "AuthError": {
     "configuration_title": "Kesalahan server",

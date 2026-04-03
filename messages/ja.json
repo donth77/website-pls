@@ -28,7 +28,30 @@
   "Message": {
     "starting": "開始中…",
     "tryAgain": "もう一度試す",
-    "progressLabel": "生成の進捗"
+    "progressLabel": "生成の進捗",
+    "websiteReady": "Your website is ready!",
+    "buildingWebsite": "Building your website…",
+    "applyingChanges": "Applying your changes…",
+    "generationFailed": "Generation failed. You can try again.",
+    "complete": "Complete",
+    "thoughtFor": "{time} 考えました",
+    "retrying": "Retrying…"
+  },
+  "Progress": {
+    "generating": "Generating your website…",
+    "applying": "Applying your changes…",
+    "processing": "Processing response…",
+    "searchingPhotos": "Searching for matching photos…",
+    "finalizing": "Finalizing…",
+    "planningLayout": "Planning layout…",
+    "draftingStructure": "Drafting page structure…",
+    "writingSections": "Writing sections…",
+    "stylingPage": "Styling the page…",
+    "choosingImagery": "Choosing imagery…",
+    "placingImages": "Placing images…",
+    "finishingTouches": "Finishing touches…",
+    "starting": "Starting…",
+    "complete": "Complete"
   },
   "Preview": {
     "tab": "プレビュー",
@@ -40,7 +63,8 @@
     "openNewTab": "新しいタブで開く",
     "downloadHtml": "HTMLをダウンロード",
     "generating": "ウェブサイトを生成中…",
-    "placeholder": "プレビューがここに表示されます"
+    "placeholder": "プレビューがここに表示されます",
+    "loading": "プレビューを読み込み中…"
   },
   "Info": {
     "title": "WebsitePlsについて",
@@ -87,7 +111,23 @@
     "projectCount": "{count, plural, one {# プロジェクト} other {# プロジェクト}}",
     "newProject": "新しいプロジェクト",
     "noProjects": "まだプロジェクトがありません。最初のプロジェクトを作成しましょう！",
-    "preview": "プレビュー"
+    "preview": "プレビュー",
+    "backToHome": "ホームに戻る",
+    "edit": "編集",
+    "delete": "削除",
+    "deleteConfirmTitle": "プロジェクトを削除しますか？",
+    "deleteConfirmDescription": "このプロジェクトとすべてのバージョンが完全に削除されます。この操作は元に戻せません。",
+    "deleteConfirmButton": "削除",
+    "cancelButton": "キャンセル",
+    "deleteError": "プロジェクトの削除に失敗しました。もう一度お試しください。",
+    "deleteGeneratingError": "生成中のプロジェクトは削除できません。",
+    "rename": "名前を変更",
+    "renameLabel": "プロジェクト名",
+    "renameError": "プロジェクトの名前変更に失敗しました。",
+    "moreActions": "その他のアクション",
+    "renameTitle": "プロジェクト名を変更",
+    "displayName": "表示名",
+    "save": "保存"
   },
   "AuthError": {
     "configuration_title": "サーバーエラー",

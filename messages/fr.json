@@ -28,7 +28,30 @@
   "Message": {
     "starting": "Démarrage…",
     "tryAgain": "Réessayer",
-    "progressLabel": "Progression de la génération"
+    "progressLabel": "Progression de la génération",
+    "websiteReady": "Your website is ready!",
+    "buildingWebsite": "Building your website…",
+    "applyingChanges": "Applying your changes…",
+    "generationFailed": "Generation failed. You can try again.",
+    "complete": "Complete",
+    "thoughtFor": "A réfléchi pendant {time}",
+    "retrying": "Retrying…"
+  },
+  "Progress": {
+    "generating": "Generating your website…",
+    "applying": "Applying your changes…",
+    "processing": "Processing response…",
+    "searchingPhotos": "Searching for matching photos…",
+    "finalizing": "Finalizing…",
+    "planningLayout": "Planning layout…",
+    "draftingStructure": "Drafting page structure…",
+    "writingSections": "Writing sections…",
+    "stylingPage": "Styling the page…",
+    "choosingImagery": "Choosing imagery…",
+    "placingImages": "Placing images…",
+    "finishingTouches": "Finishing touches…",
+    "starting": "Starting…",
+    "complete": "Complete"
   },
   "Preview": {
     "tab": "Aperçu",
@@ -40,7 +63,8 @@
     "openNewTab": "Ouvrir dans un nouvel onglet",
     "downloadHtml": "Télécharger le HTML",
     "generating": "Génération de votre site web…",
-    "placeholder": "Votre aperçu apparaîtra ici"
+    "placeholder": "Votre aperçu apparaîtra ici",
+    "loading": "Chargement de l'aperçu…"
   },
   "Info": {
     "title": "À propos de WebsitePls",
@@ -87,7 +111,23 @@
     "projectCount": "{count, plural, one {# projet} other {# projets}}",
     "newProject": "Nouveau projet",
     "noProjects": "Aucun projet pour l'instant. Créez votre premier !",
-    "preview": "Aperçu"
+    "preview": "Aperçu",
+    "backToHome": "Retour à l'accueil",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "deleteConfirmTitle": "Supprimer le projet ?",
+    "deleteConfirmDescription": "Cela supprimera définitivement ce projet et toutes ses versions. Cette action est irréversible.",
+    "deleteConfirmButton": "Supprimer",
+    "cancelButton": "Annuler",
+    "deleteError": "Échec de la suppression du projet. Veuillez réessayer.",
+    "deleteGeneratingError": "Impossible de supprimer un projet en cours de génération.",
+    "rename": "Renommer",
+    "renameLabel": "Nom du projet",
+    "renameError": "Échec du renommage du projet.",
+    "moreActions": "Plus d'actions",
+    "renameTitle": "Renommer le projet",
+    "displayName": "Nom affiché",
+    "save": "Enregistrer"
   },
   "AuthError": {
     "configuration_title": "Erreur du serveur",

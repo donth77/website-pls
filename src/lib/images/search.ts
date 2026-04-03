@@ -1,14 +1,17 @@
 import { searchPhotos as unsplashSearch } from "./unsplash";
 import { searchPhotos as pexelsSearch } from "./pexels";
+import { searchPhotos as pixabaySearch } from "./pixabay";
 import { createLogger } from "@/lib/logger";
 
 const log = createLogger("image-search");
+
+export type ImageSource = "unsplash" | "pexels" | "pixabay";
 
 export type ImageAttribution = {
   photographerName: string;
   photographerUrl: string;
   photoUrl: string;
-  source: "unsplash" | "pexels";
+  source: ImageSource;
 };
 
 export type SearchResult = {
@@ -28,12 +31,10 @@ type Query = { query: string; w?: number; h?: number };
  */
 export async function searchPhotos(
   queries: Query[],
-): Promise<
-  Map<string, (SearchResult & { source: "unsplash" | "pexels" }) | null>
-> {
+): Promise<Map<string, (SearchResult & { source: ImageSource }) | null>> {
   const results = new Map<
     string,
-    (SearchResult & { source: "unsplash" | "pexels" }) | null
+    (SearchResult & { source: ImageSource }) | null
   >();
 
   if (queries.length === 0) return results;
@@ -60,9 +61,28 @@ export async function searchPhotos(
 
   const pexelsResults = await pexelsSearch(unresolved);
 
+  const stillUnresolved: Query[] = [];
   for (const q of unresolved) {
     const hit = pexelsResults.get(q.query);
-    results.set(q.query, hit ? { ...hit, source: "pexels" } : null);
+    if (hit) {
+      results.set(q.query, { ...hit, source: "pexels" });
+    } else {
+      stillUnresolved.push(q);
+    }
+  }
+
+  if (stillUnresolved.length === 0) return results;
+
+  // --- Pixabay for remaining misses ---
+  log.info("Falling back to Pixabay for unresolved images", {
+    count: stillUnresolved.length,
+  });
+
+  const pixabayResults = await pixabaySearch(stillUnresolved);
+
+  for (const q of stillUnresolved) {
+    const hit = pixabayResults.get(q.query);
+    results.set(q.query, hit ? { ...hit, source: "pixabay" } : null);
   }
 
   return results;

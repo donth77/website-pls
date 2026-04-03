@@ -28,7 +28,30 @@
   "Message": {
     "starting": "Starten…",
     "tryAgain": "Opnieuw proberen",
-    "progressLabel": "Generatievoortgang"
+    "progressLabel": "Generatievoortgang",
+    "websiteReady": "Your website is ready!",
+    "buildingWebsite": "Building your website…",
+    "applyingChanges": "Applying your changes…",
+    "generationFailed": "Generation failed. You can try again.",
+    "complete": "Complete",
+    "thoughtFor": "Dacht {time} na",
+    "retrying": "Retrying…"
+  },
+  "Progress": {
+    "generating": "Generating your website…",
+    "applying": "Applying your changes…",
+    "processing": "Processing response…",
+    "searchingPhotos": "Searching for matching photos…",
+    "finalizing": "Finalizing…",
+    "planningLayout": "Planning layout…",
+    "draftingStructure": "Drafting page structure…",
+    "writingSections": "Writing sections…",
+    "stylingPage": "Styling the page…",
+    "choosingImagery": "Choosing imagery…",
+    "placingImages": "Placing images…",
+    "finishingTouches": "Finishing touches…",
+    "starting": "Starting…",
+    "complete": "Complete"
   },
   "Preview": {
     "tab": "Voorbeeld",
@@ -40,7 +63,8 @@
     "openNewTab": "Openen in nieuw tabblad",
     "downloadHtml": "HTML downloaden",
     "generating": "Je website wordt gegenereerd…",
-    "placeholder": "Je voorbeeld verschijnt hier"
+    "placeholder": "Je voorbeeld verschijnt hier",
+    "loading": "Voorbeeld laden…"
   },
   "Info": {
     "title": "Over WebsitePls",
@@ -87,7 +111,23 @@
     "projectCount": "{count, plural, one {# project} other {# projecten}}",
     "newProject": "Nieuw project",
     "noProjects": "Nog geen projecten. Maak je eerste!",
-    "preview": "Voorbeeld"
+    "preview": "Voorbeeld",
+    "backToHome": "Terug naar home",
+    "edit": "Bewerken",
+    "delete": "Verwijderen",
+    "deleteConfirmTitle": "Project verwijderen?",
+    "deleteConfirmDescription": "Dit verwijdert dit project en al zijn versies permanent. Deze actie kan niet ongedaan worden gemaakt.",
+    "deleteConfirmButton": "Verwijderen",
+    "cancelButton": "Annuleren",
+    "deleteError": "Project verwijderen mislukt. Probeer het opnieuw.",
+    "deleteGeneratingError": "Een project kan niet worden verwijderd terwijl het wordt gegenereerd.",
+    "rename": "Hernoemen",
+    "renameLabel": "Projectnaam",
+    "renameError": "Project hernoemen mislukt.",
+    "moreActions": "Meer acties",
+    "renameTitle": "Project hernoemen",
+    "displayName": "Weergavenaam",
+    "save": "Opslaan"
   },
   "AuthError": {
     "configuration_title": "Serverfout",

@@ -28,7 +28,30 @@
   "Message": {
     "starting": "Iniciando…",
     "tryAgain": "Tentar novamente",
-    "progressLabel": "Progresso da geração"
+    "progressLabel": "Progresso da geração",
+    "websiteReady": "Your website is ready!",
+    "buildingWebsite": "Building your website…",
+    "applyingChanges": "Applying your changes…",
+    "generationFailed": "Generation failed. You can try again.",
+    "complete": "Complete",
+    "thoughtFor": "Pensou por {time}",
+    "retrying": "Retrying…"
+  },
+  "Progress": {
+    "generating": "Generating your website…",
+    "applying": "Applying your changes…",
+    "processing": "Processing response…",
+    "searchingPhotos": "Searching for matching photos…",
+    "finalizing": "Finalizing…",
+    "planningLayout": "Planning layout…",
+    "draftingStructure": "Drafting page structure…",
+    "writingSections": "Writing sections…",
+    "stylingPage": "Styling the page…",
+    "choosingImagery": "Choosing imagery…",
+    "placingImages": "Placing images…",
+    "finishingTouches": "Finishing touches…",
+    "starting": "Starting…",
+    "complete": "Complete"
   },
   "Preview": {
     "tab": "Prévia",
@@ -40,7 +63,8 @@
     "openNewTab": "Abrir em nova aba",
     "downloadHtml": "Baixar HTML",
     "generating": "Gerando seu site…",
-    "placeholder": "A prévia aparecerá aqui"
+    "placeholder": "A prévia aparecerá aqui",
+    "loading": "Carregando visualização…"
   },
   "Info": {
     "title": "Sobre o WebsitePls",
@@ -87,7 +111,23 @@
     "projectCount": "{count, plural, one {# projeto} other {# projetos}}",
     "newProject": "Novo projeto",
     "noProjects": "Nenhum projeto ainda. Crie o seu primeiro!",
-    "preview": "Prévia"
+    "preview": "Prévia",
+    "backToHome": "Voltar ao início",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "deleteConfirmTitle": "Excluir projeto?",
+    "deleteConfirmDescription": "Isso excluirá permanentemente este projeto e todas as suas versões. Esta ação não pode ser desfeita.",
+    "deleteConfirmButton": "Excluir",
+    "cancelButton": "Cancelar",
+    "deleteError": "Falha ao excluir o projeto. Tente novamente.",
+    "deleteGeneratingError": "Não é possível excluir um projeto enquanto está sendo gerado.",
+    "rename": "Renomear",
+    "renameLabel": "Nome do projeto",
+    "renameError": "Falha ao renomear o projeto.",
+    "moreActions": "Mais ações",
+    "renameTitle": "Renomear projeto",
+    "displayName": "Nome de exibição",
+    "save": "Salvar"
   },
   "AuthError": {
     "configuration_title": "Erro no servidor",

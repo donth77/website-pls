@@ -5,10 +5,11 @@ import { flushSync } from "react-dom";
 import { useTranslations } from "next-intl";
 import { useGeneration } from "@/hooks/use-generation";
 import { Landing } from "./landing";
-import { ChatSidebar } from "./chat-sidebar";
+import { ChatSidebar } from "../chat/chat-sidebar";
 import { PreviewPanel } from "./preview-panel";
-import { InfoModal } from "./info-modal";
-import { TurnstileWidget } from "./turnstile-widget";
+import { InfoModal } from "../ui/info-modal";
+import { TurnstileWidget } from "../turnstile-widget";
+import { useTabStore, TabList, Tab } from "@ariakit/react";
 
 const DEFAULT_SIDEBAR_FRACTION = 1 / 3;
 const MIN_SIDEBAR_REM = 20;
@@ -28,6 +29,7 @@ export function GeneratorApp() {
     canSubmit,
     status,
     isSubmitting,
+    projectName,
     versionId,
     versionNumber,
     elapsedSeconds,
@@ -46,7 +48,15 @@ export function GeneratorApp() {
     isMac,
     messagesEndRef,
     sidebarInputRef,
+    landingInputRef,
   } = useGeneration();
+
+  const mobileTabStore = useTabStore({
+    selectedId: mobileView,
+    setSelectedId(id) {
+      if (id === "chat" || id === "preview") setMobileView(id);
+    },
+  });
 
   /* ═══════════════ Resizable + collapsible sidebar ═══════════════ */
   const [sidebarFraction, setSidebarFraction] = useState(
@@ -234,7 +244,7 @@ export function GeneratorApp() {
 
   /* ═══════════════ Render ═══════════════ */
   return (
-    <div className="relative flex h-dvh overflow-hidden bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+    <div className="relative flex h-full flex-1 overflow-hidden bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
       {/* ════════════════════ LANDING ════════════════════ */}
       <div
         className={`absolute inset-0 z-10 flex flex-col items-center justify-center px-6 transition-all duration-500 ease-out ${
@@ -254,6 +264,7 @@ export function GeneratorApp() {
           canSubmit={canSubmit}
           isMac={isMac}
           onInfoOpen={() => setIsInfoOpen(true)}
+          textareaRef={landingInputRef}
         />
         <div className="mt-3 flex justify-center">
           <TurnstileWidget
@@ -273,36 +284,30 @@ export function GeneratorApp() {
         }`}
       >
         {/* ── Mobile tab bar ── */}
-        <div
-          role="tablist"
+        <TabList
+          store={mobileTabStore}
           aria-label="Chat and preview"
           className={`flex shrink-0 border-b border-zinc-200 transition-opacity duration-300 md:hidden dark:border-zinc-800 ${
             phase === "builder" ? "opacity-100" : "opacity-0"
           }`}
         >
-          <button
-            type="button"
-            role="tab"
-            aria-selected={mobileView === "chat"}
+          <Tab
+            id="chat"
             className={`flex-1 py-2.5 text-center text-sm font-medium transition ${
               mobileView === "chat"
                 ? "border-b-2 border-zinc-900 text-zinc-900 dark:border-zinc-100 dark:text-zinc-100"
                 : "text-zinc-500 dark:text-zinc-400"
             }`}
-            onClick={() => setMobileView("chat")}
           >
             {tChat("tab")}
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={mobileView === "preview"}
+          </Tab>
+          <Tab
+            id="preview"
             className={`flex-1 py-2.5 text-center text-sm font-medium transition ${
               mobileView === "preview"
                 ? "border-b-2 border-zinc-900 text-zinc-900 dark:border-zinc-100 dark:text-zinc-100"
                 : "text-zinc-500 dark:text-zinc-400"
             }`}
-            onClick={() => setMobileView("preview")}
           >
             {tPreview("tab")}
             {status === "READY" && (
@@ -314,8 +319,8 @@ export function GeneratorApp() {
                 <span className="sr-only">(ready)</span>
               </>
             )}
-          </button>
-        </div>
+          </Tab>
+        </TabList>
 
         {/*
           Mobile: outer clips overflow, inner is a 200%-wide track.
@@ -363,6 +368,7 @@ export function GeneratorApp() {
                 canSubmit={canSubmit}
                 status={status}
                 isSubmitting={isSubmitting}
+                projectName={projectName}
                 versionNumber={versionNumber}
                 elapsedSeconds={elapsedSeconds}
                 onNewProject={handleNewProject}

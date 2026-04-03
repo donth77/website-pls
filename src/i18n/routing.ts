@@ -30,4 +30,5 @@ export const RTL_LOCALES: ReadonlySet<string> = new Set(["ar"]);
 export const routing = defineRouting({
   locales,
   defaultLocale: "en",
+  localePrefix: "as-needed",
 });

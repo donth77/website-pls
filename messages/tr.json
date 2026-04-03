@@ -28,7 +28,30 @@
   "Message": {
     "starting": "Başlatılıyor…",
     "tryAgain": "Tekrar dene",
-    "progressLabel": "Oluşturma ilerlemesi"
+    "progressLabel": "Oluşturma ilerlemesi",
+    "websiteReady": "Your website is ready!",
+    "buildingWebsite": "Building your website…",
+    "applyingChanges": "Applying your changes…",
+    "generationFailed": "Generation failed. You can try again.",
+    "complete": "Complete",
+    "thoughtFor": "{time} düşündü",
+    "retrying": "Retrying…"
+  },
+  "Progress": {
+    "generating": "Generating your website…",
+    "applying": "Applying your changes…",
+    "processing": "Processing response…",
+    "searchingPhotos": "Searching for matching photos…",
+    "finalizing": "Finalizing…",
+    "planningLayout": "Planning layout…",
+    "draftingStructure": "Drafting page structure…",
+    "writingSections": "Writing sections…",
+    "stylingPage": "Styling the page…",
+    "choosingImagery": "Choosing imagery…",
+    "placingImages": "Placing images…",
+    "finishingTouches": "Finishing touches…",
+    "starting": "Starting…",
+    "complete": "Complete"
   },
   "Preview": {
     "tab": "Önizleme",
@@ -40,7 +63,8 @@
     "openNewTab": "Yeni sekmede aç",
     "downloadHtml": "HTML indir",
     "generating": "Web siteniz oluşturuluyor…",
-    "placeholder": "Önizlemeniz burada görünecek"
+    "placeholder": "Önizlemeniz burada görünecek",
+    "loading": "Önizleme yükleniyor…"
   },
   "Info": {
     "title": "WebsitePls Hakkında",
@@ -87,7 +111,23 @@
     "projectCount": "{count, plural, one {# proje} other {# proje}}",
     "newProject": "Yeni proje",
     "noProjects": "Henüz proje yok. İlk projenizi oluşturun!",
-    "preview": "Önizleme"
+    "preview": "Önizleme",
+    "backToHome": "Ana sayfaya dön",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "deleteConfirmTitle": "Proje silinsin mi?",
+    "deleteConfirmDescription": "Bu proje ve tüm sürümleri kalıcı olarak silinecektir. Bu işlem geri alınamaz.",
+    "deleteConfirmButton": "Sil",
+    "cancelButton": "İptal",
+    "deleteError": "Proje silinemedi. Lütfen tekrar deneyin.",
+    "deleteGeneratingError": "Oluşturulurken proje silinemez.",
+    "rename": "Yeniden adlandır",
+    "renameLabel": "Proje adı",
+    "renameError": "Proje yeniden adlandırılamadı.",
+    "moreActions": "Diğer işlemler",
+    "renameTitle": "Projeyi yeniden adlandır",
+    "displayName": "Görünen ad",
+    "save": "Kaydet"
   },
   "AuthError": {
     "configuration_title": "Sunucu hatası",

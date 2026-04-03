@@ -28,7 +28,30 @@
   "Message": {
     "starting": "Починаємо…",
     "tryAgain": "Спробувати ще раз",
-    "progressLabel": "Прогрес генерації"
+    "progressLabel": "Прогрес генерації",
+    "websiteReady": "Your website is ready!",
+    "buildingWebsite": "Building your website…",
+    "applyingChanges": "Applying your changes…",
+    "generationFailed": "Generation failed. You can try again.",
+    "complete": "Complete",
+    "thoughtFor": "Думав {time}",
+    "retrying": "Retrying…"
+  },
+  "Progress": {
+    "generating": "Generating your website…",
+    "applying": "Applying your changes…",
+    "processing": "Processing response…",
+    "searchingPhotos": "Searching for matching photos…",
+    "finalizing": "Finalizing…",
+    "planningLayout": "Planning layout…",
+    "draftingStructure": "Drafting page structure…",
+    "writingSections": "Writing sections…",
+    "stylingPage": "Styling the page…",
+    "choosingImagery": "Choosing imagery…",
+    "placingImages": "Placing images…",
+    "finishingTouches": "Finishing touches…",
+    "starting": "Starting…",
+    "complete": "Complete"
   },
   "Preview": {
     "tab": "Попередній перегляд",
@@ -40,7 +63,8 @@
     "openNewTab": "Відкрити в новій вкладці",
     "downloadHtml": "Завантажити HTML",
     "generating": "Генеруємо ваш вебсайт…",
-    "placeholder": "Тут з'явиться попередній перегляд"
+    "placeholder": "Тут з'явиться попередній перегляд",
+    "loading": "Завантаження попереднього перегляду…"
   },
   "Info": {
     "title": "Про WebsitePls",
@@ -87,7 +111,23 @@
     "projectCount": "{count, plural, one {# проєкт} few {# проєкти} many {# проєктів} other {# проєктів}}",
     "newProject": "Новий проєкт",
     "noProjects": "Проєктів ще немає. Створіть свій перший!",
-    "preview": "Попередній перегляд"
+    "preview": "Попередній перегляд",
+    "backToHome": "На головну",
+    "edit": "Редагувати",
+    "delete": "Видалити",
+    "deleteConfirmTitle": "Видалити проєкт?",
+    "deleteConfirmDescription": "Це назавжди видалить цей проєкт та всі його версії. Цю дію неможливо скасувати.",
+    "deleteConfirmButton": "Видалити",
+    "cancelButton": "Скасувати",
+    "deleteError": "Не вдалося видалити проєкт. Спробуйте ще раз.",
+    "deleteGeneratingError": "Неможливо видалити проєкт під час генерації.",
+    "rename": "Перейменувати",
+    "renameLabel": "Назва проєкту",
+    "renameError": "Не вдалося перейменувати проєкт.",
+    "moreActions": "Більше дій",
+    "renameTitle": "Перейменувати проєкт",
+    "displayName": "Відображуване ім'я",
+    "save": "Зберегти"
   },
   "AuthError": {
     "configuration_title": "Помилка сервера",

@@ -1,4 +1,5 @@
-import "server-only";
+// Note: no `import "server-only"` here — this module is shared with the
+// standalone BullMQ worker (tsx), which doesn't use the Next.js bundler.
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 // Memoized admin client for server-only usage (API routes + worker).

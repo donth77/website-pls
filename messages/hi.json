@@ -28,7 +28,30 @@
   "Message": {
     "starting": "शुरू हो रहा है…",
     "tryAgain": "फिर से कोशिश करें",
-    "progressLabel": "जनरेशन प्रगति"
+    "progressLabel": "जनरेशन प्रगति",
+    "websiteReady": "Your website is ready!",
+    "buildingWebsite": "Building your website…",
+    "applyingChanges": "Applying your changes…",
+    "generationFailed": "Generation failed. You can try again.",
+    "complete": "Complete",
+    "thoughtFor": "{time} सोचा",
+    "retrying": "Retrying…"
+  },
+  "Progress": {
+    "generating": "Generating your website…",
+    "applying": "Applying your changes…",
+    "processing": "Processing response…",
+    "searchingPhotos": "Searching for matching photos…",
+    "finalizing": "Finalizing…",
+    "planningLayout": "Planning layout…",
+    "draftingStructure": "Drafting page structure…",
+    "writingSections": "Writing sections…",
+    "stylingPage": "Styling the page…",
+    "choosingImagery": "Choosing imagery…",
+    "placingImages": "Placing images…",
+    "finishingTouches": "Finishing touches…",
+    "starting": "Starting…",
+    "complete": "Complete"
   },
   "Preview": {
     "tab": "प्रीव्यू",
@@ -40,7 +63,8 @@
     "openNewTab": "नई टैब में खोलें",
     "downloadHtml": "HTML डाउनलोड करें",
     "generating": "आपकी वेबसाइट बनाई जा रही है…",
-    "placeholder": "आपका प्रीव्यू यहां दिखाई देगा"
+    "placeholder": "आपका प्रीव्यू यहां दिखाई देगा",
+    "loading": "प्रीव्यू लोड हो रहा है…"
   },
   "Info": {
     "title": "WebsitePls के बारे में",
@@ -87,7 +111,23 @@
     "projectCount": "{count, plural, other {# प्रोजेक्ट}}",
     "newProject": "नया प्रोजेक्ट",
     "noProjects": "अभी तक कोई प्रोजेक्ट नहीं है। अपना पहला प्रोजेक्ट बनाएं!",
-    "preview": "प्रीव्यू"
+    "preview": "प्रीव्यू",
+    "backToHome": "होम पर वापस जाएं",
+    "edit": "संपादित करें",
+    "delete": "हटाएं",
+    "deleteConfirmTitle": "प्रोजेक्ट हटाएं?",
+    "deleteConfirmDescription": "यह इस प्रोजेक्ट और इसके सभी संस्करणों को स्थायी रूप से हटा देगा। यह क्रिया पूर्ववत नहीं की जा सकती।",
+    "deleteConfirmButton": "हटाएं",
+    "cancelButton": "रद्द करें",
+    "deleteError": "प्रोजेक्ट हटाने में विफल। कृपया पुनः प्रयास करें।",
+    "deleteGeneratingError": "जनरेशन के दौरान प्रोजेक्ट को हटाया नहीं जा सकता।",
+    "rename": "नाम बदलें",
+    "renameLabel": "प्रोजेक्ट का नाम",
+    "renameError": "प्रोजेक्ट का नाम बदलने में विफल।",
+    "moreActions": "अधिक कार्य",
+    "renameTitle": "प्रोजेक्ट का नाम बदलें",
+    "displayName": "प्रदर्शित नाम",
+    "save": "सहेजें"
   },
   "AuthError": {
     "configuration_title": "सर्वर त्रुटि",

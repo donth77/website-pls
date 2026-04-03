@@ -2,7 +2,7 @@
   "Landing": {
     "heading": "Was möchten Sie erstellen?",
     "description": "Beschreiben Sie Ihre Website und wir generieren sie in Sekunden.",
-    "placeholder": "z. B. \u201EEine Portfolio-Seite für einen Fotografen mit dunklem Design und Bildergalerie\u201C",
+    "placeholder": "z. B. „Eine Portfolio-Seite für einen Fotografen mit dunklem Design und Bildergalerie“",
     "generate": "Website generieren",
     "inputLabel": "Beschreiben Sie die Website, die Sie erstellen möchten",
     "keyboardHint": "{key}+Eingabe zum Generieren",
@@ -28,7 +28,30 @@
   "Message": {
     "starting": "Wird gestartet…",
     "tryAgain": "Erneut versuchen",
-    "progressLabel": "Generierungsfortschritt"
+    "progressLabel": "Generierungsfortschritt",
+    "websiteReady": "Your website is ready!",
+    "buildingWebsite": "Building your website…",
+    "applyingChanges": "Applying your changes…",
+    "generationFailed": "Generation failed. You can try again.",
+    "complete": "Complete",
+    "thoughtFor": "Hat {time} nachgedacht",
+    "retrying": "Retrying…"
+  },
+  "Progress": {
+    "generating": "Generating your website…",
+    "applying": "Applying your changes…",
+    "processing": "Processing response…",
+    "searchingPhotos": "Searching for matching photos…",
+    "finalizing": "Finalizing…",
+    "planningLayout": "Planning layout…",
+    "draftingStructure": "Drafting page structure…",
+    "writingSections": "Writing sections…",
+    "stylingPage": "Styling the page…",
+    "choosingImagery": "Choosing imagery…",
+    "placingImages": "Placing images…",
+    "finishingTouches": "Finishing touches…",
+    "starting": "Starting…",
+    "complete": "Complete"
   },
   "Preview": {
     "tab": "Vorschau",
@@ -40,7 +63,8 @@
     "openNewTab": "In neuem Tab öffnen",
     "downloadHtml": "HTML herunterladen",
     "generating": "Ihre Website wird generiert…",
-    "placeholder": "Ihre Vorschau wird hier angezeigt"
+    "placeholder": "Ihre Vorschau wird hier angezeigt",
+    "loading": "Vorschau wird geladen…"
   },
   "Info": {
     "title": "Über WebsitePls",
@@ -87,7 +111,23 @@
     "projectCount": "{count, plural, one {# Projekt} other {# Projekte}}",
     "newProject": "Neues Projekt",
     "noProjects": "Noch keine Projekte. Erstellen Sie Ihr erstes!",
-    "preview": "Vorschau"
+    "preview": "Vorschau",
+    "backToHome": "Zurück zur Startseite",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "deleteConfirmTitle": "Projekt löschen?",
+    "deleteConfirmDescription": "Dadurch werden dieses Projekt und alle seine Versionen dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleteConfirmButton": "Löschen",
+    "cancelButton": "Abbrechen",
+    "deleteError": "Projekt konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
+    "deleteGeneratingError": "Ein Projekt kann nicht gelöscht werden, während es generiert wird.",
+    "rename": "Umbenennen",
+    "renameLabel": "Projektname",
+    "renameError": "Projekt konnte nicht umbenannt werden.",
+    "moreActions": "Weitere Aktionen",
+    "renameTitle": "Projekt umbenennen",
+    "displayName": "Anzeigename",
+    "save": "Speichern"
   },
   "AuthError": {
     "configuration_title": "Serverfehler",

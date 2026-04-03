@@ -28,7 +28,30 @@
   "Message": {
     "starting": "正在启动…",
     "tryAgain": "重试",
-    "progressLabel": "生成进度"
+    "progressLabel": "生成进度",
+    "websiteReady": "Your website is ready!",
+    "buildingWebsite": "Building your website…",
+    "applyingChanges": "Applying your changes…",
+    "generationFailed": "Generation failed. You can try again.",
+    "complete": "Complete",
+    "thoughtFor": "思考了 {time}",
+    "retrying": "Retrying…"
+  },
+  "Progress": {
+    "generating": "Generating your website…",
+    "applying": "Applying your changes…",
+    "processing": "Processing response…",
+    "searchingPhotos": "Searching for matching photos…",
+    "finalizing": "Finalizing…",
+    "planningLayout": "Planning layout…",
+    "draftingStructure": "Drafting page structure…",
+    "writingSections": "Writing sections…",
+    "stylingPage": "Styling the page…",
+    "choosingImagery": "Choosing imagery…",
+    "placingImages": "Placing images…",
+    "finishingTouches": "Finishing touches…",
+    "starting": "Starting…",
+    "complete": "Complete"
   },
   "Preview": {
     "tab": "预览",
@@ -40,7 +63,8 @@
     "openNewTab": "在新标签页中打开",
     "downloadHtml": "下载 HTML",
     "generating": "正在生成你的网站…",
-    "placeholder": "预览将在此处显示"
+    "placeholder": "预览将在此处显示",
+    "loading": "加载预览…"
   },
   "Info": {
     "title": "关于 WebsitePls",
@@ -87,7 +111,23 @@
     "projectCount": "{count, plural, one {# 个项目} other {# 个项目}}",
     "newProject": "新建项目",
     "noProjects": "还没有项目，创建你的第一个吧！",
-    "preview": "预览"
+    "preview": "预览",
+    "backToHome": "返回首页",
+    "edit": "编辑",
+    "delete": "删除",
+    "deleteConfirmTitle": "删除项目？",
+    "deleteConfirmDescription": "这将永久删除此项目及其所有版本。此操作无法撤销。",
+    "deleteConfirmButton": "删除",
+    "cancelButton": "取消",
+    "deleteError": "删除项目失败，请重试。",
+    "deleteGeneratingError": "项目正在生成中，无法删除。",
+    "rename": "重命名",
+    "renameLabel": "项目名称",
+    "renameError": "重命名项目失败。",
+    "moreActions": "更多操作",
+    "renameTitle": "重命名项目",
+    "displayName": "显示名称",
+    "save": "保存"
   },
   "AuthError": {
     "configuration_title": "服务器错误",

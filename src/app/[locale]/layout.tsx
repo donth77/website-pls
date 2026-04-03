@@ -6,8 +6,8 @@ import { getMessages, getTranslations } from "next-intl/server";
 import { Geist, Geist_Mono } from "next/font/google";
 import { routing, RTL_LOCALES } from "@/i18n/routing";
 import type { Locale } from "@/i18n/routing";
-import { SessionProvider } from "@/components/session-provider";
-import { AuthButton } from "@/components/auth-button";
+import { SessionProvider } from "@/components/auth/session-provider";
+import { GlobalBar } from "@/components/global-bar";
 import "../globals.css";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://websitepls.com";
@@ -52,7 +52,12 @@ export async function generateMetadata({
       description: t("description"),
     },
     alternates: {
-      languages: Object.fromEntries(routing.locales.map((l) => [l, `/${l}`])),
+      languages: Object.fromEntries(
+        routing.locales.map((l) => [
+          l,
+          l === routing.defaultLocale ? "/" : `/${l}`,
+        ]),
+      ),
     },
   };
 }
@@ -93,7 +98,7 @@ export default async function LocaleLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="flex min-h-full flex-col" suppressHydrationWarning>
+      <body className="flex h-dvh flex-col" suppressHydrationWarning>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -118,10 +123,10 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages}>
           <SessionProvider>
             <SkipLink />
-            <div className="fixed top-4 right-4 z-50">
-              <AuthButton />
-            </div>
-            <main id="main-content">{children}</main>
+            <GlobalBar />
+            <main id="main-content" className="min-h-0 flex-1 overflow-auto">
+              {children}
+            </main>
           </SessionProvider>
         </NextIntlClientProvider>
       </body>

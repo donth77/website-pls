@@ -28,7 +28,30 @@
   "Message": {
     "starting": "กำลังเริ่ม…",
     "tryAgain": "ลองอีกครั้ง",
-    "progressLabel": "ความคืบหน้าการสร้าง"
+    "progressLabel": "ความคืบหน้าการสร้าง",
+    "websiteReady": "Your website is ready!",
+    "buildingWebsite": "Building your website…",
+    "applyingChanges": "Applying your changes…",
+    "generationFailed": "Generation failed. You can try again.",
+    "complete": "Complete",
+    "thoughtFor": "คิดเป็นเวลา {time}",
+    "retrying": "Retrying…"
+  },
+  "Progress": {
+    "generating": "Generating your website…",
+    "applying": "Applying your changes…",
+    "processing": "Processing response…",
+    "searchingPhotos": "Searching for matching photos…",
+    "finalizing": "Finalizing…",
+    "planningLayout": "Planning layout…",
+    "draftingStructure": "Drafting page structure…",
+    "writingSections": "Writing sections…",
+    "stylingPage": "Styling the page…",
+    "choosingImagery": "Choosing imagery…",
+    "placingImages": "Placing images…",
+    "finishingTouches": "Finishing touches…",
+    "starting": "Starting…",
+    "complete": "Complete"
   },
   "Preview": {
     "tab": "ตัวอย่าง",
@@ -40,7 +63,8 @@
     "openNewTab": "เปิดในแท็บใหม่",
     "downloadHtml": "ดาวน์โหลด HTML",
     "generating": "กำลังสร้างเว็บไซต์ของคุณ…",
-    "placeholder": "ตัวอย่างจะปรากฏที่นี่"
+    "placeholder": "ตัวอย่างจะปรากฏที่นี่",
+    "loading": "กำลังโหลดตัวอย่าง…"
   },
   "Info": {
     "title": "เกี่ยวกับ WebsitePls",
@@ -87,7 +111,23 @@
     "projectCount": "{count, plural, other {# โปรเจกต์}}",
     "newProject": "โปรเจกต์ใหม่",
     "noProjects": "ยังไม่มีโปรเจกต์ สร้างโปรเจกต์แรกของคุณ!",
-    "preview": "ตัวอย่าง"
+    "preview": "ตัวอย่าง",
+    "backToHome": "กลับสู่หน้าหลัก",
+    "edit": "แก้ไข",
+    "delete": "ลบ",
+    "deleteConfirmTitle": "ลบโปรเจกต์?",
+    "deleteConfirmDescription": "การดำเนินการนี้จะลบโปรเจกต์นี้และเวอร์ชันทั้งหมดอย่างถาวร ไม่สามารถย้อนกลับได้",
+    "deleteConfirmButton": "ลบ",
+    "cancelButton": "ยกเลิก",
+    "deleteError": "ลบโปรเจกต์ไม่สำเร็จ กรุณาลองอีกครั้ง",
+    "deleteGeneratingError": "ไม่สามารถลบโปรเจกต์ขณะกำลังสร้าง",
+    "rename": "เปลี่ยนชื่อ",
+    "renameLabel": "ชื่อโปรเจกต์",
+    "renameError": "เปลี่ยนชื่อโปรเจกต์ไม่สำเร็จ",
+    "moreActions": "การดำเนินการเพิ่มเติม",
+    "renameTitle": "เปลี่ยนชื่อโปรเจกต์",
+    "displayName": "ชื่อที่แสดง",
+    "save": "บันทึก"
   },
   "AuthError": {
     "configuration_title": "ข้อผิดพลาดของเซิร์ฟเวอร์",

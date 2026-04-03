@@ -225,6 +225,10 @@ const SOURCE_CONFIG = {
     label: "Pexels",
     url: "https://www.pexels.com/",
   },
+  pixabay: {
+    label: "Pixabay",
+    url: "https://pixabay.com/",
+  },
 } as const;
 
 function injectAttribution(
@@ -491,26 +495,27 @@ function heuristicFromPartialJson(partialJson: string): StreamHeuristic | null {
   const hasBody = /<body\b/i.test(s);
 
   // Ordered from earlier → later.
+  // Values are i18n keys in the "Progress" namespace, translated on the client.
   if (!hasHtmlKey && !hasImagesKey) {
-    return { step: "Planning layout…", percent: 26 };
+    return { step: "planningLayout", percent: 26 };
   }
   if (hasHtmlKey && !hasBody) {
-    return { step: "Drafting page structure…", percent: 32 };
+    return { step: "draftingStructure", percent: 32 };
   }
   if (hasBody && !hasTailwind) {
-    return { step: "Writing sections…", percent: 38 };
+    return { step: "writingSections", percent: 38 };
   }
   if (hasTailwind && !hasImagesKey) {
-    return { step: "Styling the page…", percent: 44 };
+    return { step: "stylingPage", percent: 44 };
   }
   if (hasImagesKey && !hasImgPlaceholder) {
     // Images array exists but placeholders not observed yet.
-    return { step: "Choosing imagery…", percent: 48 };
+    return { step: "choosingImagery", percent: 48 };
   }
   if (hasImgPlaceholder) {
-    return { step: "Placing images…", percent: 52 };
+    return { step: "placingImages", percent: 52 };
   }
-  return { step: "Finishing touches…", percent: 56 };
+  return { step: "finishingTouches", percent: 56 };
 }
 
 export async function runGenerationPipeline(input: {
@@ -554,10 +559,7 @@ export async function runGenerationPipeline(input: {
   // High max_tokens implies a long completion; the Anthropic SDK requires streaming
   // for those (non-streaming is capped at ~10 min). See long-requests in SDK README.
   if (supportsStructured) {
-    progress(
-      isRefinement ? "Applying your changes…" : "Generating your website…",
-      20,
-    );
+    progress(isRefinement ? "applying" : "generating", 20);
 
     const stream = anthropic.messages.stream({
       model,
@@ -594,7 +596,7 @@ export async function runGenerationPipeline(input: {
 
     const response = await stream.finalMessage();
 
-    progress("Processing response…", 60);
+    progress("processing", 60);
 
     const parsed = response.parsed_output;
     if (!parsed?.html) {
@@ -607,7 +609,7 @@ export async function runGenerationPipeline(input: {
       stopReason: response.stop_reason,
     });
 
-    progress("Searching for matching photos…", 70);
+    progress("searchingPhotos", 70);
 
     let { html, attributions } = await resolveImageSlots(parsed.html, images, {
       skipAttribution: true,
@@ -639,15 +641,12 @@ export async function runGenerationPipeline(input: {
       html = injectAttribution(html, attributions);
     }
 
-    progress("Finalizing…", 90);
+    progress("finalizing", 90);
     return { html };
   }
 
   // ---- Fallback path (older models) ----
-  progress(
-    isRefinement ? "Applying your changes…" : "Generating your website…",
-    20,
-  );
+  progress(isRefinement ? "applying" : "generating", 20);
 
   const response = await anthropic.messages.create({
     model,
@@ -657,7 +656,7 @@ export async function runGenerationPipeline(input: {
     messages: [{ role: "user", content: userContent }],
   });
 
-  progress("Processing response…", 60);
+  progress("processing", 60);
 
   const textBlock = response.content.find((c) => c.type === "text");
   if (
@@ -673,10 +672,10 @@ export async function runGenerationPipeline(input: {
     throw new Error("Model did not return an HTML document.");
   }
 
-  progress("Searching for matching photos…", 70);
+  progress("searchingPhotos", 70);
 
   const { html } = await resolveImagesFromAltText(rawHtml);
 
-  progress("Finalizing…", 90);
+  progress("finalizing", 90);
   return { html };
 }
