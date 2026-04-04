@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "trap 'kill 0' EXIT; tsx src/workers/generation-worker.ts & next dev --turbopack",
+    "dev": "trap 'kill 0' EXIT; NODE_OPTIONS='--dns-result-order=ipv4first' tsx src/workers/generation-worker.ts & NODE_OPTIONS='--dns-result-order=ipv4first' next dev --turbopack",
     "build": "next build",
-    "start": "next start",
+    "start": "NODE_OPTIONS='--dns-result-order=ipv4first' next start",
     "lint": "eslint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

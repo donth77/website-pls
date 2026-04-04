@@ -21,9 +21,13 @@ export default function SettingsPage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  if (status === "loading") return null;
+  // Initial session fetch only: `update()` also sets status to "loading" while
+  // refetching; session still holds the previous value, so don’t unmount the page.
+  if (status === "loading" && !session) {
+    return null;
+  }
 
-  if (!session) {
+  if (status === "unauthenticated" || !session) {
     router.push("/login");
     return null;
   }
@@ -31,8 +35,11 @@ export default function SettingsPage() {
   function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    setAvatarPreview((prev) => {
+      if (prev?.startsWith("blob:")) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
     setAvatarFile(file);
-    setAvatarPreview(URL.createObjectURL(file));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -57,14 +64,40 @@ export default function SettingsPage() {
       return;
     }
 
-    // Refresh the NextAuth session so the header reflects the new name/image
+    const updated = (await res.json()) as { image?: string | null };
+
+    // Keep the blob visible until the saved avatar URL has loaded so the
+    // circle doesn’t sit empty while /api/me/avatar hits R2.
+    if (avatarFile && updated.image?.startsWith("/")) {
+      const abs = new URL(updated.image, window.location.origin).href;
+      try {
+        await new Promise<void>((resolve, reject) => {
+          const img = new window.Image();
+          img.onload = () => resolve();
+          img.onerror = () => reject(new Error("preload"));
+          img.src = abs;
+        });
+      } catch {
+        /* session URL is still valid; continue without blocking */
+      }
+    }
+
     await updateSession({});
+
     setAvatarFile(null);
+    setAvatarPreview((prev) => {
+      if (prev?.startsWith("blob:")) URL.revokeObjectURL(prev);
+      return null;
+    });
     toast.success(t("saved"));
     setIsSaving(false);
   }
 
   const displayImage = avatarPreview ?? session.user?.image;
+  /** Local API or object-URL avatars: use <img> (next/image is flaky for /api/* + query and for blob:). */
+  const useNativeAvatarImg =
+    !!displayImage &&
+    (displayImage.startsWith("blob:") || displayImage.startsWith("/"));
 
   return (
     <div className="flex min-h-dvh justify-center bg-white px-6 py-16 dark:bg-zinc-950">
@@ -91,15 +124,27 @@ export default function SettingsPage() {
                 className="group relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-zinc-300 transition hover:border-zinc-400 dark:border-zinc-600 dark:hover:border-zinc-500"
               >
                 {displayImage ? (
-                  <Image
-                    src={displayImage}
-                    alt=""
-                    width={64}
-                    height={64}
-                    className="h-full w-full object-cover"
-                    referrerPolicy="no-referrer"
-                    unoptimized
-                  />
+                  useNativeAvatarImg ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- blob: and /api/me/avatar are not reliably supported by next/image
+                    <img
+                      src={displayImage}
+                      alt=""
+                      width={64}
+                      height={64}
+                      className="h-full w-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <Image
+                      src={displayImage}
+                      alt=""
+                      width={64}
+                      height={64}
+                      className="h-full w-full object-cover"
+                      referrerPolicy="no-referrer"
+                      unoptimized
+                    />
+                  )
                 ) : (
                   <User className="h-6 w-6 text-zinc-400 dark:text-zinc-500" />
                 )}

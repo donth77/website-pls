@@ -3,6 +3,7 @@ import { timingSafeEqual } from "node:crypto";
 import { checkRateLimit } from "@/lib/rateLimit";
 import { cleanupExpiredGuestSessions } from "@/lib/cleanup/guestSessions";
 import { purgeExpiredSoftDeletedProjects } from "@/lib/cleanup/softDeletedProjects";
+import { purgeOrphanedR2Objects } from "@/lib/cleanup/orphanedStorage";
 import { createLogger } from "@/lib/logger";
 
 const log = createLogger("api:admin:cleanup");
@@ -54,10 +55,11 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const [guestSessions, softDeletePurge] = await Promise.all([
+  const [guestSessions, softDeletePurge, orphanedStorage] = await Promise.all([
     cleanupExpiredGuestSessions(),
     purgeExpiredSoftDeletedProjects(),
+    purgeOrphanedR2Objects(),
   ]);
 
-  return NextResponse.json({ guestSessions, softDeletePurge });
+  return NextResponse.json({ guestSessions, softDeletePurge, orphanedStorage });
 }

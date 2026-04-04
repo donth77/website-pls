@@ -12,6 +12,9 @@ import { createLogger } from "@/lib/logger";
 const log = createLogger("auth");
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  // Derive OAuth redirect URL from the incoming Host (needed for LAN IP /
+  // Turbopack dev; set AUTH_URL to a single origin if you want strict behavior).
+  trustHost: process.env.NODE_ENV !== "production",
   // Cast: our PrismaClient is generated to src/generated/prisma, not @prisma/client.
   // The adapter only calls methods at runtime — the type mismatch is harmless.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -59,22 +62,50 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: "/auth/error",
   },
   callbacks: {
-    async jwt({ token, user, trigger }) {
+    async jwt({ token, user, account, trigger }) {
       // Persist the user ID into the JWT on sign-in.
       if (user?.id) {
         token.sub = user.id;
       }
+      // PrismaAdapter often leaves emailVerified null for OAuth users. Stamp it
+      // on first JWT issue so the session matches provider-trusted email.
+      const oauth =
+        account?.provider === "google" || account?.provider === "github";
+      if (oauth && user?.id && (trigger === "signIn" || trigger === "signUp")) {
+        try {
+          await prisma.user.updateMany({
+            where: { id: user.id, emailVerified: null },
+            data: { emailVerified: new Date() },
+          });
+          token.emailVerified = true;
+        } catch (err) {
+          log.warn("OAuth emailVerified stamp failed", {
+            userId: user.id,
+            error: String(err),
+          });
+        }
+      }
       // Refresh user data from DB on sign-in and session update (e.g. after
       // verification, avatar upload, or name change).
       if (token.sub && (user || trigger === "update")) {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: token.sub },
-          select: { emailVerified: true, name: true, image: true },
-        });
-        if (dbUser) {
-          token.emailVerified = !!dbUser.emailVerified;
-          token.name = dbUser.name;
-          token.picture = dbUser.image;
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.sub },
+            select: { emailVerified: true, name: true, image: true },
+          });
+          if (dbUser) {
+            token.emailVerified = !!dbUser.emailVerified;
+            token.name = dbUser.name;
+            token.picture = dbUser.image;
+          }
+        } catch (err) {
+          // Transient DB errors (e.g. Neon cold start, pool contention with the
+          // worker) must not invalidate the JWT — keep existing claims.
+          log.warn("JWT refresh skipped: user lookup failed", {
+            userId: token.sub,
+            trigger: trigger ?? "(sign-in)",
+            error: String(err),
+          });
         }
       }
       return token;
@@ -85,7 +116,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       session.user.name = token.name ?? session.user.name;
       session.user.image = (token.picture as string) ?? session.user.image;
-      session.user.emailVerified = !!token.emailVerified;
+      (session.user as { emailVerified: boolean }).emailVerified =
+        !!token.emailVerified;
       return session;
     },
   },

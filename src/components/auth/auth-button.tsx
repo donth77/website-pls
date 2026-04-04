@@ -65,16 +65,30 @@ export function AuthButton() {
         aria-label={t("accountMenu")}
       >
         {session.user?.image ? (
-          <Image
-            src={session.user.image}
-            alt=""
-            width={32}
-            height={32}
-            className="h-full w-full object-cover"
-            referrerPolicy="no-referrer"
-            loading="eager"
-            unoptimized
-          />
+          session.user.image.startsWith("http://") ||
+          session.user.image.startsWith("https://") ? (
+            <Image
+              src={session.user.image}
+              alt=""
+              width={32}
+              height={32}
+              className="h-full w-full object-cover"
+              referrerPolicy="no-referrer"
+              loading="eager"
+              unoptimized
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element -- /api/me/avatar and blob: are not reliable with next/image in all dev/prod configs
+            <img
+              src={session.user.image}
+              alt=""
+              width={32}
+              height={32}
+              className="h-full w-full object-cover"
+              referrerPolicy="no-referrer"
+              loading="eager"
+            />
+          )
         ) : (
           <User className="h-4 w-4 text-zinc-500 dark:text-zinc-400" />
         )}

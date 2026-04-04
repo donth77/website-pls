@@ -1,14 +1,16 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@ariakit/react";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 
 function SignupForm() {
   const t = useTranslations("Signup");
+  const router = useRouter();
+  const { status } = useSession();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/";
   const [email, setEmail] = useState("");
@@ -17,6 +19,12 @@ function SignupForm() {
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Redirect authenticated users away from the signup page.
+  if (status === "authenticated") {
+    router.replace(callbackUrl);
+    return null;
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -234,6 +242,7 @@ function SignupForm() {
           {t("termsPrefix")}{" "}
           <Link
             href="/terms"
+            target="_blank"
             className="underline hover:text-zinc-700 dark:hover:text-zinc-200"
           >
             {t("termsLink")}
@@ -241,6 +250,7 @@ function SignupForm() {
           {t("termsAnd")}{" "}
           <Link
             href="/privacy"
+            target="_blank"
             className="underline hover:text-zinc-700 dark:hover:text-zinc-200"
           >
             {t("privacyLink")}

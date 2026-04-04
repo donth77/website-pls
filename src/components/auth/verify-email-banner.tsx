@@ -28,7 +28,7 @@ export function VerifyEmailBanner() {
     return () => document.removeEventListener("visibilitychange", onVisible);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Don't show if no session, already verified, or OAuth user (verified by default).
+  // Don't show if no session or email verified (including OAuth after DB/JWT stamp).
   if (!session?.user || session.user.emailVerified) return null;
 
   async function handleResend() {
