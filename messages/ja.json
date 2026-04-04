@@ -1,4 +1,7 @@
 {
+  "Common": {
+    "back": "戻る"
+  },
   "Landing": {
     "heading": "何を作りたいですか？",
     "description": "ウェブサイトの説明を入力すると、数秒で生成します。",
@@ -37,7 +40,8 @@
     "thoughtFor": "{time} 考えました",
     "retrying": "リトライ中…",
     "interrupted": "前回の生成が中断されました。もう一度お試しください。",
-    "networkError": "ネットワークエラー。接続を確認してもう一度お試しください。"
+    "networkError": "ネットワークエラー。接続を確認してもう一度お試しください。",
+    "timedOut": "生成がタイムアウトしました。もう一度お試しください。"
   },
   "Progress": {
     "generating": "ウェブサイトを生成中…",
@@ -84,7 +88,8 @@
     "accountMenu": "アカウントメニュー",
     "user": "ユーザー",
     "credit": "{count, plural, one {# クレジット} other {# クレジット}}",
-    "myProjects": "マイプロジェクト"
+    "myProjects": "マイプロジェクト",
+    "settings": "設定"
   },
   "GenerationLimit": {
     "remaining": "無料生成が{remaining}/{max}回残っています。",
@@ -98,15 +103,50 @@
     "description": "ログインしてプロジェクトを保存し、より多くの生成を利用しましょう。",
     "emailLabel": "メールアドレス",
     "emailPlaceholder": "you@example.com",
-    "sendLink": "リンクを送信",
-    "sending": "送信中...",
+    "passwordLabel": "パスワード",
+    "passwordPlaceholder": "パスワードを入力",
+    "signIn": "ログイン",
+    "signingIn": "ログイン中...",
+    "noAccount": "アカウントをお持ちでないですか？",
+    "signUp": "新規登録",
     "orContinueWith": "または次の方法で続行",
     "google": "Google",
     "github": "GitHub",
-    "terms": "ログインすることで、利用規約に同意したものとみなされます。",
-    "checkEmail": "メールを確認してください",
-    "emailSent": "{email}にログインリンクを送信しました",
+    "termsPrefix": "ログインすることで、",
+    "termsLink": "利用規約",
+    "termsAnd": "と",
+    "privacyLink": "プライバシーポリシー",
+    "termsSuffix": ".",
+    "forgotPassword": "パスワードをお忘れですか？",
+    "invalidCredentials": "メールアドレスまたはパスワードが正しくありません。",
     "errorOAuth": "このメールアドレスは既に別のログイン方法に関連付けられています。",
+    "errorGeneric": "問題が発生しました。もう一度お試しください。"
+  },
+  "Signup": {
+    "heading": "アカウントを作成",
+    "description": "サインアップしてプロジェクトを保存し、より多くの生成を利用しましょう。",
+    "nameLabel": "名前（任意）",
+    "namePlaceholder": "お名前",
+    "emailLabel": "メールアドレス",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "パスワード",
+    "passwordPlaceholder": "8文字以上",
+    "confirmPasswordLabel": "パスワードの確認",
+    "confirmPasswordPlaceholder": "パスワードを再入力",
+    "createAccount": "アカウントを作成",
+    "creatingAccount": "アカウント作成中...",
+    "hasAccount": "既にアカウントをお持ちですか？",
+    "signIn": "ログイン",
+    "orContinueWith": "または次の方法で続行",
+    "google": "Google",
+    "github": "GitHub",
+    "termsPrefix": "アカウントを作成することで、",
+    "termsLink": "利用規約",
+    "termsAnd": "と",
+    "privacyLink": "プライバシーポリシー",
+    "termsSuffix": ".",
+    "passwordMismatch": "パスワードが一致しません。",
+    "passwordTooShort": "パスワードは8文字以上である必要があります。",
     "errorGeneric": "問題が発生しました。もう一度お試しください。"
   },
   "Projects": {
@@ -115,7 +155,6 @@
     "newProject": "新しいプロジェクト",
     "noProjects": "まだプロジェクトがありません。最初のプロジェクトを作成しましょう！",
     "preview": "プレビュー",
-    "backToHome": "ホームに戻る",
     "edit": "編集",
     "delete": "削除",
     "deleteConfirmTitle": "プロジェクトを削除しますか？",
@@ -127,6 +166,8 @@
     "rename": "名前を変更",
     "renameLabel": "プロジェクト名",
     "renameError": "プロジェクトの名前変更に失敗しました。",
+    "renameSuccess": "プロジェクト名を変更しました。",
+    "deleteSuccess": "プロジェクトを削除しました。",
     "moreActions": "その他のアクション",
     "renameTitle": "プロジェクト名を変更",
     "displayName": "表示名",
@@ -151,9 +192,43 @@
     "goHome": "ホームページへ"
   },
   "VerifyEmail": {
-    "heading": "メールを確認してください",
-    "description": "メールアドレスにログインリンクを送信しました。リンクをクリックしてログインしてください。",
+    "verifying": "メールアドレスを確認中...",
+    "successHeading": "メールアドレスが確認されました",
+    "successDescription": "メールアドレスが確認されました。ログインできます。",
+    "signIn": "ログイン",
+    "errorHeading": "確認に失敗しました",
+    "errorDescription": "このリンクは無効または期限切れです。新しい確認メールをリクエストしてください。",
     "backToSignIn": "ログインに戻る"
+  },
+  "ForgotPassword": {
+    "heading": "パスワードをお忘れですか？",
+    "description": "メールアドレスを入力してください。パスワードリセットリンクをお送りします。",
+    "emailLabel": "メールアドレス",
+    "emailPlaceholder": "you@example.com",
+    "sendResetLink": "リセットリンクを送信",
+    "sending": "送信中...",
+    "sentHeading": "メールをご確認ください",
+    "sentDescription": "そのメールアドレスのアカウントが存在する場合、パスワードリセットリンクを送信しました。",
+    "backToSignIn": "ログインに戻る"
+  },
+  "ResetPassword": {
+    "heading": "新しいパスワードを設定",
+    "description": "以下に新しいパスワードを入力してください。",
+    "passwordLabel": "新しいパスワード",
+    "passwordPlaceholder": "8文字以上",
+    "confirmPasswordLabel": "新しいパスワードの確認",
+    "confirmPasswordPlaceholder": "新しいパスワードを再入力",
+    "resetPassword": "パスワードをリセット",
+    "resetting": "リセット中...",
+    "successHeading": "パスワードがリセットされました",
+    "successDescription": "パスワードが更新されました。新しいパスワードでログインできます。",
+    "signIn": "ログイン",
+    "invalidLink": "無効なリセットリンク",
+    "invalidLinkDescription": "このパスワードリセットリンクは存在しないか、不正です。",
+    "requestNewLink": "新しいリンクをリクエスト",
+    "passwordMismatch": "パスワードが一致しません。",
+    "passwordTooShort": "パスワードは8文字以上である必要があります。",
+    "errorGeneric": "問題が発生しました。もう一度お試しください。"
   },
   "Error": {
     "code": "500",
@@ -167,6 +242,38 @@
     "heading": "ページが見つかりません",
     "description": "お探しのページは存在しません。",
     "goHome": "ホームページへ"
+  },
+  "Settings": {
+    "heading": "設定",
+    "description": "プロフィールとアカウント設定を管理します。",
+    "avatarLabel": "プロフィール写真",
+    "changeAvatar": "写真を変更",
+    "avatarHint": "JPG、PNG、WebP、または GIF。最大 2 MB。",
+    "nameLabel": "名前",
+    "namePlaceholder": "お名前",
+    "emailLabel": "メールアドレス",
+    "save": "変更を保存",
+    "saving": "保存中...",
+    "saved": "変更が保存されました。",
+    "errorGeneric": "問題が発生しました。もう一度お試しください。"
+  },
+  "Terms": {
+    "heading": "利用規約",
+    "lastUpdated": "最終更新日: 2026年4月",
+    "placeholder": "Terms of service content goes here. Replace this placeholder with your actual terms."
+  },
+  "Privacy": {
+    "heading": "プライバシーポリシー",
+    "lastUpdated": "最終更新日: 2026年4月",
+    "placeholder": "Privacy policy content goes here. Replace this placeholder with your actual policy."
+  },
+  "VerifyBanner": {
+    "message": "生成を開始するにはメールアドレスを確認してください。",
+    "resend": "メールを再送信",
+    "sending": "送信中…",
+    "sent": "確認メールを送信しました！受信トレイをご確認ください。",
+    "sendError": "メールの送信に失敗しました。もう一度お試しください。",
+    "alreadyVerified": "すでに確認済みです"
   },
   "Metadata": {
     "siteName": "WebsitePls",

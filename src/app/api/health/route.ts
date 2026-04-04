@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { timingSafeEqual } from "node:crypto";
 import { prisma } from "@/lib/db/prisma";
 import { getRedisConnection } from "@/lib/queue/redis";
-import Anthropic from "@anthropic-ai/sdk";
 
 type CheckResult = { ok: boolean; latencyMs: number; error?: string };
 type PublicCheckResult = { ok: boolean; error?: string };
@@ -27,23 +27,13 @@ async function checkRedis(): Promise<CheckResult> {
   }
 }
 
-async function checkAnthropic(): Promise<CheckResult> {
-  const start = Date.now();
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    return { ok: false, latencyMs: 0, error: "ANTHROPIC_API_KEY not set" };
-  }
-  try {
-    const client = new Anthropic({ apiKey });
-    await client.messages.create({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 1,
-      messages: [{ role: "user", content: "ping" }],
-    });
-    return { ok: true, latencyMs: Date.now() - start };
-  } catch (err) {
-    return { ok: false, latencyMs: Date.now() - start, error: String(err) };
-  }
+function checkAnthropicKey(): CheckResult {
+  const ok = !!process.env.ANTHROPIC_API_KEY?.trim();
+  return {
+    ok,
+    latencyMs: 0,
+    ...(ok ? {} : { error: "ANTHROPIC_API_KEY not set" }),
+  };
 }
 
 /** Strip latency and error details from public responses. */
@@ -52,8 +42,26 @@ function redact(check: CheckResult): PublicCheckResult {
 }
 
 /**
+ * Verify the admin Bearer token (reuses CLEANUP_SECRET as a general admin key).
+ * Returns true if the token matches.
+ */
+function isAdminAuthorized(req: NextRequest): boolean {
+  const secret = process.env.CLEANUP_SECRET;
+  if (!secret) return false;
+
+  const auth = req.headers.get("authorization") ?? "";
+  const expected = `Bearer ${secret}`;
+  const authBuf = Buffer.from(auth);
+  const expectedBuf = Buffer.from(expected);
+  return (
+    authBuf.length === expectedBuf.length &&
+    timingSafeEqual(authBuf, expectedBuf)
+  );
+}
+
+/**
  * GET /api/health          → { ok: true } (shallow, for load balancers)
- * GET /api/health?deep=true → checks DB, Redis, Anthropic (no latency/error details)
+ * GET /api/health?deep=true → checks DB, Redis, Anthropic key (requires admin Bearer token)
  */
 export async function GET(req: NextRequest) {
   const deep = req.nextUrl.searchParams.get("deep") === "true";
@@ -62,11 +70,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  const [db, redis, anthropic] = await Promise.all([
-    checkDb(),
-    checkRedis(),
-    checkAnthropic(),
-  ]);
+  if (!isAdminAuthorized(req)) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
+  const [db, redis] = await Promise.all([checkDb(), checkRedis()]);
+  const anthropic = checkAnthropicKey();
 
   const allOk = db.ok && redis.ok && anthropic.ok;
 

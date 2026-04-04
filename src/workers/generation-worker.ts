@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db/prisma";
 import { createLogger } from "@/lib/logger";
 import { GENERATION_QUEUE_NAME } from "@/lib/queue/generationQueue";
 import { createWorkerRedis } from "@/lib/queue/redis";
-import { getGeneratedBucket, getSupabaseAdmin } from "@/lib/supabase/server";
+import { uploadFile, downloadFile } from "@/lib/storage/r2";
 import { runGenerationPipeline } from "@/lib/ai/orchestrator";
 
 type GenerateJobData = {
@@ -17,8 +17,55 @@ type GenerateJobData = {
 
 const baseLog = createLogger("worker");
 const queueConnection = createWorkerRedis();
-const supabase = getSupabaseAdmin();
-const bucket = getGeneratedBucket();
+
+const JOB_TIMEOUT_MS = 300_000; // 5 minutes — matches lockDuration
+
+const OPENROUTER_API = "https://openrouter.ai/api/v1/chat/completions";
+const TITLE_MODEL =
+  process.env.TITLE_GENERATION_MODEL ?? "google/gemini-2.5-flash-lite";
+
+/**
+ * Generate a short project title from the user's prompt via OpenRouter (Gemini Flash-Lite).
+ * Best-effort — returns null on failure so it never blocks the job.
+ */
+async function generateProjectTitle(prompt: string): Promise<string | null> {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const res = await fetch(OPENROUTER_API, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: TITLE_MODEL,
+        max_tokens: 20,
+        temperature: 0,
+        messages: [
+          {
+            role: "system",
+            content:
+              "Output ONLY a short project title (3-6 words) for a website based on the user's description. No quotes, no punctuation, no explanation.",
+          },
+          { role: "user", content: prompt },
+        ],
+      }),
+      signal: AbortSignal.timeout(5_000),
+    });
+
+    if (!res.ok) return null;
+
+    const json = (await res.json()) as {
+      choices?: { message?: { content?: string } }[];
+    };
+    const text = json.choices?.[0]?.message?.content?.trim();
+    return text || null;
+  } catch {
+    return null;
+  }
+}
 
 const worker = new Worker(
   GENERATION_QUEUE_NAME,
@@ -35,75 +82,106 @@ const worker = new Worker(
 
     log.info("Job started", { isRefinement: !!refinementPrompt });
 
+    // Hard timeout — rejects if the job exceeds JOB_TIMEOUT_MS.
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(
+        () => reject(new Error("Job timed out after 5 minutes")),
+        JOB_TIMEOUT_MS,
+      );
+    });
+
     try {
-      await prisma.project.update({
-        where: { id: projectId },
-        data: { status: "GENERATING" },
-      });
-
-      await job.updateProgress({ step: "Preparing…", percent: 5 });
-
-      // For refinements, fetch the previous version's HTML from Supabase.
-      let previousHtml: string | undefined;
-      if (refinementPrompt) {
-        const prevVersion = await prisma.version.findFirst({
-          where: { projectId, NOT: { id: versionId } },
-          orderBy: { versionNumber: "desc" },
-          select: { storageKey: true },
-        });
-        if (prevVersion?.storageKey) {
-          const { data: blob } = await supabase.storage
-            .from(bucket)
-            .download(prevVersion.storageKey);
-          if (blob) {
-            previousHtml = Buffer.from(await blob.arrayBuffer()).toString(
-              "utf-8",
-            );
-          }
-        }
-      }
-
-      const { html } = await runGenerationPipeline({
-        projectId,
-        userPrompt,
-        previousHtml,
-        refinementPrompt,
-        onProgress: (step, percent) => {
-          job.updateProgress({ step, percent }).catch((e) => {
-            log.warn("Progress update failed", { error: String(e) });
+      return await Promise.race([
+        timeoutPromise,
+        (async () => {
+          await prisma.project.update({
+            where: { id: projectId },
+            data: { status: "GENERATING" },
           });
-        },
-      });
 
-      await job.updateProgress({ step: "Uploading…", percent: 95 });
+          await job.updateProgress({ step: "Preparing…", percent: 5 });
 
-      const storageKey = `projects/${projectId}/versions/${versionId}/index.html`;
+          // Fire title generation early (in parallel with the pipeline) so
+          // the polling endpoint picks it up sooner.
+          const titlePromise = !refinementPrompt
+            ? generateProjectTitle(userPrompt).then(async (title) => {
+                if (title) {
+                  await prisma.project.update({
+                    where: { id: projectId },
+                    data: { name: title },
+                  });
+                  log.info("Project title set", { projectTitle: title });
+                }
+                return title;
+              })
+            : Promise.resolve(null);
 
-      const upload = await supabase.storage
-        .from(bucket)
-        .upload(storageKey, Buffer.from(html, "utf-8"), {
-          contentType: "text/html; charset=utf-8",
-          upsert: true,
-        });
+          // For refinements, fetch the previous version's HTML from R2.
+          let previousHtml: string | undefined;
+          if (refinementPrompt) {
+            const prevVersion = await prisma.version.findFirst({
+              where: { projectId, NOT: { id: versionId } },
+              orderBy: { versionNumber: "desc" },
+              select: { storageKey: true },
+            });
+            if (prevVersion?.storageKey) {
+              const blob = await downloadFile(prevVersion.storageKey);
+              if (blob) {
+                previousHtml = blob.toString("utf-8");
+              }
+            }
+          }
 
-      if (upload.error) {
-        throw upload.error;
-      }
+          const { html, commentary } = await runGenerationPipeline({
+            projectId,
+            userPrompt,
+            previousHtml,
+            refinementPrompt,
+            onProgress: (step, percent) => {
+              job.updateProgress({ step, percent }).catch((e) => {
+                log.warn("Progress update failed", { error: String(e) });
+              });
+            },
+          });
 
-      await prisma.version.update({
-        where: { id: versionId },
-        data: { storageKey },
-      });
+          await job.updateProgress({ step: "Uploading…", percent: 95 });
 
-      await prisma.project.update({
-        where: { id: projectId },
-        data: { status: "READY" },
-      });
+          const storageKey = `projects/${projectId}/versions/${versionId}/index.html`;
 
-      log.info("Job completed", { storageKey });
-      return { storageKey };
+          await uploadFile(
+            storageKey,
+            Buffer.from(html, "utf-8"),
+            "text/html; charset=utf-8",
+          );
+
+          await prisma.version.update({
+            where: { id: versionId },
+            data: { storageKey, commentary },
+          });
+
+          // Ensure the early title generation has settled before marking READY.
+          await titlePromise;
+
+          // Store commentary in progress so the polling endpoint can return it
+          // alongside the READY status.
+          await job.updateProgress({
+            step: "complete",
+            percent: 100,
+            ...(commentary ? { commentary } : {}),
+          });
+
+          await prisma.project.update({
+            where: { id: projectId },
+            data: { status: "READY" },
+          });
+          log.info("Job completed", { storageKey });
+          return { storageKey, commentary };
+        })(),
+      ]);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : String(err);
+      const errorMessage = (
+        err instanceof Error ? err.message : String(err)
+      ).slice(0, 1000);
       const isFinalAttempt = job.attemptsMade >= (job.opts?.attempts ?? 1) - 1;
 
       log.error("Job failed", {
@@ -126,7 +204,7 @@ const worker = new Worker(
             where: { id: projectId },
             select: { userId: true, guestSessionId: true },
           });
-          if (project?.userId) {
+          if (project?.userId && process.env.ENABLE_MONETIZATION === "true") {
             await prisma.user.update({
               where: { id: project.userId },
               data: { credits: { increment: 1 } },

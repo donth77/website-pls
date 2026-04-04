@@ -1,4 +1,7 @@
 {
+  "Common": {
+    "back": "Terug"
+  },
   "Landing": {
     "heading": "Wat wil je bouwen?",
     "description": "Beschrijf je website en wij genereren deze in enkele seconden.",
@@ -37,7 +40,8 @@
     "thoughtFor": "Dacht {time} na",
     "retrying": "Opnieuw proberen…",
     "interrupted": "De vorige generatie is onderbroken. Probeer het opnieuw.",
-    "networkError": "Netwerkfout. Controleer je verbinding en probeer het opnieuw."
+    "networkError": "Netwerkfout. Controleer je verbinding en probeer het opnieuw.",
+    "timedOut": "Generatie verlopen. Probeer het opnieuw."
   },
   "Progress": {
     "generating": "Je website wordt gegenereerd…",
@@ -84,7 +88,8 @@
     "accountMenu": "Accountmenu",
     "user": "Gebruiker",
     "credit": "{count, plural, one {# credit} other {# credits}}",
-    "myProjects": "Mijn projecten"
+    "myProjects": "Mijn projecten",
+    "settings": "Instellingen"
   },
   "GenerationLimit": {
     "remaining": "{remaining}/{max} gratis {remaining, plural, one {generatie} other {generaties}} over.",
@@ -98,15 +103,50 @@
     "description": "Log in om je projecten op te slaan en meer generaties te krijgen.",
     "emailLabel": "E-mailadres",
     "emailPlaceholder": "you@example.com",
-    "sendLink": "Link verzenden",
-    "sending": "Verzenden...",
+    "passwordLabel": "Wachtwoord",
+    "passwordPlaceholder": "Voer je wachtwoord in",
+    "signIn": "Inloggen",
+    "signingIn": "Bezig met inloggen...",
+    "noAccount": "Nog geen account?",
+    "signUp": "Registreren",
     "orContinueWith": "of ga verder met",
     "google": "Google",
     "github": "GitHub",
-    "terms": "Door in te loggen ga je akkoord met onze servicevoorwaarden.",
-    "checkEmail": "Controleer je e-mail",
-    "emailSent": "We hebben een inloglink gestuurd naar {email}",
+    "termsPrefix": "Door in te loggen ga je akkoord met onze",
+    "termsLink": "servicevoorwaarden",
+    "termsAnd": "en",
+    "privacyLink": "privacybeleid",
+    "termsSuffix": ".",
+    "forgotPassword": "Wachtwoord vergeten?",
+    "invalidCredentials": "Ongeldig e-mailadres of wachtwoord.",
     "errorOAuth": "Dit e-mailadres is al gekoppeld aan een andere inlogmethode.",
+    "errorGeneric": "Er is iets misgegaan. Probeer het opnieuw."
+  },
+  "Signup": {
+    "heading": "Account aanmaken",
+    "description": "Registreer je om je projecten op te slaan en meer generaties te krijgen.",
+    "nameLabel": "Naam (optioneel)",
+    "namePlaceholder": "Je naam",
+    "emailLabel": "E-mailadres",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Wachtwoord",
+    "passwordPlaceholder": "Minimaal 8 tekens",
+    "confirmPasswordLabel": "Wachtwoord bevestigen",
+    "confirmPasswordPlaceholder": "Voer je wachtwoord opnieuw in",
+    "createAccount": "Account aanmaken",
+    "creatingAccount": "Account wordt aangemaakt...",
+    "hasAccount": "Heb je al een account?",
+    "signIn": "Inloggen",
+    "orContinueWith": "of ga verder met",
+    "google": "Google",
+    "github": "GitHub",
+    "termsPrefix": "Door een account aan te maken ga je akkoord met onze",
+    "termsLink": "servicevoorwaarden",
+    "termsAnd": "en",
+    "privacyLink": "privacybeleid",
+    "termsSuffix": ".",
+    "passwordMismatch": "Wachtwoorden komen niet overeen.",
+    "passwordTooShort": "Wachtwoord moet minimaal 8 tekens bevatten.",
     "errorGeneric": "Er is iets misgegaan. Probeer het opnieuw."
   },
   "Projects": {
@@ -115,7 +155,6 @@
     "newProject": "Nieuw project",
     "noProjects": "Nog geen projecten. Maak je eerste!",
     "preview": "Voorbeeld",
-    "backToHome": "Terug naar home",
     "edit": "Bewerken",
     "delete": "Verwijderen",
     "deleteConfirmTitle": "Project verwijderen?",
@@ -127,6 +166,8 @@
     "rename": "Hernoemen",
     "renameLabel": "Projectnaam",
     "renameError": "Project hernoemen mislukt.",
+    "renameSuccess": "Project hernoemd.",
+    "deleteSuccess": "Project verwijderd.",
     "moreActions": "Meer acties",
     "renameTitle": "Project hernoemen",
     "displayName": "Weergavenaam",
@@ -151,9 +192,43 @@
     "goHome": "Naar startpagina"
   },
   "VerifyEmail": {
-    "heading": "Controleer je e-mail",
-    "description": "We hebben een inloglink naar je e-mailadres gestuurd. Klik op de link om in te loggen.",
+    "verifying": "Je e-mail wordt geverifieerd...",
+    "successHeading": "E-mail geverifieerd",
+    "successDescription": "Je e-mail is geverifieerd. Je kunt nu inloggen.",
+    "signIn": "Inloggen",
+    "errorHeading": "Verificatie mislukt",
+    "errorDescription": "Deze link is ongeldig of verlopen. Vraag een nieuwe verificatie-e-mail aan.",
     "backToSignIn": "Terug naar inloggen"
+  },
+  "ForgotPassword": {
+    "heading": "Wachtwoord vergeten?",
+    "description": "Voer je e-mailadres in en we sturen je een link om je wachtwoord te resetten.",
+    "emailLabel": "E-mailadres",
+    "emailPlaceholder": "you@example.com",
+    "sendResetLink": "Resetlink versturen",
+    "sending": "Wordt verzonden...",
+    "sentHeading": "Controleer je e-mail",
+    "sentDescription": "Als er een account bestaat met dat e-mailadres, hebben we een link gestuurd om je wachtwoord te resetten.",
+    "backToSignIn": "Terug naar inloggen"
+  },
+  "ResetPassword": {
+    "heading": "Nieuw wachtwoord instellen",
+    "description": "Voer hieronder je nieuwe wachtwoord in.",
+    "passwordLabel": "Nieuw wachtwoord",
+    "passwordPlaceholder": "Minimaal 8 tekens",
+    "confirmPasswordLabel": "Nieuw wachtwoord bevestigen",
+    "confirmPasswordPlaceholder": "Voer je nieuwe wachtwoord opnieuw in",
+    "resetPassword": "Wachtwoord resetten",
+    "resetting": "Wordt gereset...",
+    "successHeading": "Wachtwoord gereset",
+    "successDescription": "Je wachtwoord is bijgewerkt. Je kunt nu inloggen met je nieuwe wachtwoord.",
+    "signIn": "Inloggen",
+    "invalidLink": "Ongeldige resetlink",
+    "invalidLinkDescription": "Deze wachtwoord-resetlink ontbreekt of is onjuist.",
+    "requestNewLink": "Nieuwe link aanvragen",
+    "passwordMismatch": "Wachtwoorden komen niet overeen.",
+    "passwordTooShort": "Wachtwoord moet minimaal 8 tekens bevatten.",
+    "errorGeneric": "Er is iets misgegaan. Probeer het opnieuw."
   },
   "Error": {
     "code": "500",
@@ -167,6 +242,38 @@
     "heading": "Pagina niet gevonden",
     "description": "De pagina die je zoekt bestaat niet.",
     "goHome": "Naar startpagina"
+  },
+  "Settings": {
+    "heading": "Instellingen",
+    "description": "Beheer je profiel en accountinstellingen.",
+    "avatarLabel": "Profielfoto",
+    "changeAvatar": "Foto wijzigen",
+    "avatarHint": "JPG, PNG, WebP of GIF. Max. 2 MB.",
+    "nameLabel": "Naam",
+    "namePlaceholder": "Je naam",
+    "emailLabel": "E-mail",
+    "save": "Wijzigingen opslaan",
+    "saving": "Opslaan...",
+    "saved": "Je wijzigingen zijn opgeslagen.",
+    "errorGeneric": "Er is iets misgegaan. Probeer het opnieuw."
+  },
+  "Terms": {
+    "heading": "Servicevoorwaarden",
+    "lastUpdated": "Laatst bijgewerkt: april 2026",
+    "placeholder": "Terms of service content goes here. Replace this placeholder with your actual terms."
+  },
+  "Privacy": {
+    "heading": "Privacybeleid",
+    "lastUpdated": "Laatst bijgewerkt: april 2026",
+    "placeholder": "Privacy policy content goes here. Replace this placeholder with your actual policy."
+  },
+  "VerifyBanner": {
+    "message": "Verifieer je e-mailadres om te beginnen met genereren.",
+    "resend": "E-mail opnieuw verzenden",
+    "sending": "Verzenden…",
+    "sent": "Verificatie-e-mail verzonden! Controleer je inbox.",
+    "sendError": "E-mail verzenden mislukt. Probeer het opnieuw.",
+    "alreadyVerified": "Ik heb al geverifieerd"
   },
   "Metadata": {
     "siteName": "WebsitePls",

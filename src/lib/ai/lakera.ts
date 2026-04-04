@@ -6,24 +6,31 @@
  */
 
 import { createLogger } from "@/lib/logger";
+import { ErrorCode } from "@/lib/types";
 
 const log = createLogger("lakera");
 const DEFAULT_BASE = "https://api.lakera.ai";
 const TIMEOUT_MS = 15_000;
 
-// Warn once at startup if Lakera is not configured.
+// In production, missing Lakera key is a startup error — screening must not be silently skipped.
+// In development, warn and allow requests through without screening.
 if (!process.env.LAKERA_API_KEY?.trim()) {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "LAKERA_API_KEY is not set. Prompt screening cannot be disabled in production.",
+    );
+  }
   log.warn(
     "LAKERA_API_KEY is not set — prompt screening is DISABLED. Set it in .env before deploying to production.",
   );
 }
 
-/** Machine-readable reason for API clients / UI copy. */
+/** Re-export the subset of ErrorCode used by Lakera for type narrowing. */
 export const LakeraErrorCode = {
-  PROMPT_BLOCKED: "PROMPT_BLOCKED",
-  RATE_LIMIT: "RATE_LIMIT",
-  SCREENING_UNAVAILABLE: "SCREENING_UNAVAILABLE",
-  SCREENING_CONFIG: "SCREENING_CONFIG",
+  PROMPT_BLOCKED: ErrorCode.PROMPT_BLOCKED,
+  RATE_LIMIT: ErrorCode.RATE_LIMIT,
+  SCREENING_UNAVAILABLE: ErrorCode.SCREENING_UNAVAILABLE,
+  SCREENING_CONFIG: ErrorCode.SCREENING_CONFIG,
 } as const;
 
 export type LakeraScreenResult =

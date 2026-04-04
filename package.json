@@ -21,9 +21,10 @@
     "@anthropic-ai/sdk": "^0.80.0",
     "@ariakit/react": "^0.4.24",
     "@auth/prisma-adapter": "^2.11.1",
+    "@aws-sdk/client-s3": "^3.1024.0",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
-    "@supabase/supabase-js": "^2.100.0",
+    "bcryptjs": "^3.0.3",
     "bullmq": "^5.71.1",
     "dotenv": "^17.3.1",
     "ioredis": "^5.10.1",
@@ -36,6 +37,7 @@
     "react-dom": "19.2.4",
     "resend": "^6.10.0",
     "server-only": "^0.0.1",
+    "sonner": "^2.0.7",
     "zod": "^4.3.6"
   },
   "devDependencies": {

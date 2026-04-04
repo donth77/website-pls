@@ -44,7 +44,9 @@ export async function searchPhoto(
     safesearch: "true",
   });
 
-  const res = await fetch(`${PIXABAY_API}/?${params}`);
+  const res = await fetch(`${PIXABAY_API}/?${params}`, {
+    signal: AbortSignal.timeout(10_000),
+  });
 
   if (!res.ok) {
     log.warn("Search failed", { status: res.status, query });
@@ -88,6 +90,12 @@ export async function searchPhotos(
 
   for (let i = 0; i < unique.length; i++) {
     const s = settled[i];
+    if (s.status === "rejected") {
+      log.warn("Search error", {
+        query: unique[i].query,
+        error: String(s.reason),
+      });
+    }
     results.set(unique[i].query, s.status === "fulfilled" ? s.value : null);
   }
 

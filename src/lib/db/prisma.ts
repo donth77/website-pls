@@ -11,8 +11,14 @@ function createPrismaClient() {
   if (!connectionString) {
     throw new Error("DATABASE_URL is not set");
   }
+  const poolMax = parseInt(process.env.DATABASE_POOL_MAX ?? "15", 10);
   return new PrismaClient({
-    adapter: new PrismaPg({ connectionString }),
+    adapter: new PrismaPg({
+      connectionString,
+      max: poolMax,
+      connectionTimeoutMillis: 10_000,
+      statement_timeout: 10_000,
+    }),
   });
 }
 

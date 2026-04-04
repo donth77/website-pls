@@ -48,6 +48,7 @@ export async function searchPhoto(
 
   const res = await fetch(`${PEXELS_API}/search?${params}`, {
     headers: { Authorization: apiKey },
+    signal: AbortSignal.timeout(10_000),
   });
 
   if (!res.ok) {
@@ -91,6 +92,12 @@ export async function searchPhotos(
 
   for (let i = 0; i < unique.length; i++) {
     const s = settled[i];
+    if (s.status === "rejected") {
+      log.warn("Search error", {
+        query: unique[i].query,
+        error: String(s.reason),
+      });
+    }
     results.set(unique[i].query, s.status === "fulfilled" ? s.value : null);
   }
 

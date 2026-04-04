@@ -1,19 +1,32 @@
 import { createLogger } from "@/lib/logger";
+import { ErrorCode } from "@/lib/types";
 
 const log = createLogger("turnstile");
 const SITEVERIFY_URL =
   "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 const TIMEOUT_MS = 10_000;
 
+// In production, missing Turnstile key is a startup error — bot verification must not be silently skipped.
+// In development, warn and allow requests through without verification.
 if (!process.env.TURNSTILE_SECRET_KEY?.trim()) {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "TURNSTILE_SECRET_KEY is not set. Bot verification cannot be disabled in production.",
+    );
+  }
   log.warn(
     "TURNSTILE_SECRET_KEY is not set — Turnstile verification is DISABLED. Set it in .env before deploying to production.",
   );
 }
 
 export type TurnstileResult =
-  | { ok: true }
-  | { ok: false; httpStatus: number; message: string; code: "TURNSTILE" };
+  | { ok: true; skipped?: boolean }
+  | {
+      ok: false;
+      httpStatus: number;
+      message: string;
+      code: typeof ErrorCode.TURNSTILE;
+    };
 
 export async function verifyTurnstileToken(
   token: string | undefined | null,
@@ -31,7 +44,7 @@ export async function verifyTurnstileToken(
       ok: false,
       httpStatus: 400,
       message: "Missing Turnstile verification token.",
-      code: "TURNSTILE",
+      code: ErrorCode.TURNSTILE,
     };
   }
 
@@ -57,7 +70,7 @@ export async function verifyTurnstileToken(
         "Turnstile fail-open: siteverify HTTP error, allowing request through",
         { status: res.status },
       );
-      return { ok: true };
+      return { ok: true, skipped: true };
     }
 
     const json = (await res.json()) as {
@@ -73,7 +86,7 @@ export async function verifyTurnstileToken(
         ok: false,
         httpStatus: 403,
         message: "Bot verification failed. Please try again.",
-        code: "TURNSTILE",
+        code: ErrorCode.TURNSTILE,
       };
     }
 
@@ -83,7 +96,7 @@ export async function verifyTurnstileToken(
       "Turnstile fail-open: siteverify request failed, allowing request through",
       { error: String(err) },
     );
-    return { ok: true };
+    return { ok: true, skipped: true };
   } finally {
     clearTimeout(timer);
   }

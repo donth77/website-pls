@@ -1,4 +1,7 @@
 {
+  "Common": {
+    "back": "Назад"
+  },
   "Landing": {
     "heading": "Что вы хотите создать?",
     "description": "Опишите ваш сайт, и мы сгенерируем его за несколько секунд.",
@@ -37,7 +40,8 @@
     "thoughtFor": "Думал {time}",
     "retrying": "Повторная попытка…",
     "interrupted": "Предыдущая генерация была прервана. Попробуйте ещё раз.",
-    "networkError": "Ошибка сети. Проверьте подключение и попробуйте ещё раз."
+    "networkError": "Ошибка сети. Проверьте подключение и попробуйте ещё раз.",
+    "timedOut": "Время генерации истекло. Попробуйте ещё раз."
   },
   "Progress": {
     "generating": "Создание вашего сайта…",
@@ -84,7 +88,8 @@
     "accountMenu": "Меню аккаунта",
     "user": "Пользователь",
     "credit": "{count, plural, one {# кредит} few {# кредита} many {# кредитов} other {# кредитов}}",
-    "myProjects": "Мои проекты"
+    "myProjects": "Мои проекты",
+    "settings": "Настройки"
   },
   "GenerationLimit": {
     "remaining": "Осталось {remaining}/{max} бесплатных {remaining, plural, one {генерация} few {генерации} many {генераций} other {генераций}}.",
@@ -98,15 +103,50 @@
     "description": "Войдите, чтобы сохранять проекты и получить больше генераций.",
     "emailLabel": "Адрес электронной почты",
     "emailPlaceholder": "you@example.com",
-    "sendLink": "Отправить ссылку",
-    "sending": "Отправка...",
+    "passwordLabel": "Пароль",
+    "passwordPlaceholder": "Введите пароль",
+    "signIn": "Войти",
+    "signingIn": "Вход...",
+    "noAccount": "Нет аккаунта?",
+    "signUp": "Зарегистрироваться",
     "orContinueWith": "или продолжить с помощью",
     "google": "Google",
     "github": "GitHub",
-    "terms": "Входя в систему, вы соглашаетесь с нашими условиями использования.",
-    "checkEmail": "Проверьте почту",
-    "emailSent": "Мы отправили ссылку для входа на {email}",
+    "termsPrefix": "Входя в систему, вы соглашаетесь с нашими",
+    "termsLink": "условиями использования",
+    "termsAnd": "и",
+    "privacyLink": "политикой конфиденциальности",
+    "termsSuffix": ".",
+    "forgotPassword": "Забыли пароль?",
+    "invalidCredentials": "Неверный адрес электронной почты или пароль.",
     "errorOAuth": "Этот адрес электронной почты уже связан с другим способом входа.",
+    "errorGeneric": "Что-то пошло не так. Пожалуйста, попробуйте снова."
+  },
+  "Signup": {
+    "heading": "Создать аккаунт",
+    "description": "Зарегистрируйтесь, чтобы сохранять проекты и получить больше генераций.",
+    "nameLabel": "Имя (необязательно)",
+    "namePlaceholder": "Ваше имя",
+    "emailLabel": "Адрес электронной почты",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Пароль",
+    "passwordPlaceholder": "Минимум 8 символов",
+    "confirmPasswordLabel": "Подтвердите пароль",
+    "confirmPasswordPlaceholder": "Введите пароль ещё раз",
+    "createAccount": "Создать аккаунт",
+    "creatingAccount": "Создание аккаунта...",
+    "hasAccount": "Уже есть аккаунт?",
+    "signIn": "Войти",
+    "orContinueWith": "или продолжить с помощью",
+    "google": "Google",
+    "github": "GitHub",
+    "termsPrefix": "Создавая аккаунт, вы соглашаетесь с нашими",
+    "termsLink": "условиями использования",
+    "termsAnd": "и",
+    "privacyLink": "политикой конфиденциальности",
+    "termsSuffix": ".",
+    "passwordMismatch": "Пароли не совпадают.",
+    "passwordTooShort": "Пароль должен содержать не менее 8 символов.",
     "errorGeneric": "Что-то пошло не так. Пожалуйста, попробуйте снова."
   },
   "Projects": {
@@ -115,7 +155,6 @@
     "newProject": "Новый проект",
     "noProjects": "Проектов пока нет. Создайте свой первый!",
     "preview": "Предпросмотр",
-    "backToHome": "На главную",
     "edit": "Редактировать",
     "delete": "Удалить",
     "deleteConfirmTitle": "Удалить проект?",
@@ -127,6 +166,8 @@
     "rename": "Переименовать",
     "renameLabel": "Название проекта",
     "renameError": "Не удалось переименовать проект.",
+    "renameSuccess": "Проект переименован.",
+    "deleteSuccess": "Проект удалён.",
     "moreActions": "Другие действия",
     "renameTitle": "Переименовать проект",
     "displayName": "Отображаемое имя",
@@ -151,9 +192,43 @@
     "goHome": "На главную"
   },
   "VerifyEmail": {
-    "heading": "Проверьте почту",
-    "description": "Мы отправили ссылку для входа на ваш адрес электронной почты. Нажмите на ссылку, чтобы войти.",
+    "verifying": "Подтверждение электронной почты...",
+    "successHeading": "Электронная почта подтверждена",
+    "successDescription": "Ваша электронная почта подтверждена. Теперь вы можете войти.",
+    "signIn": "Войти",
+    "errorHeading": "Подтверждение не удалось",
+    "errorDescription": "Эта ссылка недействительна или истекла. Пожалуйста, запросите новое письмо с подтверждением.",
     "backToSignIn": "Вернуться к входу"
+  },
+  "ForgotPassword": {
+    "heading": "Забыли пароль?",
+    "description": "Введите ваш адрес электронной почты, и мы отправим вам ссылку для сброса пароля.",
+    "emailLabel": "Адрес электронной почты",
+    "emailPlaceholder": "you@example.com",
+    "sendResetLink": "Отправить ссылку для сброса",
+    "sending": "Отправка...",
+    "sentHeading": "Проверьте вашу почту",
+    "sentDescription": "Если аккаунт с этим адресом существует, мы отправили ссылку для сброса пароля.",
+    "backToSignIn": "Вернуться к входу"
+  },
+  "ResetPassword": {
+    "heading": "Установите новый пароль",
+    "description": "Введите новый пароль ниже.",
+    "passwordLabel": "Новый пароль",
+    "passwordPlaceholder": "Минимум 8 символов",
+    "confirmPasswordLabel": "Подтвердите новый пароль",
+    "confirmPasswordPlaceholder": "Введите новый пароль ещё раз",
+    "resetPassword": "Сбросить пароль",
+    "resetting": "Сброс...",
+    "successHeading": "Пароль сброшен",
+    "successDescription": "Ваш пароль обновлён. Теперь вы можете войти с новым паролем.",
+    "signIn": "Войти",
+    "invalidLink": "Недействительная ссылка для сброса",
+    "invalidLinkDescription": "Ссылка для сброса пароля отсутствует или имеет неверный формат.",
+    "requestNewLink": "Запросить новую ссылку",
+    "passwordMismatch": "Пароли не совпадают.",
+    "passwordTooShort": "Пароль должен содержать не менее 8 символов.",
+    "errorGeneric": "Что-то пошло не так. Пожалуйста, попробуйте снова."
   },
   "Error": {
     "code": "500",
@@ -167,6 +242,38 @@
     "heading": "Страница не найдена",
     "description": "Запрашиваемая страница не существует.",
     "goHome": "На главную"
+  },
+  "Settings": {
+    "heading": "Настройки",
+    "description": "Управляйте своим профилем и настройками аккаунта.",
+    "avatarLabel": "Фото профиля",
+    "changeAvatar": "Изменить фото",
+    "avatarHint": "JPG, PNG, WebP или GIF. Макс. 2 MB.",
+    "nameLabel": "Имя",
+    "namePlaceholder": "Ваше имя",
+    "emailLabel": "Электронная почта",
+    "save": "Сохранить изменения",
+    "saving": "Сохранение...",
+    "saved": "Ваши изменения сохранены.",
+    "errorGeneric": "Что-то пошло не так. Пожалуйста, попробуйте снова."
+  },
+  "Terms": {
+    "heading": "Условия использования",
+    "lastUpdated": "Последнее обновление: апрель 2026",
+    "placeholder": "Terms of service content goes here. Replace this placeholder with your actual terms."
+  },
+  "Privacy": {
+    "heading": "Политика конфиденциальности",
+    "lastUpdated": "Последнее обновление: апрель 2026",
+    "placeholder": "Privacy policy content goes here. Replace this placeholder with your actual policy."
+  },
+  "VerifyBanner": {
+    "message": "Пожалуйста, подтвердите свой адрес электронной почты, чтобы начать генерацию.",
+    "resend": "Отправить письмо повторно",
+    "sending": "Отправка…",
+    "sent": "Письмо с подтверждением отправлено! Проверьте входящие.",
+    "sendError": "Не удалось отправить письмо. Попробуйте ещё раз.",
+    "alreadyVerified": "Я уже подтвердил"
   },
   "Metadata": {
     "siteName": "WebsitePls",

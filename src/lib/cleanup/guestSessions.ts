@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
-import { getGeneratedBucket, getSupabaseAdmin } from "@/lib/supabase/server";
+import { listFiles, deleteFiles } from "@/lib/storage/r2";
 import { createLogger } from "@/lib/logger";
 
 const log = createLogger("cleanup");
@@ -35,43 +35,30 @@ export async function cleanupExpiredGuestSessions(): Promise<{
 
   log.info(`Found ${expired.length} expired session(s)`);
 
-  const supabase = getSupabaseAdmin();
-  const bucket = getGeneratedBucket();
   let totalProjects = 0;
   let totalFiles = 0;
 
   for (const session of expired) {
     for (const project of session.projects) {
       const prefix = `projects/${project.id}/`;
-      const { data: files } = await supabase.storage
-        .from(bucket)
-        .list(prefix.slice(0, -1));
-
-      if (files && files.length > 0) {
-        const allPaths: string[] = [];
-        for (const file of files) {
-          if (file.id) {
-            allPaths.push(`${prefix}${file.name}`);
-          } else {
-            const { data: subFiles } = await supabase.storage
-              .from(bucket)
-              .list(`${prefix}${file.name}`);
-            if (subFiles) {
-              for (const sub of subFiles) {
-                allPaths.push(`${prefix}${file.name}/${sub.name}`);
-              }
-            }
-          }
-        }
-
+      try {
+        const allPaths = await listFiles(prefix);
         if (allPaths.length > 0) {
-          await supabase.storage.from(bucket).remove(allPaths);
+          await deleteFiles(allPaths);
           totalFiles += allPaths.length;
           log.info("Removed storage files", {
             projectId: project.id,
             fileCount: allPaths.length,
           });
         }
+      } catch (err) {
+        log.warn(
+          "Storage cleanup failed for project — proceeding with DB delete",
+          {
+            projectId: project.id,
+            error: String(err),
+          },
+        );
       }
     }
 

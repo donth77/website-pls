@@ -1,4 +1,7 @@
 {
+  "Common": {
+    "back": "Retour"
+  },
   "Landing": {
     "heading": "Que souhaitez-vous créer ?",
     "description": "Décrivez votre site web et nous le générerons en quelques secondes.",
@@ -37,7 +40,8 @@
     "thoughtFor": "A réfléchi pendant {time}",
     "retrying": "Nouvelle tentative…",
     "interrupted": "La génération précédente a été interrompue. Veuillez réessayer.",
-    "networkError": "Erreur réseau. Veuillez vérifier votre connexion et réessayer."
+    "networkError": "Erreur réseau. Veuillez vérifier votre connexion et réessayer.",
+    "timedOut": "La génération a expiré. Veuillez réessayer."
   },
   "Progress": {
     "generating": "Génération de votre site…",
@@ -84,7 +88,8 @@
     "accountMenu": "Menu du compte",
     "user": "Utilisateur",
     "credit": "{count, plural, one {# crédit} other {# crédits}}",
-    "myProjects": "Mes projets"
+    "myProjects": "Mes projets",
+    "settings": "Paramètres"
   },
   "GenerationLimit": {
     "remaining": "{remaining}/{max} {remaining, plural, one {génération gratuite restante} other {générations gratuites restantes}}.",
@@ -98,15 +103,50 @@
     "description": "Connectez-vous pour sauvegarder vos projets et obtenir plus de générations.",
     "emailLabel": "Adresse e-mail",
     "emailPlaceholder": "you@example.com",
-    "sendLink": "Envoyer le lien",
-    "sending": "Envoi en cours...",
+    "passwordLabel": "Mot de passe",
+    "passwordPlaceholder": "Entrez votre mot de passe",
+    "signIn": "Se connecter",
+    "signingIn": "Connexion en cours...",
+    "noAccount": "Vous n'avez pas de compte ?",
+    "signUp": "S'inscrire",
     "orContinueWith": "ou continuer avec",
     "google": "Google",
     "github": "GitHub",
-    "terms": "En vous connectant, vous acceptez nos conditions d'utilisation.",
-    "checkEmail": "Vérifiez votre e-mail",
-    "emailSent": "Nous avons envoyé un lien de connexion à {email}",
+    "termsPrefix": "En vous connectant, vous acceptez nos",
+    "termsLink": "conditions d'utilisation",
+    "termsAnd": "et",
+    "privacyLink": "politique de confidentialité",
+    "termsSuffix": ".",
+    "forgotPassword": "Mot de passe oublié ?",
+    "invalidCredentials": "Adresse e-mail ou mot de passe invalide.",
     "errorOAuth": "Cet e-mail est déjà associé à une autre méthode de connexion.",
+    "errorGeneric": "Une erreur est survenue. Veuillez réessayer."
+  },
+  "Signup": {
+    "heading": "Créer un compte",
+    "description": "Inscrivez-vous pour sauvegarder vos projets et obtenir plus de générations.",
+    "nameLabel": "Nom (facultatif)",
+    "namePlaceholder": "Votre nom",
+    "emailLabel": "Adresse e-mail",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Mot de passe",
+    "passwordPlaceholder": "Au moins 8 caractères",
+    "confirmPasswordLabel": "Confirmer le mot de passe",
+    "confirmPasswordPlaceholder": "Saisissez à nouveau votre mot de passe",
+    "createAccount": "Créer un compte",
+    "creatingAccount": "Création du compte...",
+    "hasAccount": "Vous avez déjà un compte ?",
+    "signIn": "Se connecter",
+    "orContinueWith": "ou continuer avec",
+    "google": "Google",
+    "github": "GitHub",
+    "termsPrefix": "En créant un compte, vous acceptez nos",
+    "termsLink": "conditions d'utilisation",
+    "termsAnd": "et",
+    "privacyLink": "politique de confidentialité",
+    "termsSuffix": ".",
+    "passwordMismatch": "Les mots de passe ne correspondent pas.",
+    "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères.",
     "errorGeneric": "Une erreur est survenue. Veuillez réessayer."
   },
   "Projects": {
@@ -115,7 +155,6 @@
     "newProject": "Nouveau projet",
     "noProjects": "Aucun projet pour l'instant. Créez votre premier !",
     "preview": "Aperçu",
-    "backToHome": "Retour à l'accueil",
     "edit": "Modifier",
     "delete": "Supprimer",
     "deleteConfirmTitle": "Supprimer le projet ?",
@@ -127,6 +166,8 @@
     "rename": "Renommer",
     "renameLabel": "Nom du projet",
     "renameError": "Échec du renommage du projet.",
+    "renameSuccess": "Projet renommé.",
+    "deleteSuccess": "Projet supprimé.",
     "moreActions": "Plus d'actions",
     "renameTitle": "Renommer le projet",
     "displayName": "Nom affiché",
@@ -151,9 +192,43 @@
     "goHome": "Aller à la page d'accueil"
   },
   "VerifyEmail": {
-    "heading": "Vérifiez votre e-mail",
-    "description": "Nous avons envoyé un lien de connexion à votre adresse e-mail. Cliquez sur le lien pour vous connecter.",
+    "verifying": "Vérification de votre e-mail...",
+    "successHeading": "E-mail vérifié",
+    "successDescription": "Votre e-mail a été vérifié. Vous pouvez maintenant vous connecter.",
+    "signIn": "Se connecter",
+    "errorHeading": "Échec de la vérification",
+    "errorDescription": "Ce lien est invalide ou a expiré. Veuillez demander un nouvel e-mail de vérification.",
     "backToSignIn": "Retour à la connexion"
+  },
+  "ForgotPassword": {
+    "heading": "Mot de passe oublié ?",
+    "description": "Entrez votre e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
+    "emailLabel": "Adresse e-mail",
+    "emailPlaceholder": "you@example.com",
+    "sendResetLink": "Envoyer le lien de réinitialisation",
+    "sending": "Envoi en cours...",
+    "sentHeading": "Vérifiez votre e-mail",
+    "sentDescription": "Si un compte existe avec cette adresse e-mail, nous avons envoyé un lien de réinitialisation du mot de passe.",
+    "backToSignIn": "Retour à la connexion"
+  },
+  "ResetPassword": {
+    "heading": "Définir un nouveau mot de passe",
+    "description": "Entrez votre nouveau mot de passe ci-dessous.",
+    "passwordLabel": "Nouveau mot de passe",
+    "passwordPlaceholder": "Au moins 8 caractères",
+    "confirmPasswordLabel": "Confirmer le nouveau mot de passe",
+    "confirmPasswordPlaceholder": "Saisissez à nouveau votre nouveau mot de passe",
+    "resetPassword": "Réinitialiser le mot de passe",
+    "resetting": "Réinitialisation...",
+    "successHeading": "Mot de passe réinitialisé",
+    "successDescription": "Votre mot de passe a été mis à jour. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.",
+    "signIn": "Se connecter",
+    "invalidLink": "Lien de réinitialisation invalide",
+    "invalidLinkDescription": "Ce lien de réinitialisation du mot de passe est manquant ou mal formé.",
+    "requestNewLink": "Demander un nouveau lien",
+    "passwordMismatch": "Les mots de passe ne correspondent pas.",
+    "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères.",
+    "errorGeneric": "Une erreur est survenue. Veuillez réessayer."
   },
   "Error": {
     "code": "500",
@@ -167,6 +242,38 @@
     "heading": "Page introuvable",
     "description": "La page que vous recherchez n'existe pas.",
     "goHome": "Aller à la page d'accueil"
+  },
+  "Settings": {
+    "heading": "Paramètres",
+    "description": "Gérez votre profil et les paramètres de votre compte.",
+    "avatarLabel": "Photo de profil",
+    "changeAvatar": "Changer de photo",
+    "avatarHint": "JPG, PNG, WebP ou GIF. Max. 2 MB.",
+    "nameLabel": "Nom",
+    "namePlaceholder": "Votre nom",
+    "emailLabel": "E-mail",
+    "save": "Enregistrer les modifications",
+    "saving": "Enregistrement...",
+    "saved": "Vos modifications ont été enregistrées.",
+    "errorGeneric": "Une erreur est survenue. Veuillez réessayer."
+  },
+  "Terms": {
+    "heading": "Conditions d'utilisation",
+    "lastUpdated": "Dernière mise à jour : avril 2026",
+    "placeholder": "Terms of service content goes here. Replace this placeholder with your actual terms."
+  },
+  "Privacy": {
+    "heading": "Politique de confidentialité",
+    "lastUpdated": "Dernière mise à jour : avril 2026",
+    "placeholder": "Privacy policy content goes here. Replace this placeholder with your actual policy."
+  },
+  "VerifyBanner": {
+    "message": "Veuillez vérifier votre adresse e-mail pour commencer à générer.",
+    "resend": "Renvoyer l'e-mail",
+    "sending": "Envoi en cours…",
+    "sent": "E-mail de vérification envoyé ! Vérifiez votre boîte de réception.",
+    "sendError": "Échec de l'envoi de l'e-mail. Veuillez réessayer.",
+    "alreadyVerified": "J'ai déjà vérifié"
   },
   "Metadata": {
     "siteName": "WebsitePls",

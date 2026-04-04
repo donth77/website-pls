@@ -79,7 +79,7 @@ export function ChatMessageBubble({
     );
   }
 
-  // Calculate "Thought for Xs" from the gap between user message and this assistant message
+  // "Thought for Xs" — only shown after generation completes
   const thoughtSeconds =
     userTimestamp && message.timestamp && message.status !== "GENERATING"
       ? Math.round((message.timestamp - userTimestamp) / 1000)
@@ -88,20 +88,18 @@ export function ChatMessageBubble({
   return (
     <div>
       {thoughtSeconds > 0 && (
-        <p className="mb-1.5 text-[10px] text-zinc-400 dark:text-zinc-500">
+        <p className="mb-1.5 text-xs text-zinc-400 dark:text-zinc-500">
           {t("thoughtFor", { time: formatElapsed(thoughtSeconds) })}
         </p>
       )}
       <div className="flex items-start gap-2.5">
-        {isLatestAssistant ? (
+        {isLatestAssistant && message.status === "GENERATING" && (
           <div
             className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-600"
             aria-hidden="true"
           >
             <Sparkles className="h-3.5 w-3.5 text-white" />
           </div>
-        ) : (
-          <div className="w-7 shrink-0" aria-hidden="true" />
         )}
         <div className="min-w-0 flex-1 pt-0.5">
           {message.status === "GENERATING" ? (

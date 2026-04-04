@@ -1,4 +1,7 @@
 {
+  "Common": {
+    "back": "Indietro"
+  },
   "Landing": {
     "heading": "Cosa vuoi creare?",
     "description": "Descrivi il tuo sito web e lo genereremo in pochi secondi.",
@@ -37,7 +40,8 @@
     "thoughtFor": "Ha pensato per {time}",
     "retrying": "Nuovo tentativo…",
     "interrupted": "La generazione precedente è stata interrotta. Riprova.",
-    "networkError": "Errore di rete. Controlla la connessione e riprova."
+    "networkError": "Errore di rete. Controlla la connessione e riprova.",
+    "timedOut": "Generazione scaduta. Riprova."
   },
   "Progress": {
     "generating": "Generazione del tuo sito web…",
@@ -84,7 +88,8 @@
     "accountMenu": "Menu account",
     "user": "Utente",
     "credit": "{count, plural, one {# credito} other {# crediti}}",
-    "myProjects": "I miei progetti"
+    "myProjects": "I miei progetti",
+    "settings": "Impostazioni"
   },
   "GenerationLimit": {
     "remaining": "{remaining}/{max} {remaining, plural, one {generazione gratuita rimanente} other {generazioni gratuite rimanenti}}.",
@@ -98,15 +103,50 @@
     "description": "Accedi per salvare i tuoi progetti e ottenere più generazioni.",
     "emailLabel": "Indirizzo email",
     "emailPlaceholder": "you@example.com",
-    "sendLink": "Invia link",
-    "sending": "Invio in corso...",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Inserisci la tua password",
+    "signIn": "Accedi",
+    "signingIn": "Accesso in corso...",
+    "noAccount": "Non hai un account?",
+    "signUp": "Registrati",
     "orContinueWith": "oppure continua con",
     "google": "Google",
     "github": "GitHub",
-    "terms": "Effettuando l'accesso, accetti i nostri termini di servizio.",
-    "checkEmail": "Controlla la tua email",
-    "emailSent": "Abbiamo inviato un link di accesso a {email}",
+    "termsPrefix": "Effettuando l'accesso, accetti i nostri",
+    "termsLink": "termini di servizio",
+    "termsAnd": "e",
+    "privacyLink": "informativa sulla privacy",
+    "termsSuffix": ".",
+    "forgotPassword": "Password dimenticata?",
+    "invalidCredentials": "Email o password non validi.",
     "errorOAuth": "Questa email è già associata a un altro metodo di accesso.",
+    "errorGeneric": "Qualcosa è andato storto. Riprova."
+  },
+  "Signup": {
+    "heading": "Crea un account",
+    "description": "Registrati per salvare i tuoi progetti e ottenere più generazioni.",
+    "nameLabel": "Nome (facoltativo)",
+    "namePlaceholder": "Il tuo nome",
+    "emailLabel": "Indirizzo email",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Almeno 8 caratteri",
+    "confirmPasswordLabel": "Conferma password",
+    "confirmPasswordPlaceholder": "Reinserisci la tua password",
+    "createAccount": "Crea account",
+    "creatingAccount": "Creazione account...",
+    "hasAccount": "Hai già un account?",
+    "signIn": "Accedi",
+    "orContinueWith": "oppure continua con",
+    "google": "Google",
+    "github": "GitHub",
+    "termsPrefix": "Creando un account, accetti i nostri",
+    "termsLink": "termini di servizio",
+    "termsAnd": "e",
+    "privacyLink": "informativa sulla privacy",
+    "termsSuffix": ".",
+    "passwordMismatch": "Le password non corrispondono.",
+    "passwordTooShort": "La password deve avere almeno 8 caratteri.",
     "errorGeneric": "Qualcosa è andato storto. Riprova."
   },
   "Projects": {
@@ -115,7 +155,6 @@
     "newProject": "Nuovo progetto",
     "noProjects": "Ancora nessun progetto. Crea il tuo primo!",
     "preview": "Anteprima",
-    "backToHome": "Torna alla home",
     "edit": "Modifica",
     "delete": "Elimina",
     "deleteConfirmTitle": "Eliminare il progetto?",
@@ -127,6 +166,8 @@
     "rename": "Rinomina",
     "renameLabel": "Nome progetto",
     "renameError": "Impossibile rinominare il progetto.",
+    "renameSuccess": "Progetto rinominato.",
+    "deleteSuccess": "Progetto eliminato.",
     "moreActions": "Altre azioni",
     "renameTitle": "Rinomina progetto",
     "displayName": "Nome visualizzato",
@@ -151,9 +192,43 @@
     "goHome": "Vai alla homepage"
   },
   "VerifyEmail": {
-    "heading": "Controlla la tua email",
-    "description": "Abbiamo inviato un link di accesso al tuo indirizzo email. Clicca il link per accedere.",
+    "verifying": "Verifica dell'email in corso...",
+    "successHeading": "Email verificata",
+    "successDescription": "La tua email è stata verificata. Ora puoi accedere.",
+    "signIn": "Accedi",
+    "errorHeading": "Verifica fallita",
+    "errorDescription": "Questo link non è valido o è scaduto. Richiedi una nuova email di verifica.",
     "backToSignIn": "Torna all'accesso"
+  },
+  "ForgotPassword": {
+    "heading": "Password dimenticata?",
+    "description": "Inserisci la tua email e ti invieremo un link per reimpostare la password.",
+    "emailLabel": "Indirizzo email",
+    "emailPlaceholder": "you@example.com",
+    "sendResetLink": "Invia link di reimpostazione",
+    "sending": "Invio in corso...",
+    "sentHeading": "Controlla la tua email",
+    "sentDescription": "Se esiste un account con quell'email, abbiamo inviato un link per reimpostare la password.",
+    "backToSignIn": "Torna all'accesso"
+  },
+  "ResetPassword": {
+    "heading": "Imposta una nuova password",
+    "description": "Inserisci la tua nuova password qui sotto.",
+    "passwordLabel": "Nuova password",
+    "passwordPlaceholder": "Almeno 8 caratteri",
+    "confirmPasswordLabel": "Conferma nuova password",
+    "confirmPasswordPlaceholder": "Reinserisci la tua nuova password",
+    "resetPassword": "Reimposta password",
+    "resetting": "Reimpostazione...",
+    "successHeading": "Password reimpostata",
+    "successDescription": "La tua password è stata aggiornata. Ora puoi accedere con la nuova password.",
+    "signIn": "Accedi",
+    "invalidLink": "Link di reimpostazione non valido",
+    "invalidLinkDescription": "Questo link di reimpostazione della password è mancante o non valido.",
+    "requestNewLink": "Richiedi un nuovo link",
+    "passwordMismatch": "Le password non corrispondono.",
+    "passwordTooShort": "La password deve avere almeno 8 caratteri.",
+    "errorGeneric": "Qualcosa è andato storto. Riprova."
   },
   "Error": {
     "code": "500",
@@ -167,6 +242,38 @@
     "heading": "Pagina non trovata",
     "description": "La pagina che stai cercando non esiste.",
     "goHome": "Vai alla homepage"
+  },
+  "Settings": {
+    "heading": "Impostazioni",
+    "description": "Gestisci il tuo profilo e le impostazioni dell'account.",
+    "avatarLabel": "Foto del profilo",
+    "changeAvatar": "Cambia foto",
+    "avatarHint": "JPG, PNG, WebP o GIF. Max 2 MB.",
+    "nameLabel": "Nome",
+    "namePlaceholder": "Il tuo nome",
+    "emailLabel": "Email",
+    "save": "Salva modifiche",
+    "saving": "Salvataggio...",
+    "saved": "Le tue modifiche sono state salvate.",
+    "errorGeneric": "Qualcosa è andato storto. Riprova."
+  },
+  "Terms": {
+    "heading": "Termini di servizio",
+    "lastUpdated": "Ultimo aggiornamento: aprile 2026",
+    "placeholder": "Terms of service content goes here. Replace this placeholder with your actual terms."
+  },
+  "Privacy": {
+    "heading": "Informativa sulla privacy",
+    "lastUpdated": "Ultimo aggiornamento: aprile 2026",
+    "placeholder": "Privacy policy content goes here. Replace this placeholder with your actual policy."
+  },
+  "VerifyBanner": {
+    "message": "Verifica la tua email per iniziare a generare.",
+    "resend": "Reinvia email",
+    "sending": "Invio in corso…",
+    "sent": "Email di verifica inviata! Controlla la tua casella di posta.",
+    "sendError": "Invio email fallito. Riprova.",
+    "alreadyVerified": "Ho già verificato"
   },
   "Metadata": {
     "siteName": "WebsitePls",

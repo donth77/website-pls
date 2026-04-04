@@ -20,7 +20,7 @@ export async function checkRateLimit(opts: {
   // Atomic: remove expired entries, add current, count, set TTL.
   const pipeline = redis.pipeline();
   pipeline.zremrangebyscore(redisKey, 0, windowStart);
-  pipeline.zadd(redisKey, now.toString(), `${now}:${Math.random()}`);
+  pipeline.zadd(redisKey, now.toString(), `${now}:${crypto.randomUUID()}`);
   pipeline.zcard(redisKey);
   pipeline.expire(redisKey, opts.windowSeconds);
 

@@ -1,4 +1,7 @@
 {
+  "Common": {
+    "back": "Back"
+  },
   "Landing": {
     "heading": "What would you like to build?",
     "description": "Describe your website and we'll generate it in seconds.",
@@ -37,7 +40,8 @@
     "retrying": "Retrying…",
     "interrupted": "Previous generation was interrupted. Please try again.",
     "networkError": "Network error. Please check your connection and try again.",
-    "thoughtFor": "Thought for {time}"
+    "thoughtFor": "Thought for {time}",
+    "timedOut": "Generation timed out. Please try again."
   },
   "Progress": {
     "starting": "Starting…",
@@ -84,7 +88,8 @@
     "accountMenu": "Account menu",
     "user": "User",
     "credit": "{count, plural, one {# credit} other {# credits}}",
-    "myProjects": "My Projects"
+    "myProjects": "My Projects",
+    "settings": "Settings"
   },
   "GenerationLimit": {
     "remaining": "{remaining}/{max} free {remaining, plural, one {generation} other {generations}} remaining.",
@@ -98,15 +103,50 @@
     "description": "Sign in to save your projects and get more generations.",
     "emailLabel": "Email address",
     "emailPlaceholder": "you@example.com",
-    "sendLink": "Send link",
-    "sending": "Sending...",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "signIn": "Sign in",
+    "signingIn": "Signing in...",
+    "noAccount": "Don't have an account?",
+    "signUp": "Sign up",
     "orContinueWith": "or continue with",
     "google": "Google",
     "github": "GitHub",
-    "terms": "By signing in, you agree to our terms of service.",
-    "checkEmail": "Check your email",
-    "emailSent": "We sent a sign-in link to {email}",
+    "termsPrefix": "By signing in, you agree to our",
+    "termsLink": "terms of service",
+    "termsAnd": "and",
+    "privacyLink": "privacy policy",
+    "termsSuffix": ".",
+    "forgotPassword": "Forgot password?",
+    "invalidCredentials": "Invalid email or password.",
     "errorOAuth": "This email is already associated with another sign-in method.",
+    "errorGeneric": "Something went wrong. Please try again."
+  },
+  "Signup": {
+    "heading": "Create an account",
+    "description": "Sign up to save your projects and get more generations.",
+    "nameLabel": "Name (optional)",
+    "namePlaceholder": "Your name",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "At least 8 characters",
+    "confirmPasswordLabel": "Confirm password",
+    "confirmPasswordPlaceholder": "Re-enter your password",
+    "createAccount": "Create account",
+    "creatingAccount": "Creating account...",
+    "hasAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "orContinueWith": "or continue with",
+    "google": "Google",
+    "github": "GitHub",
+    "termsPrefix": "By creating an account, you agree to our",
+    "termsLink": "terms of service",
+    "termsAnd": "and",
+    "privacyLink": "privacy policy",
+    "termsSuffix": ".",
+    "passwordMismatch": "Passwords do not match.",
+    "passwordTooShort": "Password must be at least 8 characters.",
     "errorGeneric": "Something went wrong. Please try again."
   },
   "Projects": {
@@ -115,7 +155,6 @@
     "newProject": "New project",
     "noProjects": "No projects yet. Create your first one!",
     "preview": "Preview",
-    "backToHome": "Back to home",
     "edit": "Edit",
     "delete": "Delete",
     "deleteConfirmTitle": "Delete project?",
@@ -126,7 +165,9 @@
     "deleteGeneratingError": "Cannot delete a project while it is generating.",
     "rename": "Rename",
     "renameLabel": "Project name",
+    "renameSuccess": "Project renamed",
     "renameError": "Failed to rename project.",
+    "deleteSuccess": "Project deleted",
     "moreActions": "More actions",
     "renameTitle": "Rename project",
     "displayName": "Display name",
@@ -151,9 +192,43 @@
     "goHome": "Go to homepage"
   },
   "VerifyEmail": {
-    "heading": "Check your email",
-    "description": "We sent a sign-in link to your email address. Click the link to sign in.",
+    "verifying": "Verifying your email...",
+    "successHeading": "Email verified",
+    "successDescription": "Your email has been verified. You can now sign in.",
+    "signIn": "Sign in",
+    "errorHeading": "Verification failed",
+    "errorDescription": "This link is invalid or has expired. Please request a new verification email.",
     "backToSignIn": "Back to sign in"
+  },
+  "ForgotPassword": {
+    "heading": "Forgot your password?",
+    "description": "Enter your email and we'll send you a link to reset your password.",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "you@example.com",
+    "sendResetLink": "Send reset link",
+    "sending": "Sending...",
+    "sentHeading": "Check your email",
+    "sentDescription": "If an account exists with that email, we've sent a password reset link.",
+    "backToSignIn": "Back to sign in"
+  },
+  "ResetPassword": {
+    "heading": "Set a new password",
+    "description": "Enter your new password below.",
+    "passwordLabel": "New password",
+    "passwordPlaceholder": "At least 8 characters",
+    "confirmPasswordLabel": "Confirm new password",
+    "confirmPasswordPlaceholder": "Re-enter your new password",
+    "resetPassword": "Reset password",
+    "resetting": "Resetting...",
+    "successHeading": "Password reset",
+    "successDescription": "Your password has been updated. You can now sign in with your new password.",
+    "signIn": "Sign in",
+    "invalidLink": "Invalid reset link",
+    "invalidLinkDescription": "This password reset link is missing or malformed.",
+    "requestNewLink": "Request a new link",
+    "passwordMismatch": "Passwords do not match.",
+    "passwordTooShort": "Password must be at least 8 characters.",
+    "errorGeneric": "Something went wrong. Please try again."
   },
   "Error": {
     "code": "500",
@@ -167,6 +242,37 @@
     "heading": "Page not found",
     "description": "The page you're looking for doesn't exist.",
     "goHome": "Go to homepage"
+  },
+  "Settings": {
+    "heading": "Settings",
+    "description": "Manage your profile and account settings.",
+    "avatarLabel": "Profile photo",
+    "changeAvatar": "Change photo",
+    "avatarHint": "JPG, PNG, WebP, or GIF. Max 2 MB.",
+    "nameLabel": "Name",
+    "namePlaceholder": "Your name",
+    "emailLabel": "Email",
+    "save": "Save changes",
+    "saving": "Saving...",
+    "saved": "Your changes have been saved.",
+    "errorGeneric": "Something went wrong. Please try again."
+  },
+  "Terms": {
+    "heading": "Terms of Service",
+    "lastUpdated": "Last updated: April 2026",
+    "placeholder": "Terms of service content goes here. Replace this placeholder with your actual terms."
+  },
+  "Privacy": {
+    "heading": "Privacy Policy",
+    "lastUpdated": "Last updated: April 2026",
+    "placeholder": "Privacy policy content goes here. Replace this placeholder with your actual policy."
+  },
+  "VerifyBanner": {
+    "message": "Please verify your email to start generating.",
+    "resend": "Resend email",
+    "sending": "Sending…",
+    "sent": "Verification email sent! Check your inbox.",
+    "sendError": "Failed to send email. Please try again."
   },
   "Metadata": {
     "siteName": "WebsitePls",

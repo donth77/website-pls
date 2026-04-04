@@ -1,4 +1,7 @@
 {
+  "Common": {
+    "back": "Назад"
+  },
   "Landing": {
     "heading": "Що ви хочете створити?",
     "description": "Опишіть свій вебсайт, і ми згенеруємо його за кілька секунд.",
@@ -37,7 +40,8 @@
     "thoughtFor": "Думав {time}",
     "retrying": "Повторна спроба…",
     "interrupted": "Попередня генерація була перервана. Спробуйте ще раз.",
-    "networkError": "Помилка мережі. Перевірте підключення та спробуйте ще раз."
+    "networkError": "Помилка мережі. Перевірте підключення та спробуйте ще раз.",
+    "timedOut": "Час генерації вичерпано. Спробуйте ще раз."
   },
   "Progress": {
     "generating": "Створення вашого сайту…",
@@ -84,7 +88,8 @@
     "accountMenu": "Меню акаунту",
     "user": "Користувач",
     "credit": "{count, plural, one {# кредит} few {# кредити} many {# кредитів} other {# кредитів}}",
-    "myProjects": "Мої проєкти"
+    "myProjects": "Мої проєкти",
+    "settings": "Налаштування"
   },
   "GenerationLimit": {
     "remaining": "{remaining}/{max} безкоштовних {remaining, plural, one {генерація} few {генерації} many {генерацій} other {генерацій}} залишилось.",
@@ -98,15 +103,50 @@
     "description": "Увійдіть, щоб зберігати свої проєкти та отримати більше генерацій.",
     "emailLabel": "Електронна адреса",
     "emailPlaceholder": "you@example.com",
-    "sendLink": "Надіслати посилання",
-    "sending": "Надсилаємо...",
+    "passwordLabel": "Пароль",
+    "passwordPlaceholder": "Введіть пароль",
+    "signIn": "Увійти",
+    "signingIn": "Вхід...",
+    "noAccount": "Немає акаунту?",
+    "signUp": "Зареєструватися",
     "orContinueWith": "або продовжити через",
     "google": "Google",
     "github": "GitHub",
-    "terms": "Входячи, ви погоджуєтесь з нашими умовами використання.",
-    "checkEmail": "Перевірте свою пошту",
-    "emailSent": "Ми надіслали посилання для входу на {email}",
+    "termsPrefix": "Входячи, ви погоджуєтесь з нашими",
+    "termsLink": "умовами використання",
+    "termsAnd": "та",
+    "privacyLink": "політикою конфіденційності",
+    "termsSuffix": ".",
+    "forgotPassword": "Забули пароль?",
+    "invalidCredentials": "Невірна електронна адреса або пароль.",
     "errorOAuth": "Ця електронна адреса вже пов'язана з іншим способом входу.",
+    "errorGeneric": "Щось пішло не так. Будь ласка, спробуйте ще раз."
+  },
+  "Signup": {
+    "heading": "Створити акаунт",
+    "description": "Зареєструйтесь, щоб зберігати свої проєкти та отримати більше генерацій.",
+    "nameLabel": "Ім'я (необов'язково)",
+    "namePlaceholder": "Ваше ім'я",
+    "emailLabel": "Електронна адреса",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Пароль",
+    "passwordPlaceholder": "Щонайменше 8 символів",
+    "confirmPasswordLabel": "Підтвердіть пароль",
+    "confirmPasswordPlaceholder": "Введіть пароль ще раз",
+    "createAccount": "Створити акаунт",
+    "creatingAccount": "Створення акаунту...",
+    "hasAccount": "Вже є акаунт?",
+    "signIn": "Увійти",
+    "orContinueWith": "або продовжити через",
+    "google": "Google",
+    "github": "GitHub",
+    "termsPrefix": "Створюючи акаунт, ви погоджуєтесь з нашими",
+    "termsLink": "умовами використання",
+    "termsAnd": "та",
+    "privacyLink": "політикою конфіденційності",
+    "termsSuffix": ".",
+    "passwordMismatch": "Паролі не збігаються.",
+    "passwordTooShort": "Пароль повинен містити щонайменше 8 символів.",
     "errorGeneric": "Щось пішло не так. Будь ласка, спробуйте ще раз."
   },
   "Projects": {
@@ -115,7 +155,6 @@
     "newProject": "Новий проєкт",
     "noProjects": "Проєктів ще немає. Створіть свій перший!",
     "preview": "Попередній перегляд",
-    "backToHome": "На головну",
     "edit": "Редагувати",
     "delete": "Видалити",
     "deleteConfirmTitle": "Видалити проєкт?",
@@ -127,6 +166,8 @@
     "rename": "Перейменувати",
     "renameLabel": "Назва проєкту",
     "renameError": "Не вдалося перейменувати проєкт.",
+    "renameSuccess": "Проєкт перейменовано.",
+    "deleteSuccess": "Проєкт видалено.",
     "moreActions": "Більше дій",
     "renameTitle": "Перейменувати проєкт",
     "displayName": "Відображуване ім'я",
@@ -151,9 +192,43 @@
     "goHome": "На головну"
   },
   "VerifyEmail": {
-    "heading": "Перевірте свою пошту",
-    "description": "Ми надіслали посилання для входу на вашу електронну адресу. Натисніть на посилання, щоб увійти.",
+    "verifying": "Підтвердження вашої електронної пошти...",
+    "successHeading": "Електронну пошту підтверджено",
+    "successDescription": "Вашу електронну пошту підтверджено. Тепер ви можете увійти.",
+    "signIn": "Увійти",
+    "errorHeading": "Підтвердження не вдалося",
+    "errorDescription": "Це посилання недійсне або застаріло. Будь ласка, запросіть новий лист підтвердження.",
     "backToSignIn": "Повернутися до входу"
+  },
+  "ForgotPassword": {
+    "heading": "Забули пароль?",
+    "description": "Введіть свою електронну адресу, і ми надішлемо вам посилання для скидання пароля.",
+    "emailLabel": "Електронна адреса",
+    "emailPlaceholder": "you@example.com",
+    "sendResetLink": "Надіслати посилання для скидання",
+    "sending": "Надсилання...",
+    "sentHeading": "Перевірте свою пошту",
+    "sentDescription": "Якщо акаунт з такою електронною адресою існує, ми надіслали посилання для скидання пароля.",
+    "backToSignIn": "Повернутися до входу"
+  },
+  "ResetPassword": {
+    "heading": "Встановіть новий пароль",
+    "description": "Введіть свій новий пароль нижче.",
+    "passwordLabel": "Новий пароль",
+    "passwordPlaceholder": "Щонайменше 8 символів",
+    "confirmPasswordLabel": "Підтвердіть новий пароль",
+    "confirmPasswordPlaceholder": "Введіть новий пароль ще раз",
+    "resetPassword": "Скинути пароль",
+    "resetting": "Скидання...",
+    "successHeading": "Пароль скинуто",
+    "successDescription": "Ваш пароль оновлено. Тепер ви можете увійти з новим паролем.",
+    "signIn": "Увійти",
+    "invalidLink": "Недійсне посилання для скидання",
+    "invalidLinkDescription": "Це посилання для скидання пароля відсутнє або має невірний формат.",
+    "requestNewLink": "Запросити нове посилання",
+    "passwordMismatch": "Паролі не збігаються.",
+    "passwordTooShort": "Пароль повинен містити щонайменше 8 символів.",
+    "errorGeneric": "Щось пішло не так. Будь ласка, спробуйте ще раз."
   },
   "Error": {
     "code": "500",
@@ -167,6 +242,38 @@
     "heading": "Сторінку не знайдено",
     "description": "Сторінка, яку ви шукаєте, не існує.",
     "goHome": "На головну"
+  },
+  "Settings": {
+    "heading": "Налаштування",
+    "description": "Керуйте своїм профілем та налаштуваннями акаунту.",
+    "avatarLabel": "Фото профілю",
+    "changeAvatar": "Змінити фото",
+    "avatarHint": "JPG, PNG, WebP або GIF. Макс. 2 MB.",
+    "nameLabel": "Ім'я",
+    "namePlaceholder": "Ваше ім'я",
+    "emailLabel": "Електронна пошта",
+    "save": "Зберегти зміни",
+    "saving": "Збереження...",
+    "saved": "Ваші зміни збережено.",
+    "errorGeneric": "Щось пішло не так. Будь ласка, спробуйте ще раз."
+  },
+  "Terms": {
+    "heading": "Умови використання",
+    "lastUpdated": "Останнє оновлення: квітень 2026",
+    "placeholder": "Terms of service content goes here. Replace this placeholder with your actual terms."
+  },
+  "Privacy": {
+    "heading": "Політика конфіденційності",
+    "lastUpdated": "Останнє оновлення: квітень 2026",
+    "placeholder": "Privacy policy content goes here. Replace this placeholder with your actual policy."
+  },
+  "VerifyBanner": {
+    "message": "Будь ласка, підтвердіть свою електронну пошту, щоб почати генерацію.",
+    "resend": "Надіслати лист повторно",
+    "sending": "Надсилання…",
+    "sent": "Лист з підтвердженням надіслано! Перевірте вхідні.",
+    "sendError": "Не вдалося надіслати лист. Спробуйте ще раз.",
+    "alreadyVerified": "Я вже підтвердив"
   },
   "Metadata": {
     "siteName": "WebsitePls",

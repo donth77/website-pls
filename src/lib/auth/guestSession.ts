@@ -2,13 +2,22 @@ import "server-only";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/db/prisma";
 import { checkRateLimit } from "@/lib/rateLimit";
+import { ErrorCode } from "@/lib/types";
 import { COOKIE_NAME, signSessionId } from "./cookie";
 import { resolveOwner, type Owner } from "./resolveOwner";
+import { recordAuthenticatedIp, isAuthenticatedIp } from "./ipBlock";
 
 /** Server-side constant — not stored per-row to prevent DB-level tampering. */
-export const GUEST_MAX_GENERATIONS = 3;
+export const GUEST_MAX_GENERATIONS = parseInt(
+  process.env.GUEST_MAX_GENERATIONS ?? "3",
+  10,
+);
 
 const GUEST_SESSION_TTL_DAYS = 7;
+const GUEST_SESSION_CREATE_LIMIT = parseInt(
+  process.env.GUEST_SESSION_CREATE_PER_HR ?? "2",
+  10,
+);
 
 type EnsureResult =
   | { ok: true; owner: Owner & { type: "guest" | "user" } }
@@ -26,9 +35,21 @@ export async function ensureGuestSession(
 ): Promise<EnsureResult> {
   const owner = await resolveOwner();
 
-  // Already authenticated or has a valid guest session.
+  // Already authenticated — record IP so future guest attempts are blocked.
   if (owner.type === "user") {
+    await recordAuthenticatedIp(clientIp);
     return { ok: true, owner };
+  }
+
+  // Block guest access from IPs that have been used by an authenticated user.
+  if (await isAuthenticatedIp(clientIp)) {
+    return {
+      ok: false,
+      error:
+        "An account has already been used from this network. Please sign in to continue.",
+      code: ErrorCode.GUEST_BLOCKED_AUTH_IP,
+      httpStatus: 403,
+    };
   }
 
   if (owner.type === "guest") {
@@ -45,18 +66,18 @@ export async function ensureGuestSession(
     // Session expired or deleted — fall through to create a new one.
   }
 
-  // Rate-limit new session creation per IP (max 5/hour).
+  // Rate-limit new session creation per IP (max 2/hour).
   try {
     const rl = await checkRateLimit({
       key: `guest-session-create:${clientIp}`,
-      limit: 5,
+      limit: GUEST_SESSION_CREATE_LIMIT,
       windowSeconds: 3600,
     });
     if (!rl.allowed) {
       return {
         ok: false,
         error: "Too many sessions created. Try again later.",
-        code: "SESSION_RATE_LIMIT",
+        code: ErrorCode.SESSION_RATE_LIMIT,
         httpStatus: 429,
       };
     }
@@ -80,7 +101,7 @@ export async function ensureGuestSession(
   const jar = await cookies();
   jar.set(COOKIE_NAME, signSessionId(session.id), {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV !== "development",
     sameSite: "lax",
     path: "/",
     expires: expiresAt,

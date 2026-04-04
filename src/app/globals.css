@@ -64,6 +64,23 @@ body {
   }
 }
 
+/* Sonner toast icon colours — classNames overrides Sonner's built-in palette,
+   so we re-apply semantic colours to the icon element. */
+[data-sonner-toast][data-type="success"] [data-icon] {
+  color: #16a34a; /* green-600 */
+}
+[data-sonner-toast][data-type="error"] [data-icon] {
+  color: #dc2626; /* red-600 */
+}
+@media (prefers-color-scheme: dark) {
+  [data-sonner-toast][data-type="success"] [data-icon] {
+    color: #4ade80; /* green-400 */
+  }
+  [data-sonner-toast][data-type="error"] [data-icon] {
+    color: #f87171; /* red-400 */
+  }
+}
+
 /* Pointer cursor on all clickable elements */
 button,
 [role="button"] {

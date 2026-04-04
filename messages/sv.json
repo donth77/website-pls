@@ -1,4 +1,7 @@
 {
+  "Common": {
+    "back": "Tillbaka"
+  },
   "Landing": {
     "heading": "Vad vill du bygga?",
     "description": "Beskriv din webbplats och vi genererar den på några sekunder.",
@@ -37,7 +40,8 @@
     "thoughtFor": "Tänkte i {time}",
     "retrying": "Försöker igen…",
     "interrupted": "Föregående generering avbröts. Försök igen.",
-    "networkError": "Nätverksfel. Kontrollera din anslutning och försök igen."
+    "networkError": "Nätverksfel. Kontrollera din anslutning och försök igen.",
+    "timedOut": "Genereringen tog för lång tid. Försök igen."
   },
   "Progress": {
     "generating": "Genererar din webbplats…",
@@ -84,7 +88,8 @@
     "accountMenu": "Kontomeny",
     "user": "Användare",
     "credit": "{count, plural, one {# kredit} other {# krediter}}",
-    "myProjects": "Mina projekt"
+    "myProjects": "Mina projekt",
+    "settings": "Inställningar"
   },
   "GenerationLimit": {
     "remaining": "{remaining}/{max} gratis {remaining, plural, one {generering} other {genereringar}} kvar.",
@@ -98,15 +103,50 @@
     "description": "Logga in för att spara dina projekt och få fler genereringar.",
     "emailLabel": "E-postadress",
     "emailPlaceholder": "you@example.com",
-    "sendLink": "Skicka länk",
-    "sending": "Skickar...",
+    "passwordLabel": "Lösenord",
+    "passwordPlaceholder": "Ange ditt lösenord",
+    "signIn": "Logga in",
+    "signingIn": "Loggar in...",
+    "noAccount": "Har du inget konto?",
+    "signUp": "Registrera dig",
     "orContinueWith": "eller fortsätt med",
     "google": "Google",
     "github": "GitHub",
-    "terms": "Genom att logga in godkänner du våra användarvillkor.",
-    "checkEmail": "Kontrollera din e-post",
-    "emailSent": "Vi skickade en inloggningslänk till {email}",
+    "termsPrefix": "Genom att logga in godkänner du våra",
+    "termsLink": "användarvillkor",
+    "termsAnd": "och",
+    "privacyLink": "integritetspolicy",
+    "termsSuffix": ".",
+    "forgotPassword": "Glömt lösenordet?",
+    "invalidCredentials": "Ogiltig e-postadress eller lösenord.",
     "errorOAuth": "Denna e-postadress är redan kopplad till en annan inloggningsmetod.",
+    "errorGeneric": "Något gick fel. Försök igen."
+  },
+  "Signup": {
+    "heading": "Skapa ett konto",
+    "description": "Registrera dig för att spara dina projekt och få fler genereringar.",
+    "nameLabel": "Namn (valfritt)",
+    "namePlaceholder": "Ditt namn",
+    "emailLabel": "E-postadress",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Lösenord",
+    "passwordPlaceholder": "Minst 8 tecken",
+    "confirmPasswordLabel": "Bekräfta lösenord",
+    "confirmPasswordPlaceholder": "Ange ditt lösenord igen",
+    "createAccount": "Skapa konto",
+    "creatingAccount": "Skapar konto...",
+    "hasAccount": "Har du redan ett konto?",
+    "signIn": "Logga in",
+    "orContinueWith": "eller fortsätt med",
+    "google": "Google",
+    "github": "GitHub",
+    "termsPrefix": "Genom att skapa ett konto godkänner du våra",
+    "termsLink": "användarvillkor",
+    "termsAnd": "och",
+    "privacyLink": "integritetspolicy",
+    "termsSuffix": ".",
+    "passwordMismatch": "Lösenorden matchar inte.",
+    "passwordTooShort": "Lösenordet måste vara minst 8 tecken.",
     "errorGeneric": "Något gick fel. Försök igen."
   },
   "Projects": {
@@ -115,7 +155,6 @@
     "newProject": "Nytt projekt",
     "noProjects": "Inga projekt ännu. Skapa ditt första!",
     "preview": "Förhandsgranskning",
-    "backToHome": "Tillbaka till startsidan",
     "edit": "Redigera",
     "delete": "Radera",
     "deleteConfirmTitle": "Radera projekt?",
@@ -127,6 +166,8 @@
     "rename": "Byt namn",
     "renameLabel": "Projektnamn",
     "renameError": "Det gick inte att byta namn på projektet.",
+    "renameSuccess": "Projektet har bytt namn.",
+    "deleteSuccess": "Projektet har tagits bort.",
     "moreActions": "Fler åtgärder",
     "renameTitle": "Byt namn på projekt",
     "displayName": "Visningsnamn",
@@ -151,9 +192,43 @@
     "goHome": "Gå till startsidan"
   },
   "VerifyEmail": {
-    "heading": "Kontrollera din e-post",
-    "description": "Vi skickade en inloggningslänk till din e-postadress. Klicka på länken för att logga in.",
+    "verifying": "Verifierar din e-post...",
+    "successHeading": "E-post verifierad",
+    "successDescription": "Din e-post har verifierats. Du kan nu logga in.",
+    "signIn": "Logga in",
+    "errorHeading": "Verifieringen misslyckades",
+    "errorDescription": "Den här länken är ogiltig eller har gått ut. Begär ett nytt verifieringsmeddelande.",
     "backToSignIn": "Tillbaka till inloggning"
+  },
+  "ForgotPassword": {
+    "heading": "Glömt lösenordet?",
+    "description": "Ange din e-postadress så skickar vi en länk för att återställa ditt lösenord.",
+    "emailLabel": "E-postadress",
+    "emailPlaceholder": "you@example.com",
+    "sendResetLink": "Skicka återställningslänk",
+    "sending": "Skickar...",
+    "sentHeading": "Kontrollera din e-post",
+    "sentDescription": "Om ett konto finns med den e-postadressen har vi skickat en länk för att återställa lösenordet.",
+    "backToSignIn": "Tillbaka till inloggning"
+  },
+  "ResetPassword": {
+    "heading": "Ange ett nytt lösenord",
+    "description": "Ange ditt nya lösenord nedan.",
+    "passwordLabel": "Nytt lösenord",
+    "passwordPlaceholder": "Minst 8 tecken",
+    "confirmPasswordLabel": "Bekräfta nytt lösenord",
+    "confirmPasswordPlaceholder": "Ange ditt nya lösenord igen",
+    "resetPassword": "Återställ lösenord",
+    "resetting": "Återställer...",
+    "successHeading": "Lösenord återställt",
+    "successDescription": "Ditt lösenord har uppdaterats. Du kan nu logga in med ditt nya lösenord.",
+    "signIn": "Logga in",
+    "invalidLink": "Ogiltig återställningslänk",
+    "invalidLinkDescription": "Den här länken för lösenordsåterställning saknas eller är felaktig.",
+    "requestNewLink": "Begär en ny länk",
+    "passwordMismatch": "Lösenorden matchar inte.",
+    "passwordTooShort": "Lösenordet måste vara minst 8 tecken.",
+    "errorGeneric": "Något gick fel. Försök igen."
   },
   "Error": {
     "code": "500",
@@ -167,6 +242,38 @@
     "heading": "Sidan hittades inte",
     "description": "Sidan du letar efter finns inte.",
     "goHome": "Gå till startsidan"
+  },
+  "Settings": {
+    "heading": "Inställningar",
+    "description": "Hantera din profil och kontoinställningar.",
+    "avatarLabel": "Profilfoto",
+    "changeAvatar": "Ändra foto",
+    "avatarHint": "JPG, PNG, WebP eller GIF. Max 2 MB.",
+    "nameLabel": "Namn",
+    "namePlaceholder": "Ditt namn",
+    "emailLabel": "E-post",
+    "save": "Spara ändringar",
+    "saving": "Sparar...",
+    "saved": "Dina ändringar har sparats.",
+    "errorGeneric": "Något gick fel. Försök igen."
+  },
+  "Terms": {
+    "heading": "Användarvillkor",
+    "lastUpdated": "Senast uppdaterad: april 2026",
+    "placeholder": "Terms of service content goes here. Replace this placeholder with your actual terms."
+  },
+  "Privacy": {
+    "heading": "Integritetspolicy",
+    "lastUpdated": "Senast uppdaterad: april 2026",
+    "placeholder": "Privacy policy content goes here. Replace this placeholder with your actual policy."
+  },
+  "VerifyBanner": {
+    "message": "Verifiera din e-postadress för att börja generera.",
+    "resend": "Skicka e-post igen",
+    "sending": "Skickar…",
+    "sent": "Verifieringsmail skickat! Kolla din inkorg.",
+    "sendError": "Kunde inte skicka e-post. Försök igen.",
+    "alreadyVerified": "Jag har redan verifierat"
   },
   "Metadata": {
     "siteName": "WebsitePls",

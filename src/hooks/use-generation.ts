@@ -265,12 +265,25 @@ export function useGeneration() {
 
         setStatus(nextStatus);
 
+        if (
+          typeof json.projectName === "string" &&
+          json.projectName &&
+          json.projectName !== originalPrompt
+        ) {
+          setProjectName(json.projectName);
+        }
+
         if (nextStatus === "READY") {
+          const commentaryText =
+            typeof json.commentary === "string" && json.commentary
+              ? json.commentary
+              : tMsg("websiteReady");
           updateAssistantMessage({
-            content: tMsg("websiteReady"),
+            content: commentaryText,
             status: "READY",
             progressStep: "complete",
             progressPercent: 100,
+            timestamp: Date.now(),
           });
           setMobileView("preview");
         } else if (nextStatus === "ERROR") {
@@ -312,6 +325,9 @@ export function useGeneration() {
     setIsSubmitting(true);
     setGenerationStartTime(Date.now());
     setElapsedSeconds(0);
+    // Clear versionId before GENERATING so the polling effect doesn't
+    // re-activate with the old (READY) versionId while we wait for the API.
+    setVersionId(null);
     setStatus("GENERATING");
 
     try {
@@ -473,7 +489,14 @@ export function useGeneration() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "website.html";
+      const slug = (projectName ?? "website")
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "") // strip diacritics
+        .replace(/\p{Emoji_Presentation}/gu, "") // strip emojis
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+      a.download = `${slug || "website"}.html`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

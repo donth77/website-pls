@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import {
   Button,
   MenuProvider,
@@ -40,6 +41,7 @@ interface ProjectSummary {
     id: string;
     versionNumber: number;
     promptDelta: string | null;
+    commentary: string | null;
   }[];
 }
 
@@ -84,7 +86,7 @@ function buildSessionState(
       messages.push({
         id: String(msgId++),
         role: "assistant",
-        content: labels.websiteReady,
+        content: version.commentary || labels.websiteReady,
         status: "READY",
         timestamp: Date.now(),
       });
@@ -98,7 +100,7 @@ function buildSessionState(
     messages.push({
       id: String(msgId++),
       role: "assistant",
-      content: "Your website is ready!",
+      content: latestVersion.commentary || labels.websiteReady,
       status: "READY",
       timestamp: Date.now(),
     });
@@ -247,10 +249,10 @@ function RenameDialog({
 // ---------------------------------------------------------------------------
 
 const menuItemClass =
-  "flex w-full items-center gap-3 px-4 py-3 text-left text-base text-zinc-700 transition hover:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-800";
+  "flex w-full items-center gap-3 px-4 py-3 text-left text-base text-zinc-700 transition hover:bg-zinc-50 active:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:active:bg-zinc-800";
 
 const menuItemDestructiveClass =
-  "flex w-full items-center gap-3 px-4 py-3 text-left text-base text-red-600 transition hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950";
+  "flex w-full items-center gap-3 px-4 py-3 text-left text-base text-red-600 transition hover:bg-red-50 active:bg-red-50 dark:text-red-400 dark:hover:bg-red-950 dark:active:bg-red-950";
 
 function ProjectCardMenu({
   project,
@@ -341,7 +343,7 @@ function ProjectCardMenu({
             </button>
           </div>
           <div className="px-4 pt-1 pb-3">
-            <DialogDismiss className="w-full rounded-xl border border-zinc-200 py-2.5 text-center text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800">
+            <DialogDismiss className="w-full rounded-xl border border-zinc-200 py-2.5 text-center text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 active:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:active:bg-zinc-800">
               {t("cancelButton")}
             </DialogDismiss>
           </div>
@@ -401,7 +403,6 @@ export function ProjectList({ projects }: { projects: ProjectSummary[] }) {
   const router = useRouter();
   const [localProjects, setLocalProjects] = useState(projects);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [renamingProject, setRenamingProject] = useState<ProjectSummary | null>(
     null,
   );
@@ -429,6 +430,7 @@ export function ProjectList({ projects }: { projects: ProjectSummary[] }) {
     setLocalProjects((prev) =>
       prev.map((p) => (p.id === id ? { ...p, name: newName } : p)),
     );
+    const toastId = toast.success(t("renameSuccess"));
 
     try {
       const res = await fetch(`/api/projects/${id}`, {
@@ -441,7 +443,7 @@ export function ProjectList({ projects }: { projects: ProjectSummary[] }) {
       setLocalProjects((prev) =>
         prev.map((p) => (p.id === id ? { ...p, name: oldName } : p)),
       );
-      setDeleteError(t("renameError"));
+      toast.error(t("renameError"), { id: toastId });
     }
   }
 
@@ -451,9 +453,9 @@ export function ProjectList({ projects }: { projects: ProjectSummary[] }) {
     const id = deleteTargetId;
     const backup = localProjects;
     setDeleteTargetId(null);
-    setDeleteError(null);
 
     setLocalProjects((prev) => prev.filter((p) => p.id !== id));
+    const toastId = toast.success(t("deleteSuccess"));
 
     try {
       const raw = sessionStorage.getItem(SESSION_KEY);
@@ -475,7 +477,7 @@ export function ProjectList({ projects }: { projects: ProjectSummary[] }) {
       }
     } catch {
       setLocalProjects(backup);
-      setDeleteError(t("deleteError"));
+      toast.error(t("deleteError"), { id: toastId });
     }
   }
 
@@ -491,15 +493,6 @@ export function ProjectList({ projects }: { projects: ProjectSummary[] }) {
 
   return (
     <>
-      {deleteError && (
-        <div
-          role="alert"
-          className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300"
-        >
-          {deleteError}
-        </div>
-      )}
-
       <div className="space-y-3">
         {localProjects.map((project) => {
           const latestVersion = project.versions[project.versions.length - 1];

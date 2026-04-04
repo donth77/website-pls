@@ -1,4 +1,7 @@
 {
+  "Common": {
+    "back": "Kembali"
+  },
   "Landing": {
     "heading": "Apa yang ingin Anda buat?",
     "description": "Jelaskan situs web Anda dan kami akan membuatnya dalam hitungan detik.",
@@ -37,7 +40,8 @@
     "thoughtFor": "Berpikir selama {time}",
     "retrying": "Mencoba lagi…",
     "interrupted": "Pembuatan sebelumnya terputus. Silakan coba lagi.",
-    "networkError": "Kesalahan jaringan. Silakan periksa koneksi Anda dan coba lagi."
+    "networkError": "Kesalahan jaringan. Silakan periksa koneksi Anda dan coba lagi.",
+    "timedOut": "Pembuatan melebihi batas waktu. Silakan coba lagi."
   },
   "Progress": {
     "generating": "Membuat situs web Anda…",
@@ -84,7 +88,8 @@
     "accountMenu": "Menu akun",
     "user": "Pengguna",
     "credit": "{count, plural, other {# kredit}}",
-    "myProjects": "Proyek Saya"
+    "myProjects": "Proyek Saya",
+    "settings": "Pengaturan"
   },
   "GenerationLimit": {
     "remaining": "{remaining}/{max} {remaining, plural, other {pembuatan}} gratis tersisa.",
@@ -98,15 +103,50 @@
     "description": "Masuk untuk menyimpan proyek Anda dan mendapatkan lebih banyak pembuatan.",
     "emailLabel": "Alamat email",
     "emailPlaceholder": "you@example.com",
-    "sendLink": "Kirim tautan",
-    "sending": "Mengirim...",
+    "passwordLabel": "Kata sandi",
+    "passwordPlaceholder": "Masukkan kata sandi Anda",
+    "signIn": "Masuk",
+    "signingIn": "Sedang masuk...",
+    "noAccount": "Belum punya akun?",
+    "signUp": "Daftar",
     "orContinueWith": "atau lanjutkan dengan",
     "google": "Google",
     "github": "GitHub",
-    "terms": "Dengan masuk, Anda menyetujui ketentuan layanan kami.",
-    "checkEmail": "Periksa email Anda",
-    "emailSent": "Kami mengirim tautan masuk ke {email}",
+    "termsPrefix": "Dengan masuk, Anda menyetujui",
+    "termsLink": "ketentuan layanan",
+    "termsAnd": "dan",
+    "privacyLink": "kebijakan privasi",
+    "termsSuffix": ".",
+    "forgotPassword": "Lupa kata sandi?",
+    "invalidCredentials": "Email atau kata sandi tidak valid.",
     "errorOAuth": "Email ini sudah terkait dengan metode masuk lain.",
+    "errorGeneric": "Terjadi kesalahan. Silakan coba lagi."
+  },
+  "Signup": {
+    "heading": "Buat akun",
+    "description": "Daftar untuk menyimpan proyek Anda dan mendapatkan lebih banyak pembuatan.",
+    "nameLabel": "Nama (opsional)",
+    "namePlaceholder": "Nama Anda",
+    "emailLabel": "Alamat email",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Kata sandi",
+    "passwordPlaceholder": "Minimal 8 karakter",
+    "confirmPasswordLabel": "Konfirmasi kata sandi",
+    "confirmPasswordPlaceholder": "Masukkan ulang kata sandi Anda",
+    "createAccount": "Buat akun",
+    "creatingAccount": "Membuat akun...",
+    "hasAccount": "Sudah punya akun?",
+    "signIn": "Masuk",
+    "orContinueWith": "atau lanjutkan dengan",
+    "google": "Google",
+    "github": "GitHub",
+    "termsPrefix": "Dengan membuat akun, Anda menyetujui",
+    "termsLink": "ketentuan layanan",
+    "termsAnd": "dan",
+    "privacyLink": "kebijakan privasi",
+    "termsSuffix": ".",
+    "passwordMismatch": "Kata sandi tidak cocok.",
+    "passwordTooShort": "Kata sandi harus minimal 8 karakter.",
     "errorGeneric": "Terjadi kesalahan. Silakan coba lagi."
   },
   "Projects": {
@@ -115,7 +155,6 @@
     "newProject": "Proyek baru",
     "noProjects": "Belum ada proyek. Buat yang pertama!",
     "preview": "Pratinjau",
-    "backToHome": "Kembali ke beranda",
     "edit": "Edit",
     "delete": "Hapus",
     "deleteConfirmTitle": "Hapus proyek?",
@@ -127,6 +166,8 @@
     "rename": "Ganti nama",
     "renameLabel": "Nama proyek",
     "renameError": "Gagal mengganti nama proyek.",
+    "renameSuccess": "Proyek diganti nama.",
+    "deleteSuccess": "Proyek dihapus.",
     "moreActions": "Tindakan lainnya",
     "renameTitle": "Ganti nama proyek",
     "displayName": "Nama tampilan",
@@ -151,9 +192,43 @@
     "goHome": "Ke halaman utama"
   },
   "VerifyEmail": {
-    "heading": "Periksa email Anda",
-    "description": "Kami mengirim tautan masuk ke alamat email Anda. Klik tautan tersebut untuk masuk.",
+    "verifying": "Memverifikasi email Anda...",
+    "successHeading": "Email terverifikasi",
+    "successDescription": "Email Anda telah diverifikasi. Anda sekarang dapat masuk.",
+    "signIn": "Masuk",
+    "errorHeading": "Verifikasi gagal",
+    "errorDescription": "Tautan ini tidak valid atau telah kedaluwarsa. Silakan minta email verifikasi baru.",
     "backToSignIn": "Kembali ke halaman masuk"
+  },
+  "ForgotPassword": {
+    "heading": "Lupa kata sandi?",
+    "description": "Masukkan email Anda dan kami akan mengirimkan tautan untuk mengatur ulang kata sandi.",
+    "emailLabel": "Alamat email",
+    "emailPlaceholder": "you@example.com",
+    "sendResetLink": "Kirim tautan atur ulang",
+    "sending": "Mengirim...",
+    "sentHeading": "Periksa email Anda",
+    "sentDescription": "Jika ada akun dengan email tersebut, kami telah mengirimkan tautan pengaturan ulang kata sandi.",
+    "backToSignIn": "Kembali ke halaman masuk"
+  },
+  "ResetPassword": {
+    "heading": "Tetapkan kata sandi baru",
+    "description": "Masukkan kata sandi baru Anda di bawah ini.",
+    "passwordLabel": "Kata sandi baru",
+    "passwordPlaceholder": "Minimal 8 karakter",
+    "confirmPasswordLabel": "Konfirmasi kata sandi baru",
+    "confirmPasswordPlaceholder": "Masukkan ulang kata sandi baru Anda",
+    "resetPassword": "Atur ulang kata sandi",
+    "resetting": "Mengatur ulang...",
+    "successHeading": "Kata sandi diatur ulang",
+    "successDescription": "Kata sandi Anda telah diperbarui. Anda sekarang dapat masuk dengan kata sandi baru.",
+    "signIn": "Masuk",
+    "invalidLink": "Tautan atur ulang tidak valid",
+    "invalidLinkDescription": "Tautan pengaturan ulang kata sandi ini tidak ada atau tidak valid.",
+    "requestNewLink": "Minta tautan baru",
+    "passwordMismatch": "Kata sandi tidak cocok.",
+    "passwordTooShort": "Kata sandi harus minimal 8 karakter.",
+    "errorGeneric": "Terjadi kesalahan. Silakan coba lagi."
   },
   "Error": {
     "code": "500",
@@ -167,6 +242,38 @@
     "heading": "Halaman tidak ditemukan",
     "description": "Halaman yang Anda cari tidak ada.",
     "goHome": "Ke halaman utama"
+  },
+  "Settings": {
+    "heading": "Pengaturan",
+    "description": "Kelola profil dan pengaturan akun Anda.",
+    "avatarLabel": "Foto profil",
+    "changeAvatar": "Ganti foto",
+    "avatarHint": "JPG, PNG, WebP, atau GIF. Maks. 2 MB.",
+    "nameLabel": "Nama",
+    "namePlaceholder": "Nama Anda",
+    "emailLabel": "Email",
+    "save": "Simpan perubahan",
+    "saving": "Menyimpan...",
+    "saved": "Perubahan Anda telah disimpan.",
+    "errorGeneric": "Terjadi kesalahan. Silakan coba lagi."
+  },
+  "Terms": {
+    "heading": "Ketentuan Layanan",
+    "lastUpdated": "Terakhir diperbarui: April 2026",
+    "placeholder": "Terms of service content goes here. Replace this placeholder with your actual terms."
+  },
+  "Privacy": {
+    "heading": "Kebijakan Privasi",
+    "lastUpdated": "Terakhir diperbarui: April 2026",
+    "placeholder": "Privacy policy content goes here. Replace this placeholder with your actual policy."
+  },
+  "VerifyBanner": {
+    "message": "Silakan verifikasi email Anda untuk mulai membuat.",
+    "resend": "Kirim ulang email",
+    "sending": "Mengirim…",
+    "sent": "Email verifikasi terkirim! Periksa kotak masuk Anda.",
+    "sendError": "Gagal mengirim email. Silakan coba lagi.",
+    "alreadyVerified": "Saya sudah memverifikasi"
   },
   "Metadata": {
     "siteName": "WebsitePls",

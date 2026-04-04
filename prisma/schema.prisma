@@ -20,6 +20,7 @@ model User {
   id            String    @id @default(uuid())
   email         String    @unique
   emailVerified DateTime? @map("email_verified")
+  passwordHash  String?   @map("password_hash")
   name          String?
   image         String?
   plan          String    @default("free")
@@ -98,12 +99,14 @@ model Project {
 
   createdAt      DateTime      @default(now()) @map("created_at")
   updatedAt      DateTime      @updatedAt @map("updated_at")
+  deletedAt      DateTime?     @map("deleted_at")
 
   versions       Version[]
   publishedSites PublishedSite[]
 
   @@index([userId])
   @@index([guestSessionId])
+  @@index([deletedAt])
   @@map("projects")
 }
 
@@ -113,6 +116,7 @@ model Version {
   project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   versionNumber Int      @map("version_number")
   promptDelta   String?  @map("prompt_delta") @db.Text
+  commentary    String?  @db.Text
   blueprint     Json?
   storageKey    String?  @map("storage_key")
   createdAt     DateTime @default(now()) @map("created_at")

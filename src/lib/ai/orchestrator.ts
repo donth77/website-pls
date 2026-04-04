@@ -5,6 +5,7 @@ import { searchPhotos, type ImageAttribution } from "@/lib/images/search";
 import {
   validateUserPrompt,
   wrapUserPromptForModel,
+  wrapRefinementPromptForModel,
 } from "@/lib/ai/promptSafety";
 import { createLogger } from "@/lib/logger";
 
@@ -34,6 +35,11 @@ const ImageSlotSchema = z.object({
 });
 
 const GenerationResultSchema = z.object({
+  commentary: z
+    .string()
+    .describe(
+      "A brief, enthusiastic 2–3 sentence response about what you're designing. Describe your creative vision and key design choices (colors, typography, layout). Write conversationally, as if chatting with the user about your approach.",
+    ),
   html: z
     .string()
     .describe(
@@ -107,6 +113,12 @@ const SYSTEM_STRUCTURED = [
   "You are a creative web designer and front-end engineer.",
   "Generate a COMPLETE, SELF-CONTAINED HTML document for the requested site.",
   "",
+  "Commentary:",
+  "- In the 'commentary' field, write a brief, enthusiastic 2–3 sentence response describing what you built and your creative vision.",
+  "- Use past tense — describe what you chose and why, not present tense.",
+  "- Mention specific design choices: color palette, typography, layout approach, and the overall vibe.",
+  "- Write conversationally, as if chatting with the user about the finished design.",
+  "",
   "Constraints:",
   '- Must include: <meta charset="utf-8"> and <meta name="viewport" content="width=device-width, initial-scale=1">.',
   '- Use Tailwind via the official CDN: <script src="https://cdn.tailwindcss.com"></script>.',
@@ -130,6 +142,12 @@ const SYSTEM_REFINEMENT = [
   "You are a creative web designer and front-end engineer.",
   "You are given an EXISTING HTML document and a user's requested changes.",
   "Apply the requested changes to the existing HTML and return the COMPLETE, modified document.",
+  "",
+  "Commentary:",
+  "- In the 'commentary' field, write a brief 2–3 sentence description of the changes you applied.",
+  "- Use past tense — describe what you changed and why, not present tense.",
+  "- Mention specific design or content modifications you made.",
+  "- Write conversationally and enthusiastically.",
   "",
   "Constraints:",
   "- Return the FULL HTML document (not a diff or partial snippet).",
@@ -475,6 +493,97 @@ function replaceUnresolvedPlaceholders(html: string): string {
 }
 
 // ---------------------------------------------------------------------------
+// HTML output validation & repair
+// ---------------------------------------------------------------------------
+
+const TAILWIND_CDN_TAG = '<script src="https://cdn.tailwindcss.com"></script>';
+
+/**
+ * Validate generated HTML for required structure and repair what we can.
+ * Throws only when the output is unsalvageable (empty or no content).
+ */
+function validateAndRepairHtml(html: string): string {
+  const trimmed = html.trim();
+  if (!trimmed) {
+    throw new Error("Generated HTML is empty.");
+  }
+
+  const repairs: string[] = [];
+  let result = trimmed;
+
+  // 1. Missing <html> wrapper
+  if (!/<html[\s>]/i.test(result)) {
+    result = `<!DOCTYPE html>\n<html lang="en">\n${result}\n</html>`;
+    repairs.push("wrapped in <html>");
+  }
+
+  // 2. Missing <head>
+  if (!/<head[\s>]/i.test(result)) {
+    const headContent = [
+      "<head>",
+      '<meta charset="utf-8">',
+      '<meta name="viewport" content="width=device-width, initial-scale=1">',
+      TAILWIND_CDN_TAG,
+      "</head>",
+    ].join("\n");
+    result = result.replace(/(<html[^>]*>)/i, `$1\n${headContent}`);
+    repairs.push("injected <head>");
+  }
+
+  // 3. Missing <body>
+  if (!/<body[\s>]/i.test(result)) {
+    // Find end of </head> and wrap the rest in <body>
+    const headClose = result.indexOf("</head>");
+    if (headClose !== -1) {
+      const afterHead = headClose + "</head>".length;
+      const beforeHtmlClose = result.lastIndexOf("</html>");
+      if (beforeHtmlClose > afterHead) {
+        const body = result.slice(afterHead, beforeHtmlClose);
+        result =
+          result.slice(0, afterHead) +
+          `\n<body>\n${body}\n</body>\n` +
+          result.slice(beforeHtmlClose);
+        repairs.push("wrapped content in <body>");
+      }
+    }
+  }
+
+  // 4. Missing Tailwind CDN script
+  if (!/tailwindcss\.com/i.test(result)) {
+    const headClose = result.indexOf("</head>");
+    if (headClose !== -1) {
+      result =
+        result.slice(0, headClose) +
+        `\n${TAILWIND_CDN_TAG}\n` +
+        result.slice(headClose);
+    }
+    repairs.push("injected Tailwind CDN script");
+  }
+
+  // 5. Missing closing tags (truncated output)
+  if (!/<\/body>/i.test(result)) {
+    const htmlClose = result.lastIndexOf("</html>");
+    if (htmlClose !== -1) {
+      result =
+        result.slice(0, htmlClose) + "\n</body>\n" + result.slice(htmlClose);
+    } else {
+      result += "\n</body>";
+    }
+    repairs.push("added missing </body>");
+  }
+  if (!/<\/html>/i.test(result)) {
+    result += "\n</html>";
+    repairs.push("added missing </html>");
+  }
+
+  if (repairs.length > 0) {
+    log.warn("Repaired generated HTML", { repairs });
+  }
+
+  return result;
+}
+
+// ---------------------------------------------------------------------------
 // Main pipeline
 // ---------------------------------------------------------------------------
 
@@ -526,7 +635,7 @@ export async function runGenerationPipeline(input: {
   /** When refining, the user's requested changes (used instead of userPrompt for the LLM message). */
   refinementPrompt?: string;
   onProgress?: ProgressCallback;
-}): Promise<{ html: string }> {
+}): Promise<{ html: string; commentary: string | null }> {
   void input.projectId;
   const progress = input.onProgress ?? (() => {});
   const isRefinement = !!(input.previousHtml && input.refinementPrompt);
@@ -551,7 +660,7 @@ export async function runGenerationPipeline(input: {
         "Here is the existing HTML document:\n\n```html\n" +
           input.previousHtml! +
           "\n```\n\n",
-        wrapUserPromptForModel(input.refinementPrompt!.trim()),
+        wrapRefinementPromptForModel(input.refinementPrompt!.trim()),
       ].join("")
     : wrapUserPromptForModel(input.userPrompt.trim());
 
@@ -565,7 +674,13 @@ export async function runGenerationPipeline(input: {
       model,
       max_tokens: 32768,
       temperature: 0.7,
-      system: isRefinement ? SYSTEM_REFINEMENT : SYSTEM_STRUCTURED,
+      system: [
+        {
+          type: "text" as const,
+          text: isRefinement ? SYSTEM_REFINEMENT : SYSTEM_STRUCTURED,
+          cache_control: { type: "ephemeral" as const },
+        },
+      ],
       messages: [{ role: "user", content: userContent }],
       output_config: {
         format: zodOutputFormat(GenerationResultSchema),
@@ -642,7 +757,10 @@ export async function runGenerationPipeline(input: {
     }
 
     progress("finalizing", 90);
-    return { html };
+    return {
+      html: validateAndRepairHtml(html),
+      commentary: parsed.commentary ?? null,
+    };
   }
 
   // ---- Fallback path (older models) ----
@@ -652,7 +770,13 @@ export async function runGenerationPipeline(input: {
     model,
     max_tokens: 16384,
     temperature: 0.7,
-    system: isRefinement ? SYSTEM_REFINEMENT : SYSTEM_FALLBACK,
+    system: [
+      {
+        type: "text" as const,
+        text: isRefinement ? SYSTEM_REFINEMENT : SYSTEM_FALLBACK,
+        cache_control: { type: "ephemeral" as const },
+      },
+    ],
     messages: [{ role: "user", content: userContent }],
   });
 
@@ -677,5 +801,5 @@ export async function runGenerationPipeline(input: {
   const { html } = await resolveImagesFromAltText(rawHtml);
 
   progress("finalizing", 90);
-  return { html };
+  return { html: validateAndRepairHtml(html), commentary: null };
 }

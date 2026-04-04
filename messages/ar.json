@@ -1,4 +1,7 @@
 {
+  "Common": {
+    "back": "رجوع"
+  },
   "Landing": {
     "heading": "ماذا تريد أن تبني؟",
     "description": "صِف موقعك الإلكتروني وسنقوم بإنشائه في ثوانٍ.",
@@ -37,7 +40,8 @@
     "thoughtFor": "فكّر لمدة {time}",
     "retrying": "جارٍ إعادة المحاولة…",
     "interrupted": "تمت مقاطعة التوليد السابق. يرجى المحاولة مرة أخرى.",
-    "networkError": "خطأ في الشبكة. يرجى التحقق من الاتصال والمحاولة مرة أخرى."
+    "networkError": "خطأ في الشبكة. يرجى التحقق من الاتصال والمحاولة مرة أخرى.",
+    "timedOut": "انتهت مهلة الإنشاء. يرجى المحاولة مرة أخرى."
   },
   "Progress": {
     "generating": "جارٍ إنشاء موقعك…",
@@ -84,7 +88,8 @@
     "accountMenu": "قائمة الحساب",
     "user": "المستخدم",
     "credit": "{count, plural, zero {لا أرصدة} one {رصيد واحد} two {رصيدان} few {# أرصدة} many {# رصيدًا} other {# رصيد}}",
-    "myProjects": "مشاريعي"
+    "myProjects": "مشاريعي",
+    "settings": "الإعدادات"
   },
   "GenerationLimit": {
     "remaining": "{remaining}/{max} {remaining, plural, zero {لا إنشاءات مجانية متبقية} one {إنشاء مجاني متبقٍ} two {إنشاءان مجانيان متبقيان} few {إنشاءات مجانية متبقية} many {إنشاءً مجانيًا متبقيًا} other {إنشاء مجاني متبقٍ}}.",
@@ -98,15 +103,50 @@
     "description": "سجّل الدخول لحفظ مشاريعك والحصول على المزيد من الإنشاءات.",
     "emailLabel": "عنوان البريد الإلكتروني",
     "emailPlaceholder": "you@example.com",
-    "sendLink": "إرسال الرابط",
-    "sending": "جارٍ الإرسال...",
+    "passwordLabel": "كلمة المرور",
+    "passwordPlaceholder": "أدخل كلمة المرور",
+    "signIn": "تسجيل الدخول",
+    "signingIn": "جارٍ تسجيل الدخول...",
+    "noAccount": "ليس لديك حساب؟",
+    "signUp": "إنشاء حساب",
     "orContinueWith": "أو تابع باستخدام",
     "google": "Google",
     "github": "GitHub",
-    "terms": "بتسجيل الدخول، فإنك توافق على شروط الخدمة الخاصة بنا.",
-    "checkEmail": "تحقّق من بريدك الإلكتروني",
-    "emailSent": "أرسلنا رابط تسجيل الدخول إلى {email}",
+    "termsPrefix": "بتسجيل الدخول، فإنك توافق على",
+    "termsLink": "شروط الخدمة",
+    "termsAnd": "و",
+    "privacyLink": "سياسة الخصوصية",
+    "termsSuffix": ".",
+    "forgotPassword": "هل نسيت كلمة المرور؟",
+    "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
     "errorOAuth": "هذا البريد الإلكتروني مرتبط بالفعل بطريقة تسجيل دخول أخرى.",
+    "errorGeneric": "حدث خطأ ما. يُرجى المحاولة مجدداً."
+  },
+  "Signup": {
+    "heading": "إنشاء حساب",
+    "description": "أنشئ حساباً لحفظ مشاريعك والحصول على المزيد من الإنشاءات.",
+    "nameLabel": "الاسم (اختياري)",
+    "namePlaceholder": "اسمك",
+    "emailLabel": "عنوان البريد الإلكتروني",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "كلمة المرور",
+    "passwordPlaceholder": "8 أحرف على الأقل",
+    "confirmPasswordLabel": "تأكيد كلمة المرور",
+    "confirmPasswordPlaceholder": "أعد إدخال كلمة المرور",
+    "createAccount": "إنشاء حساب",
+    "creatingAccount": "جارٍ إنشاء الحساب...",
+    "hasAccount": "لديك حساب بالفعل؟",
+    "signIn": "تسجيل الدخول",
+    "orContinueWith": "أو تابع باستخدام",
+    "google": "Google",
+    "github": "GitHub",
+    "termsPrefix": "بإنشاء حساب، فإنك توافق على",
+    "termsLink": "شروط الخدمة",
+    "termsAnd": "و",
+    "privacyLink": "سياسة الخصوصية",
+    "termsSuffix": ".",
+    "passwordMismatch": "كلمتا المرور غير متطابقتين.",
+    "passwordTooShort": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.",
     "errorGeneric": "حدث خطأ ما. يُرجى المحاولة مجدداً."
   },
   "Projects": {
@@ -115,7 +155,6 @@
     "newProject": "مشروع جديد",
     "noProjects": "لا توجد مشاريع بعد. أنشئ مشروعك الأول!",
     "preview": "معاينة",
-    "backToHome": "العودة إلى الرئيسية",
     "edit": "تعديل",
     "delete": "حذف",
     "deleteConfirmTitle": "حذف المشروع؟",
@@ -127,6 +166,8 @@
     "rename": "إعادة تسمية",
     "renameLabel": "اسم المشروع",
     "renameError": "فشل في إعادة تسمية المشروع.",
+    "renameSuccess": "تمت إعادة تسمية المشروع.",
+    "deleteSuccess": "تم حذف المشروع.",
     "moreActions": "المزيد من الإجراءات",
     "renameTitle": "إعادة تسمية المشروع",
     "displayName": "الاسم المعروض",
@@ -151,9 +192,43 @@
     "goHome": "الذهاب إلى الصفحة الرئيسية"
   },
   "VerifyEmail": {
-    "heading": "تحقّق من بريدك الإلكتروني",
-    "description": "أرسلنا رابط تسجيل الدخول إلى بريدك الإلكتروني. اضغط على الرابط لتسجيل الدخول.",
+    "verifying": "جارٍ التحقق من بريدك الإلكتروني...",
+    "successHeading": "تم التحقق من البريد الإلكتروني",
+    "successDescription": "تم التحقق من بريدك الإلكتروني. يمكنك الآن تسجيل الدخول.",
+    "signIn": "تسجيل الدخول",
+    "errorHeading": "فشل التحقق",
+    "errorDescription": "هذا الرابط غير صالح أو منتهي الصلاحية. يُرجى طلب بريد تحقق جديد.",
     "backToSignIn": "العودة إلى تسجيل الدخول"
+  },
+  "ForgotPassword": {
+    "heading": "هل نسيت كلمة المرور؟",
+    "description": "أدخل بريدك الإلكتروني وسنرسل لك رابطاً لإعادة تعيين كلمة المرور.",
+    "emailLabel": "عنوان البريد الإلكتروني",
+    "emailPlaceholder": "you@example.com",
+    "sendResetLink": "إرسال رابط إعادة التعيين",
+    "sending": "جارٍ الإرسال...",
+    "sentHeading": "تحقق من بريدك الإلكتروني",
+    "sentDescription": "إذا كان هناك حساب مرتبط بهذا البريد الإلكتروني، فقد أرسلنا رابط إعادة تعيين كلمة المرور.",
+    "backToSignIn": "العودة إلى تسجيل الدخول"
+  },
+  "ResetPassword": {
+    "heading": "تعيين كلمة مرور جديدة",
+    "description": "أدخل كلمة المرور الجديدة أدناه.",
+    "passwordLabel": "كلمة المرور الجديدة",
+    "passwordPlaceholder": "8 أحرف على الأقل",
+    "confirmPasswordLabel": "تأكيد كلمة المرور الجديدة",
+    "confirmPasswordPlaceholder": "أعد إدخال كلمة المرور الجديدة",
+    "resetPassword": "إعادة تعيين كلمة المرور",
+    "resetting": "جارٍ إعادة التعيين...",
+    "successHeading": "تم إعادة تعيين كلمة المرور",
+    "successDescription": "تم تحديث كلمة المرور. يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.",
+    "signIn": "تسجيل الدخول",
+    "invalidLink": "رابط إعادة تعيين غير صالح",
+    "invalidLinkDescription": "رابط إعادة تعيين كلمة المرور مفقود أو غير صحيح.",
+    "requestNewLink": "طلب رابط جديد",
+    "passwordMismatch": "كلمتا المرور غير متطابقتين.",
+    "passwordTooShort": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.",
+    "errorGeneric": "حدث خطأ ما. يُرجى المحاولة مجدداً."
   },
   "Error": {
     "code": "500",
@@ -167,6 +242,38 @@
     "heading": "الصفحة غير موجودة",
     "description": "الصفحة التي تبحث عنها غير موجودة.",
     "goHome": "الذهاب إلى الصفحة الرئيسية"
+  },
+  "Settings": {
+    "heading": "الإعدادات",
+    "description": "إدارة ملفك الشخصي وإعدادات حسابك.",
+    "avatarLabel": "صورة الملف الشخصي",
+    "changeAvatar": "تغيير الصورة",
+    "avatarHint": "JPG، PNG، WebP، أو GIF. الحد الأقصى 2 MB.",
+    "nameLabel": "الاسم",
+    "namePlaceholder": "اسمك",
+    "emailLabel": "البريد الإلكتروني",
+    "save": "حفظ التغييرات",
+    "saving": "جارٍ الحفظ...",
+    "saved": "تم حفظ تغييراتك.",
+    "errorGeneric": "حدث خطأ ما. يُرجى المحاولة مجدداً."
+  },
+  "Terms": {
+    "heading": "شروط الخدمة",
+    "lastUpdated": "آخر تحديث: أبريل 2026",
+    "placeholder": "Terms of service content goes here. Replace this placeholder with your actual terms."
+  },
+  "Privacy": {
+    "heading": "سياسة الخصوصية",
+    "lastUpdated": "آخر تحديث: أبريل 2026",
+    "placeholder": "Privacy policy content goes here. Replace this placeholder with your actual policy."
+  },
+  "VerifyBanner": {
+    "message": "يرجى تأكيد بريدك الإلكتروني لبدء الإنشاء.",
+    "resend": "إعادة إرسال البريد",
+    "sending": "جارٍ الإرسال…",
+    "sent": "تم إرسال بريد التأكيد! تحقق من صندوق الوارد.",
+    "sendError": "فشل إرسال البريد. يرجى المحاولة مرة أخرى.",
+    "alreadyVerified": "لقد أكّدت بريدي بالفعل"
   },
   "Metadata": {
     "siteName": "WebsitePls",

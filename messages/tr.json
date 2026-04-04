@@ -1,4 +1,7 @@
 {
+  "Common": {
+    "back": "Geri"
+  },
   "Landing": {
     "heading": "Ne oluşturmak istersiniz?",
     "description": "Web sitenizi tanımlayın, birkaç saniye içinde oluşturalım.",
@@ -37,7 +40,8 @@
     "thoughtFor": "{time} düşündü",
     "retrying": "Tekrar deneniyor…",
     "interrupted": "Önceki oluşturma kesintiye uğradı. Lütfen tekrar deneyin.",
-    "networkError": "Ağ hatası. Bağlantınızı kontrol edip tekrar deneyin."
+    "networkError": "Ağ hatası. Bağlantınızı kontrol edip tekrar deneyin.",
+    "timedOut": "Oluşturma zaman aşımına uğradı. Lütfen tekrar deneyin."
   },
   "Progress": {
     "generating": "Web siteniz oluşturuluyor…",
@@ -84,7 +88,8 @@
     "accountMenu": "Hesap menüsü",
     "user": "Kullanıcı",
     "credit": "{count, plural, one {# kredi} other {# kredi}}",
-    "myProjects": "Projelerim"
+    "myProjects": "Projelerim",
+    "settings": "Ayarlar"
   },
   "GenerationLimit": {
     "remaining": "{remaining}/{max} ücretsiz {remaining, plural, one {oluşturma} other {oluşturma}} kaldı.",
@@ -98,15 +103,50 @@
     "description": "Projelerinizi kaydetmek ve daha fazla oluşturma hakkı almak için giriş yapın.",
     "emailLabel": "E-posta adresi",
     "emailPlaceholder": "you@example.com",
-    "sendLink": "Link gönder",
-    "sending": "Gönderiliyor...",
+    "passwordLabel": "Şifre",
+    "passwordPlaceholder": "Şifrenizi girin",
+    "signIn": "Giriş yap",
+    "signingIn": "Giriş yapılıyor...",
+    "noAccount": "Hesabınız yok mu?",
+    "signUp": "Kayıt ol",
     "orContinueWith": "veya şununla devam edin",
     "google": "Google",
     "github": "GitHub",
-    "terms": "Giriş yaparak hizmet şartlarımızı kabul etmiş olursunuz.",
-    "checkEmail": "E-postanızı kontrol edin",
-    "emailSent": "{email} adresine bir giriş bağlantısı gönderdik",
+    "termsPrefix": "Giriş yaparak",
+    "termsLink": "hizmet şartlarımızı",
+    "termsAnd": "ve",
+    "privacyLink": "gizlilik politikamızı",
+    "termsSuffix": ".",
+    "forgotPassword": "Şifrenizi mi unuttunuz?",
+    "invalidCredentials": "Geçersiz e-posta veya şifre.",
     "errorOAuth": "Bu e-posta zaten başka bir giriş yöntemiyle ilişkilendirilmiş.",
+    "errorGeneric": "Bir sorun oluştu. Lütfen tekrar deneyin."
+  },
+  "Signup": {
+    "heading": "Hesap oluştur",
+    "description": "Projelerinizi kaydetmek ve daha fazla oluşturma hakkı almak için kayıt olun.",
+    "nameLabel": "Ad (isteğe bağlı)",
+    "namePlaceholder": "Adınız",
+    "emailLabel": "E-posta adresi",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Şifre",
+    "passwordPlaceholder": "En az 8 karakter",
+    "confirmPasswordLabel": "Şifreyi onayla",
+    "confirmPasswordPlaceholder": "Şifrenizi tekrar girin",
+    "createAccount": "Hesap oluştur",
+    "creatingAccount": "Hesap oluşturuluyor...",
+    "hasAccount": "Zaten hesabınız var mı?",
+    "signIn": "Giriş yap",
+    "orContinueWith": "veya şununla devam edin",
+    "google": "Google",
+    "github": "GitHub",
+    "termsPrefix": "Hesap oluşturarak",
+    "termsLink": "hizmet şartlarımızı",
+    "termsAnd": "ve",
+    "privacyLink": "gizlilik politikamızı",
+    "termsSuffix": ".",
+    "passwordMismatch": "Şifreler eşleşmiyor.",
+    "passwordTooShort": "Şifre en az 8 karakter olmalıdır.",
     "errorGeneric": "Bir sorun oluştu. Lütfen tekrar deneyin."
   },
   "Projects": {
@@ -115,7 +155,6 @@
     "newProject": "Yeni proje",
     "noProjects": "Henüz proje yok. İlk projenizi oluşturun!",
     "preview": "Önizleme",
-    "backToHome": "Ana sayfaya dön",
     "edit": "Düzenle",
     "delete": "Sil",
     "deleteConfirmTitle": "Proje silinsin mi?",
@@ -127,6 +166,8 @@
     "rename": "Yeniden adlandır",
     "renameLabel": "Proje adı",
     "renameError": "Proje yeniden adlandırılamadı.",
+    "renameSuccess": "Proje yeniden adlandırıldı.",
+    "deleteSuccess": "Proje silindi.",
     "moreActions": "Diğer işlemler",
     "renameTitle": "Projeyi yeniden adlandır",
     "displayName": "Görünen ad",
@@ -151,9 +192,43 @@
     "goHome": "Ana sayfaya git"
   },
   "VerifyEmail": {
-    "heading": "E-postanızı kontrol edin",
-    "description": "E-posta adresinize bir giriş bağlantısı gönderdik. Giriş yapmak için bağlantıya tıklayın.",
+    "verifying": "E-postanız doğrulanıyor...",
+    "successHeading": "E-posta doğrulandı",
+    "successDescription": "E-postanız doğrulandı. Artık giriş yapabilirsiniz.",
+    "signIn": "Giriş yap",
+    "errorHeading": "Doğrulama başarısız",
+    "errorDescription": "Bu bağlantı geçersiz veya süresi dolmuş. Lütfen yeni bir doğrulama e-postası isteyin.",
     "backToSignIn": "Girişe dön"
+  },
+  "ForgotPassword": {
+    "heading": "Şifrenizi mi unuttunuz?",
+    "description": "E-posta adresinizi girin, şifrenizi sıfırlamak için bir bağlantı göndereceğiz.",
+    "emailLabel": "E-posta adresi",
+    "emailPlaceholder": "you@example.com",
+    "sendResetLink": "Sıfırlama bağlantısı gönder",
+    "sending": "Gönderiliyor...",
+    "sentHeading": "E-postanızı kontrol edin",
+    "sentDescription": "Bu e-posta ile bir hesap varsa, şifre sıfırlama bağlantısı gönderdik.",
+    "backToSignIn": "Girişe dön"
+  },
+  "ResetPassword": {
+    "heading": "Yeni bir şifre belirleyin",
+    "description": "Yeni şifrenizi aşağıya girin.",
+    "passwordLabel": "Yeni şifre",
+    "passwordPlaceholder": "En az 8 karakter",
+    "confirmPasswordLabel": "Yeni şifreyi onayla",
+    "confirmPasswordPlaceholder": "Yeni şifrenizi tekrar girin",
+    "resetPassword": "Şifreyi sıfırla",
+    "resetting": "Sıfırlanıyor...",
+    "successHeading": "Şifre sıfırlandı",
+    "successDescription": "Şifreniz güncellendi. Artık yeni şifrenizle giriş yapabilirsiniz.",
+    "signIn": "Giriş yap",
+    "invalidLink": "Geçersiz sıfırlama bağlantısı",
+    "invalidLinkDescription": "Bu şifre sıfırlama bağlantısı eksik veya hatalı.",
+    "requestNewLink": "Yeni bağlantı iste",
+    "passwordMismatch": "Şifreler eşleşmiyor.",
+    "passwordTooShort": "Şifre en az 8 karakter olmalıdır.",
+    "errorGeneric": "Bir sorun oluştu. Lütfen tekrar deneyin."
   },
   "Error": {
     "code": "500",
@@ -167,6 +242,38 @@
     "heading": "Sayfa bulunamadı",
     "description": "Aradığınız sayfa mevcut değil.",
     "goHome": "Ana sayfaya git"
+  },
+  "Settings": {
+    "heading": "Ayarlar",
+    "description": "Profilinizi ve hesap ayarlarınızı yönetin.",
+    "avatarLabel": "Profil fotoğrafı",
+    "changeAvatar": "Fotoğrafı değiştir",
+    "avatarHint": "JPG, PNG, WebP veya GIF. Maks. 2 MB.",
+    "nameLabel": "Ad",
+    "namePlaceholder": "Adınız",
+    "emailLabel": "E-posta",
+    "save": "Değişiklikleri kaydet",
+    "saving": "Kaydediliyor...",
+    "saved": "Değişiklikleriniz kaydedildi.",
+    "errorGeneric": "Bir sorun oluştu. Lütfen tekrar deneyin."
+  },
+  "Terms": {
+    "heading": "Hizmet Şartları",
+    "lastUpdated": "Son güncelleme: Nisan 2026",
+    "placeholder": "Terms of service content goes here. Replace this placeholder with your actual terms."
+  },
+  "Privacy": {
+    "heading": "Gizlilik Politikası",
+    "lastUpdated": "Son güncelleme: Nisan 2026",
+    "placeholder": "Privacy policy content goes here. Replace this placeholder with your actual policy."
+  },
+  "VerifyBanner": {
+    "message": "Oluşturmaya başlamak için lütfen e-posta adresinizi doğrulayın.",
+    "resend": "E-postayı yeniden gönder",
+    "sending": "Gönderiliyor…",
+    "sent": "Doğrulama e-postası gönderildi! Gelen kutunuzu kontrol edin.",
+    "sendError": "E-posta gönderilemedi. Lütfen tekrar deneyin.",
+    "alreadyVerified": "Zaten doğruladım"
   },
   "Metadata": {
     "siteName": "WebsitePls",

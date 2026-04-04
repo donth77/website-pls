@@ -28,7 +28,7 @@ Human-oriented setup instructions: [`README.md`](./README.md).
 - **pnpm** + `pnpm-lock.yaml`.
 - Prisma 7, PostgreSQL, `pg`, `@prisma/adapter-pg`, `dotenv` (for Prisma CLI + worker).
 - **Anthropic SDK** for generation; **Unsplash API** for stock images; **Lakera Guard** (optional) for prompt screening.
-- **BullMQ + ioredis** for job queue; **Supabase** for object storage (generated HTML).
+- **BullMQ + ioredis** for job queue; **Cloudflare R2** for object storage (generated HTML, S3-compatible via `@aws-sdk/client-s3`).
 - Auth provider TBD. Embeddings provider TBD for Phase 1 RAG.
 
 ## Directory map
@@ -41,7 +41,7 @@ Human-oriented setup instructions: [`README.md`](./README.md).
 | `src/app/api/generate/route.ts`             | `POST` — validate, rate-limit, screen, create project/version, enqueue job        |
 | `src/app/api/versions/[versionId]/route.ts` | `GET` — poll job progress (requires `?token=`)                                    |
 | `src/app/api/health/route.ts`               | `GET` — shallow; `GET ?deep=true` — checks DB, Redis, Anthropic                   |
-| `src/app/preview/[versionId]/route.ts`      | `GET` — serve generated HTML from Supabase (requires `?token=`)                   |
+| `src/app/preview/[versionId]/route.ts`      | `GET` — serve generated HTML from R2 (requires `?token=`)                         |
 | `src/components/`                           | Extracted UI components (generator-app, preview-panel, chat, etc.)                |
 | `src/hooks/`                                | Custom React hooks (e.g. `use-generation.ts`)                                     |
 | `src/lib/ai/orchestrator.ts`                | `runGenerationPipeline` — structured + fallback paths, images, refinement support |
@@ -50,17 +50,17 @@ Human-oriented setup instructions: [`README.md`](./README.md).
 | `src/lib/ai/context.ts`                     | `buildContextForAgent` — hook for Phase 1 RAG                                     |
 | `src/lib/db/prisma.ts`                      | Singleton `PrismaClient` with `PrismaPg` adapter                                  |
 | `src/lib/queue/`                            | BullMQ queue + Redis connection management                                        |
-| `src/lib/supabase/server.ts`                | Supabase admin client + storage helpers                                           |
+| `src/lib/storage/r2.ts`                     | Cloudflare R2 client + storage helpers (upload, download, list, delete)           |
 | `src/lib/images/unsplash.ts`                | Unsplash photo search with dedup + attribution                                    |
 | `src/lib/logger.ts`                         | Structured JSON logging with component scoping + child loggers                    |
 | `src/lib/rateLimit.ts`                      | Redis-backed sliding-window per-IP rate limiter                                   |
-| `src/workers/generation-worker.ts`          | BullMQ worker — runs pipeline, uploads to Supabase, tracks progress               |
+| `src/workers/generation-worker.ts`          | BullMQ worker — runs pipeline, uploads to R2, tracks progress                     |
 | `src/generated/prisma/`                     | Generated client — **not in git**; regenerate via `pnpm install`                  |
 
 ## Data model
 
 - **Project** — one user-facing "site" effort; holds `prompt`, `status`, `secretToken` (access control), optional `errorMessage` (persisted on failure).
-- **Version** — numbered snapshot per project (`versionNumber`, `promptDelta` for refinements, `storageKey` for Supabase HTML).
+- **Version** — numbered snapshot per project (`versionNumber`, `promptDelta` for refinements, `storageKey` for R2 HTML).
 - **PublishedSite** — future: subdomain/custom domain + `storageKey`.
 - **User** — authenticated account (not yet wired).
 - **Ownership** — currently `secretToken` per project; planned: `userId` (authenticated) or `guestSessionId` (anonymous cookie).
@@ -88,9 +88,10 @@ Human-oriented setup instructions: [`README.md`](./README.md).
 > These are rough ideas at various stages of exploration — none are committed or fully designed. Sections below capture early research and thinking where it exists.
 
 1. **Phase 1 RAG** — one `.txt`/`.pdf` per project, chunk + embed, top-k retrieval. See RAG section below.
-2. **Publish + export** — vanity slugs, public Supabase URLs, `POST /api/publish`, `GET /p/[slug]` redirect. See Publish section below.
+2. **Publish + export** — vanity slugs, public R2 URLs, `POST /api/publish`, `GET /p/[slug]` redirect. See Publish section below.
 3. **Split orchestrator** into intent → blueprint → section code; validation layer.
 4. **Stock video hero backgrounds** — muted autoplay `<video>` in hero sections using Pexels/Pixabay video APIs (Unsplash has no video API). Scoped to one video per page; orchestrator decides when a video hero suits the site type; always include a `poster` image fallback. Medium quality (720p) to limit payload. See research notes below.
+5. **JWT session revocation** — when admin/ban tooling is built, add a short `maxAge` (e.g., 5 minutes) to the JWT session so the `jwt` callback periodically revalidates against the DB. Gives near-instant revocation without sacrificing resilience during DB outages.
 
 ---
 
@@ -124,12 +125,12 @@ Human-oriented setup instructions: [`README.md`](./README.md).
 
 ### Goals
 
-1. **Public HTML** from Supabase Storage via vanity redirect.
-2. **Vanity URL:** optional slug or auto-generated segment → `https://{host}/p/{segment}` → 302 to Supabase public URL.
+1. **Public HTML** from R2 via vanity redirect.
+2. **Vanity URL:** optional slug or auto-generated segment → `https://{host}/p/{segment}` → 302 to R2 public URL.
 
 ### Implementation order
 
-1. Supabase bucket policy for `published/*` public read.
+1. R2 bucket policy for `published/*` public read.
 2. Slug validators + segment allocator.
 3. `POST /api/publish` + `GET /p/[slug]` redirect route.
 4. UI: optional slug field + publish button + copy link.

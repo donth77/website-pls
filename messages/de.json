@@ -1,4 +1,7 @@
 {
+  "Common": {
+    "back": "Zurück"
+  },
   "Landing": {
     "heading": "Was möchten Sie erstellen?",
     "description": "Beschreiben Sie Ihre Website und wir generieren sie in Sekunden.",
@@ -37,7 +40,8 @@
     "thoughtFor": "Hat {time} nachgedacht",
     "retrying": "Erneuter Versuch…",
     "interrupted": "Die vorherige Generierung wurde unterbrochen. Bitte versuche es erneut.",
-    "networkError": "Netzwerkfehler. Bitte überprüfe deine Verbindung und versuche es erneut."
+    "networkError": "Netzwerkfehler. Bitte überprüfe deine Verbindung und versuche es erneut.",
+    "timedOut": "Zeitüberschreitung bei der Generierung. Bitte versuchen Sie es erneut."
   },
   "Progress": {
     "generating": "Deine Website wird erstellt…",
@@ -84,7 +88,8 @@
     "accountMenu": "Kontomenü",
     "user": "Benutzer",
     "credit": "{count, plural, one {# Guthaben} other {# Guthaben}}",
-    "myProjects": "Meine Projekte"
+    "myProjects": "Meine Projekte",
+    "settings": "Einstellungen"
   },
   "GenerationLimit": {
     "remaining": "{remaining}/{max} kostenlose {remaining, plural, one {Generierung} other {Generierungen}} übrig.",
@@ -98,15 +103,50 @@
     "description": "Melden Sie sich an, um Ihre Projekte zu speichern und mehr Generierungen zu erhalten.",
     "emailLabel": "E-Mail-Adresse",
     "emailPlaceholder": "you@example.com",
-    "sendLink": "Link senden",
-    "sending": "Wird gesendet...",
+    "passwordLabel": "Passwort",
+    "passwordPlaceholder": "Passwort eingeben",
+    "signIn": "Anmelden",
+    "signingIn": "Anmeldung...",
+    "noAccount": "Noch kein Konto?",
+    "signUp": "Registrieren",
     "orContinueWith": "oder fortfahren mit",
     "google": "Google",
     "github": "GitHub",
-    "terms": "Durch die Anmeldung stimmen Sie unseren Nutzungsbedingungen zu.",
-    "checkEmail": "Überprüfen Sie Ihre E-Mail",
-    "emailSent": "Wir haben einen Anmeldelink an {email} gesendet",
+    "termsPrefix": "Durch die Anmeldung stimmen Sie unseren",
+    "termsLink": "Nutzungsbedingungen",
+    "termsAnd": "und",
+    "privacyLink": "Datenschutzrichtlinie",
+    "termsSuffix": ".",
+    "forgotPassword": "Passwort vergessen?",
+    "invalidCredentials": "Ungültige E-Mail-Adresse oder Passwort.",
     "errorOAuth": "Diese E-Mail-Adresse ist bereits mit einer anderen Anmeldemethode verknüpft.",
+    "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+  },
+  "Signup": {
+    "heading": "Konto erstellen",
+    "description": "Registrieren Sie sich, um Ihre Projekte zu speichern und mehr Generierungen zu erhalten.",
+    "nameLabel": "Name (optional)",
+    "namePlaceholder": "Ihr Name",
+    "emailLabel": "E-Mail-Adresse",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Passwort",
+    "passwordPlaceholder": "Mindestens 8 Zeichen",
+    "confirmPasswordLabel": "Passwort bestätigen",
+    "confirmPasswordPlaceholder": "Passwort erneut eingeben",
+    "createAccount": "Konto erstellen",
+    "creatingAccount": "Konto wird erstellt...",
+    "hasAccount": "Bereits ein Konto?",
+    "signIn": "Anmelden",
+    "orContinueWith": "oder fortfahren mit",
+    "google": "Google",
+    "github": "GitHub",
+    "termsPrefix": "Mit der Kontoerstellung stimmen Sie unseren",
+    "termsLink": "Nutzungsbedingungen",
+    "termsAnd": "und",
+    "privacyLink": "Datenschutzrichtlinie",
+    "termsSuffix": ".",
+    "passwordMismatch": "Passwörter stimmen nicht überein.",
+    "passwordTooShort": "Das Passwort muss mindestens 8 Zeichen lang sein.",
     "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
   },
   "Projects": {
@@ -115,7 +155,6 @@
     "newProject": "Neues Projekt",
     "noProjects": "Noch keine Projekte. Erstellen Sie Ihr erstes!",
     "preview": "Vorschau",
-    "backToHome": "Zurück zur Startseite",
     "edit": "Bearbeiten",
     "delete": "Löschen",
     "deleteConfirmTitle": "Projekt löschen?",
@@ -127,6 +166,8 @@
     "rename": "Umbenennen",
     "renameLabel": "Projektname",
     "renameError": "Projekt konnte nicht umbenannt werden.",
+    "renameSuccess": "Projekt umbenannt.",
+    "deleteSuccess": "Projekt gelöscht.",
     "moreActions": "Weitere Aktionen",
     "renameTitle": "Projekt umbenennen",
     "displayName": "Anzeigename",
@@ -151,9 +192,43 @@
     "goHome": "Zur Startseite"
   },
   "VerifyEmail": {
-    "heading": "Überprüfen Sie Ihre E-Mail",
-    "description": "Wir haben einen Anmeldelink an Ihre E-Mail-Adresse gesendet. Klicken Sie auf den Link, um sich anzumelden.",
+    "verifying": "E-Mail wird verifiziert...",
+    "successHeading": "E-Mail verifiziert",
+    "successDescription": "Ihre E-Mail wurde verifiziert. Sie können sich jetzt anmelden.",
+    "signIn": "Anmelden",
+    "errorHeading": "Verifizierung fehlgeschlagen",
+    "errorDescription": "Dieser Link ist ungültig oder abgelaufen. Bitte fordern Sie eine neue Bestätigungs-E-Mail an.",
     "backToSignIn": "Zurück zur Anmeldung"
+  },
+  "ForgotPassword": {
+    "heading": "Passwort vergessen?",
+    "description": "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen Ihres Passworts.",
+    "emailLabel": "E-Mail-Adresse",
+    "emailPlaceholder": "you@example.com",
+    "sendResetLink": "Link zum Zurücksetzen senden",
+    "sending": "Wird gesendet...",
+    "sentHeading": "Überprüfen Sie Ihre E-Mail",
+    "sentDescription": "Falls ein Konto mit dieser E-Mail-Adresse existiert, haben wir einen Link zum Zurücksetzen des Passworts gesendet.",
+    "backToSignIn": "Zurück zur Anmeldung"
+  },
+  "ResetPassword": {
+    "heading": "Neues Passwort festlegen",
+    "description": "Geben Sie unten Ihr neues Passwort ein.",
+    "passwordLabel": "Neues Passwort",
+    "passwordPlaceholder": "Mindestens 8 Zeichen",
+    "confirmPasswordLabel": "Neues Passwort bestätigen",
+    "confirmPasswordPlaceholder": "Neues Passwort erneut eingeben",
+    "resetPassword": "Passwort zurücksetzen",
+    "resetting": "Wird zurückgesetzt...",
+    "successHeading": "Passwort zurückgesetzt",
+    "successDescription": "Ihr Passwort wurde aktualisiert. Sie können sich jetzt mit Ihrem neuen Passwort anmelden.",
+    "signIn": "Anmelden",
+    "invalidLink": "Ungültiger Link zum Zurücksetzen",
+    "invalidLinkDescription": "Dieser Link zum Zurücksetzen des Passworts fehlt oder ist fehlerhaft.",
+    "requestNewLink": "Neuen Link anfordern",
+    "passwordMismatch": "Passwörter stimmen nicht überein.",
+    "passwordTooShort": "Das Passwort muss mindestens 8 Zeichen lang sein.",
+    "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
   },
   "Error": {
     "code": "500",
@@ -167,6 +242,38 @@
     "heading": "Seite nicht gefunden",
     "description": "Die gesuchte Seite existiert nicht.",
     "goHome": "Zur Startseite"
+  },
+  "Settings": {
+    "heading": "Einstellungen",
+    "description": "Verwalten Sie Ihr Profil und Ihre Kontoeinstellungen.",
+    "avatarLabel": "Profilfoto",
+    "changeAvatar": "Foto ändern",
+    "avatarHint": "JPG, PNG, WebP oder GIF. Max. 2 MB.",
+    "nameLabel": "Name",
+    "namePlaceholder": "Ihr Name",
+    "emailLabel": "E-Mail",
+    "save": "Änderungen speichern",
+    "saving": "Wird gespeichert...",
+    "saved": "Ihre Änderungen wurden gespeichert.",
+    "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+  },
+  "Terms": {
+    "heading": "Nutzungsbedingungen",
+    "lastUpdated": "Zuletzt aktualisiert: April 2026",
+    "placeholder": "Terms of service content goes here. Replace this placeholder with your actual terms."
+  },
+  "Privacy": {
+    "heading": "Datenschutzrichtlinie",
+    "lastUpdated": "Zuletzt aktualisiert: April 2026",
+    "placeholder": "Privacy policy content goes here. Replace this placeholder with your actual policy."
+  },
+  "VerifyBanner": {
+    "message": "Bitte bestätigen Sie Ihre E-Mail-Adresse, um mit dem Generieren zu beginnen.",
+    "resend": "E-Mail erneut senden",
+    "sending": "Wird gesendet…",
+    "sent": "Bestätigungs-E-Mail gesendet! Überprüfen Sie Ihren Posteingang.",
+    "sendError": "E-Mail konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+    "alreadyVerified": "Ich habe bereits bestätigt"
   },
   "Metadata": {
     "siteName": "WebsitePls",

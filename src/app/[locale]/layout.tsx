@@ -6,8 +6,11 @@ import { getMessages, getTranslations } from "next-intl/server";
 import { Geist, Geist_Mono } from "next/font/google";
 import { routing, RTL_LOCALES } from "@/i18n/routing";
 import type { Locale } from "@/i18n/routing";
+import { auth } from "@/lib/auth/authOptions";
 import { SessionProvider } from "@/components/auth/session-provider";
-import { GlobalBar } from "@/components/global-bar";
+import { Header } from "@/components/header";
+import { VerifyEmailBanner } from "@/components/auth/verify-email-banner";
+import { Toaster } from "sonner";
 import "../globals.css";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://websitepls.com";
@@ -88,7 +91,7 @@ export default async function LocaleLayout({
   }
 
   setRequestLocale(locale);
-  const messages = await getMessages();
+  const [messages, session] = await Promise.all([getMessages(), auth()]);
   const dir = RTL_LOCALES.has(locale) ? "rtl" : "ltr";
 
   return (
@@ -121,12 +124,25 @@ export default async function LocaleLayout({
           }}
         />
         <NextIntlClientProvider messages={messages}>
-          <SessionProvider>
+          <SessionProvider session={session}>
             <SkipLink />
-            <GlobalBar />
+            <Header />
+            <VerifyEmailBanner />
             <main id="main-content" className="min-h-0 flex-1 overflow-auto">
               {children}
             </main>
+            <Toaster
+              position="bottom-right"
+              toastOptions={{
+                classNames: {
+                  toast:
+                    "border border-zinc-200 bg-white text-zinc-900 shadow-lg dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100",
+                  description: "text-zinc-500 dark:text-zinc-400",
+                  error:
+                    "border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300",
+                },
+              }}
+            />
           </SessionProvider>
         </NextIntlClientProvider>
       </body>

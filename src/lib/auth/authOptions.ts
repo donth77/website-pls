@@ -1,9 +1,10 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
-import Resend from "next-auth/providers/resend";
+import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { cookies } from "next/headers";
+import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db/prisma";
 import { COOKIE_NAME, verifySessionId } from "./cookie";
 import { createLogger } from "@/lib/logger";
@@ -16,22 +17,75 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   adapter: PrismaAdapter(prisma as any),
   providers: [
-    Google,
-    GitHub,
-    Resend({
-      from: process.env.EMAIL_FROM ?? "noreply@websitepls.com",
+    Google({ allowDangerousEmailAccountLinking: true }),
+    GitHub({ allowDangerousEmailAccountLinking: true }),
+    Credentials({
+      credentials: {
+        email: { type: "email" },
+        password: { type: "password" },
+      },
+      async authorize(credentials) {
+        const email = credentials?.email as string | undefined;
+        const password = credentials?.password as string | undefined;
+        if (!email || !password) return null;
+
+        const user = await prisma.user.findUnique({
+          where: { email: email.toLowerCase().trim() },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            image: true,
+            passwordHash: true,
+          },
+        });
+        if (!user?.passwordHash) return null;
+
+        const valid = await bcrypt.compare(password, user.passwordHash);
+        if (!valid) return null;
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          image: user.image,
+        };
+      },
     }),
   ],
-  session: { strategy: "database" },
+  session: { strategy: "jwt" },
   pages: {
     signIn: "/login",
     error: "/auth/error",
-    verifyRequest: "/auth/verify-request",
   },
   callbacks: {
-    session({ session, user }) {
-      // Expose user ID on the session so routes can use it.
-      session.user.id = user.id;
+    async jwt({ token, user, trigger }) {
+      // Persist the user ID into the JWT on sign-in.
+      if (user?.id) {
+        token.sub = user.id;
+      }
+      // Refresh user data from DB on sign-in and session update (e.g. after
+      // verification, avatar upload, or name change).
+      if (token.sub && (user || trigger === "update")) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { emailVerified: true, name: true, image: true },
+        });
+        if (dbUser) {
+          token.emailVerified = !!dbUser.emailVerified;
+          token.name = dbUser.name;
+          token.picture = dbUser.image;
+        }
+      }
+      return token;
+    },
+    session({ session, token }) {
+      if (token.sub) {
+        session.user.id = token.sub;
+      }
+      session.user.name = token.name ?? session.user.name;
+      session.user.image = (token.picture as string) ?? session.user.image;
+      session.user.emailVerified = !!token.emailVerified;
       return session;
     },
   },

@@ -1,4 +1,7 @@
 {
+  "Common": {
+    "back": "Wstecz"
+  },
   "Landing": {
     "heading": "Co chcesz zbudować?",
     "description": "Opisz swoją stronę, a wygenerujemy ją w kilka sekund.",
@@ -37,7 +40,8 @@
     "thoughtFor": "Myślał przez {time}",
     "retrying": "Ponowna próba…",
     "interrupted": "Poprzednie generowanie zostało przerwane. Spróbuj ponownie.",
-    "networkError": "Błąd sieci. Sprawdź połączenie i spróbuj ponownie."
+    "networkError": "Błąd sieci. Sprawdź połączenie i spróbuj ponownie.",
+    "timedOut": "Generowanie przekroczyło limit czasu. Spróbuj ponownie."
   },
   "Progress": {
     "generating": "Generowanie Twojej strony…",
@@ -84,7 +88,8 @@
     "accountMenu": "Menu konta",
     "user": "Użytkownik",
     "credit": "{count, plural, one {# kredyt} few {# kredyty} many {# kredytów} other {# kredytów}}",
-    "myProjects": "Moje projekty"
+    "myProjects": "Moje projekty",
+    "settings": "Ustawienia"
   },
   "GenerationLimit": {
     "remaining": "{remaining}/{max} darmowych {remaining, plural, one {generacja pozostała} few {generacje pozostałe} many {generacji pozostałych} other {generacji pozostałych}}.",
@@ -98,15 +103,50 @@
     "description": "Zaloguj się, aby zapisywać projekty i uzyskać więcej generacji.",
     "emailLabel": "Adres e-mail",
     "emailPlaceholder": "you@example.com",
-    "sendLink": "Wyślij link",
-    "sending": "Wysyłanie...",
+    "passwordLabel": "Hasło",
+    "passwordPlaceholder": "Wprowadź hasło",
+    "signIn": "Zaloguj się",
+    "signingIn": "Logowanie...",
+    "noAccount": "Nie masz konta?",
+    "signUp": "Zarejestruj się",
     "orContinueWith": "lub kontynuuj przez",
     "google": "Google",
     "github": "GitHub",
-    "terms": "Logując się, akceptujesz nasze warunki korzystania z usługi.",
-    "checkEmail": "Sprawdź swoją pocztę",
-    "emailSent": "Wysłaliśmy link do logowania na adres {email}",
+    "termsPrefix": "Logując się, akceptujesz nasze",
+    "termsLink": "warunki korzystania z usługi",
+    "termsAnd": "i",
+    "privacyLink": "politykę prywatności",
+    "termsSuffix": ".",
+    "forgotPassword": "Nie pamiętasz hasła?",
+    "invalidCredentials": "Nieprawidłowy adres e-mail lub hasło.",
     "errorOAuth": "Ten adres e-mail jest już powiązany z inną metodą logowania.",
+    "errorGeneric": "Coś poszło nie tak. Spróbuj ponownie."
+  },
+  "Signup": {
+    "heading": "Utwórz konto",
+    "description": "Zarejestruj się, aby zapisywać projekty i uzyskać więcej generacji.",
+    "nameLabel": "Imię (opcjonalnie)",
+    "namePlaceholder": "Twoje imię",
+    "emailLabel": "Adres e-mail",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Hasło",
+    "passwordPlaceholder": "Co najmniej 8 znaków",
+    "confirmPasswordLabel": "Potwierdź hasło",
+    "confirmPasswordPlaceholder": "Wprowadź hasło ponownie",
+    "createAccount": "Utwórz konto",
+    "creatingAccount": "Tworzenie konta...",
+    "hasAccount": "Masz już konto?",
+    "signIn": "Zaloguj się",
+    "orContinueWith": "lub kontynuuj przez",
+    "google": "Google",
+    "github": "GitHub",
+    "termsPrefix": "Tworząc konto, akceptujesz nasze",
+    "termsLink": "warunki korzystania z usługi",
+    "termsAnd": "i",
+    "privacyLink": "politykę prywatności",
+    "termsSuffix": ".",
+    "passwordMismatch": "Hasła nie są zgodne.",
+    "passwordTooShort": "Hasło musi mieć co najmniej 8 znaków.",
     "errorGeneric": "Coś poszło nie tak. Spróbuj ponownie."
   },
   "Projects": {
@@ -115,7 +155,6 @@
     "newProject": "Nowy projekt",
     "noProjects": "Brak projektów. Utwórz swój pierwszy!",
     "preview": "Podgląd",
-    "backToHome": "Wróć na stronę główną",
     "edit": "Edytuj",
     "delete": "Usuń",
     "deleteConfirmTitle": "Usunąć projekt?",
@@ -127,6 +166,8 @@
     "rename": "Zmień nazwę",
     "renameLabel": "Nazwa projektu",
     "renameError": "Nie udało się zmienić nazwy projektu.",
+    "renameSuccess": "Nazwa projektu zmieniona.",
+    "deleteSuccess": "Projekt usunięty.",
     "moreActions": "Więcej działań",
     "renameTitle": "Zmień nazwę projektu",
     "displayName": "Nazwa wyświetlana",
@@ -151,9 +192,43 @@
     "goHome": "Przejdź do strony głównej"
   },
   "VerifyEmail": {
-    "heading": "Sprawdź swoją pocztę",
-    "description": "Wysłaliśmy link do logowania na Twój adres e-mail. Kliknij link, aby się zalogować.",
+    "verifying": "Weryfikacja adresu e-mail...",
+    "successHeading": "E-mail zweryfikowany",
+    "successDescription": "Twój e-mail został zweryfikowany. Możesz się teraz zalogować.",
+    "signIn": "Zaloguj się",
+    "errorHeading": "Weryfikacja nie powiodła się",
+    "errorDescription": "Ten link jest nieprawidłowy lub wygasł. Poproś o nowy e-mail weryfikacyjny.",
     "backToSignIn": "Powrót do logowania"
+  },
+  "ForgotPassword": {
+    "heading": "Nie pamiętasz hasła?",
+    "description": "Wpisz swój adres e-mail, a wyślemy Ci link do zresetowania hasła.",
+    "emailLabel": "Adres e-mail",
+    "emailPlaceholder": "you@example.com",
+    "sendResetLink": "Wyślij link resetujący",
+    "sending": "Wysyłanie...",
+    "sentHeading": "Sprawdź swoją skrzynkę e-mail",
+    "sentDescription": "Jeśli konto z tym adresem e-mail istnieje, wysłaliśmy link do zresetowania hasła.",
+    "backToSignIn": "Powrót do logowania"
+  },
+  "ResetPassword": {
+    "heading": "Ustaw nowe hasło",
+    "description": "Wpisz poniżej nowe hasło.",
+    "passwordLabel": "Nowe hasło",
+    "passwordPlaceholder": "Co najmniej 8 znaków",
+    "confirmPasswordLabel": "Potwierdź nowe hasło",
+    "confirmPasswordPlaceholder": "Wprowadź ponownie nowe hasło",
+    "resetPassword": "Zresetuj hasło",
+    "resetting": "Resetowanie...",
+    "successHeading": "Hasło zresetowane",
+    "successDescription": "Twoje hasło zostało zaktualizowane. Możesz się teraz zalogować nowym hasłem.",
+    "signIn": "Zaloguj się",
+    "invalidLink": "Nieprawidłowy link resetujący",
+    "invalidLinkDescription": "Ten link do resetowania hasła jest brakujący lub nieprawidłowy.",
+    "requestNewLink": "Poproś o nowy link",
+    "passwordMismatch": "Hasła nie są zgodne.",
+    "passwordTooShort": "Hasło musi mieć co najmniej 8 znaków.",
+    "errorGeneric": "Coś poszło nie tak. Spróbuj ponownie."
   },
   "Error": {
     "code": "500",
@@ -167,6 +242,38 @@
     "heading": "Nie znaleziono strony",
     "description": "Strona, której szukasz, nie istnieje.",
     "goHome": "Przejdź do strony głównej"
+  },
+  "Settings": {
+    "heading": "Ustawienia",
+    "description": "Zarządzaj swoim profilem i ustawieniami konta.",
+    "avatarLabel": "Zdjęcie profilowe",
+    "changeAvatar": "Zmień zdjęcie",
+    "avatarHint": "JPG, PNG, WebP lub GIF. Maks. 2 MB.",
+    "nameLabel": "Imię",
+    "namePlaceholder": "Twoje imię",
+    "emailLabel": "E-mail",
+    "save": "Zapisz zmiany",
+    "saving": "Zapisywanie...",
+    "saved": "Twoje zmiany zostały zapisane.",
+    "errorGeneric": "Coś poszło nie tak. Spróbuj ponownie."
+  },
+  "Terms": {
+    "heading": "Warunki korzystania z usługi",
+    "lastUpdated": "Ostatnia aktualizacja: kwiecień 2026",
+    "placeholder": "Terms of service content goes here. Replace this placeholder with your actual terms."
+  },
+  "Privacy": {
+    "heading": "Polityka prywatności",
+    "lastUpdated": "Ostatnia aktualizacja: kwiecień 2026",
+    "placeholder": "Privacy policy content goes here. Replace this placeholder with your actual policy."
+  },
+  "VerifyBanner": {
+    "message": "Zweryfikuj swój adres e-mail, aby rozpocząć generowanie.",
+    "resend": "Wyślij ponownie e-mail",
+    "sending": "Wysyłanie…",
+    "sent": "E-mail weryfikacyjny wysłany! Sprawdź swoją skrzynkę odbiorczą.",
+    "sendError": "Nie udało się wysłać e-maila. Spróbuj ponownie.",
+    "alreadyVerified": "Już zweryfikowałem"
   },
   "Metadata": {
     "siteName": "WebsitePls",

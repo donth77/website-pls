@@ -1,4 +1,7 @@
 {
+  "Common": {
+    "back": "返回"
+  },
   "Landing": {
     "heading": "你想创建什么？",
     "description": "描述你的网站，我们将在几秒内生成它。",
@@ -37,7 +40,8 @@
     "thoughtFor": "思考了 {time}",
     "retrying": "正在重试…",
     "interrupted": "上次生成被中断。请重试。",
-    "networkError": "网络错误。请检查连接后重试。"
+    "networkError": "网络错误。请检查连接后重试。",
+    "timedOut": "生成超时，请重试。"
   },
   "Progress": {
     "generating": "正在生成您的网站…",
@@ -84,7 +88,8 @@
     "accountMenu": "账户菜单",
     "user": "用户",
     "credit": "{count, plural, one {# 个积分} other {# 个积分}}",
-    "myProjects": "我的项目"
+    "myProjects": "我的项目",
+    "settings": "设置"
   },
   "GenerationLimit": {
     "remaining": "剩余 {remaining}/{max} 次免费{remaining, plural, one {生成} other {生成}}。",
@@ -98,15 +103,50 @@
     "description": "登录以保存你的项目并获取更多生成次数。",
     "emailLabel": "电子邮件地址",
     "emailPlaceholder": "you@example.com",
-    "sendLink": "发送链接",
-    "sending": "发送中...",
+    "passwordLabel": "密码",
+    "passwordPlaceholder": "输入你的密码",
+    "signIn": "登录",
+    "signingIn": "登录中...",
+    "noAccount": "还没有账户？",
+    "signUp": "注册",
     "orContinueWith": "或使用以下方式继续",
     "google": "Google",
     "github": "GitHub",
-    "terms": "登录即表示你同意我们的服务条款。",
-    "checkEmail": "请查看你的邮箱",
-    "emailSent": "我们已向 {email} 发送了登录链接",
+    "termsPrefix": "登录即表示你同意我们的",
+    "termsLink": "服务条款",
+    "termsAnd": "和",
+    "privacyLink": "隐私政策",
+    "termsSuffix": ".",
+    "forgotPassword": "忘记密码？",
+    "invalidCredentials": "电子邮件或密码无效。",
     "errorOAuth": "此电子邮件已关联到其他登录方式。",
+    "errorGeneric": "出了点问题，请重试。"
+  },
+  "Signup": {
+    "heading": "创建账户",
+    "description": "注册以保存你的项目并获取更多生成次数。",
+    "nameLabel": "姓名（可选）",
+    "namePlaceholder": "你的姓名",
+    "emailLabel": "电子邮件地址",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "密码",
+    "passwordPlaceholder": "至少 8 个字符",
+    "confirmPasswordLabel": "确认密码",
+    "confirmPasswordPlaceholder": "再次输入你的密码",
+    "createAccount": "创建账户",
+    "creatingAccount": "正在创建账户...",
+    "hasAccount": "已有账户？",
+    "signIn": "登录",
+    "orContinueWith": "或使用以下方式继续",
+    "google": "Google",
+    "github": "GitHub",
+    "termsPrefix": "创建账户即表示你同意我们的",
+    "termsLink": "服务条款",
+    "termsAnd": "和",
+    "privacyLink": "隐私政策",
+    "termsSuffix": ".",
+    "passwordMismatch": "密码不匹配。",
+    "passwordTooShort": "密码必须至少 8 个字符。",
     "errorGeneric": "出了点问题，请重试。"
   },
   "Projects": {
@@ -115,7 +155,6 @@
     "newProject": "新建项目",
     "noProjects": "还没有项目，创建你的第一个吧！",
     "preview": "预览",
-    "backToHome": "返回首页",
     "edit": "编辑",
     "delete": "删除",
     "deleteConfirmTitle": "删除项目？",
@@ -127,6 +166,8 @@
     "rename": "重命名",
     "renameLabel": "项目名称",
     "renameError": "重命名项目失败。",
+    "renameSuccess": "项目已重命名。",
+    "deleteSuccess": "项目已删除。",
     "moreActions": "更多操作",
     "renameTitle": "重命名项目",
     "displayName": "显示名称",
@@ -151,9 +192,43 @@
     "goHome": "返回首页"
   },
   "VerifyEmail": {
-    "heading": "请查看你的邮箱",
-    "description": "我们已向你的电子邮件地址发送了登录链接，请点击链接登录。",
+    "verifying": "正在验证您的邮箱...",
+    "successHeading": "邮箱已验证",
+    "successDescription": "您的邮箱已验证。现在可以登录了。",
+    "signIn": "登录",
+    "errorHeading": "验证失败",
+    "errorDescription": "此链接无效或已过期。请重新申请验证邮件。",
     "backToSignIn": "返回登录"
+  },
+  "ForgotPassword": {
+    "heading": "忘记密码？",
+    "description": "输入您的邮箱，我们将发送密码重置链接。",
+    "emailLabel": "电子邮件地址",
+    "emailPlaceholder": "you@example.com",
+    "sendResetLink": "发送重置链接",
+    "sending": "发送中...",
+    "sentHeading": "请检查您的邮箱",
+    "sentDescription": "如果该邮箱存在关联账户，我们已发送密码重置链接。",
+    "backToSignIn": "返回登录"
+  },
+  "ResetPassword": {
+    "heading": "设置新密码",
+    "description": "请在下方输入您的新密码。",
+    "passwordLabel": "新密码",
+    "passwordPlaceholder": "至少 8 个字符",
+    "confirmPasswordLabel": "确认新密码",
+    "confirmPasswordPlaceholder": "再次输入您的新密码",
+    "resetPassword": "重置密码",
+    "resetting": "重置中...",
+    "successHeading": "密码已重置",
+    "successDescription": "您的密码已更新。现在可以使用新密码登录了。",
+    "signIn": "登录",
+    "invalidLink": "无效的重置链接",
+    "invalidLinkDescription": "此密码重置链接缺失或格式错误。",
+    "requestNewLink": "申请新链接",
+    "passwordMismatch": "密码不匹配。",
+    "passwordTooShort": "密码必须至少 8 个字符。",
+    "errorGeneric": "出了点问题，请重试。"
   },
   "Error": {
     "code": "500",
@@ -167,6 +242,38 @@
     "heading": "页面未找到",
     "description": "你访问的页面不存在。",
     "goHome": "返回首页"
+  },
+  "Settings": {
+    "heading": "设置",
+    "description": "管理您的个人资料和账户设置。",
+    "avatarLabel": "头像",
+    "changeAvatar": "更换头像",
+    "avatarHint": "JPG、PNG、WebP 或 GIF。最大 2 MB。",
+    "nameLabel": "姓名",
+    "namePlaceholder": "您的姓名",
+    "emailLabel": "电子邮件",
+    "save": "保存更改",
+    "saving": "保存中...",
+    "saved": "您的更改已保存。",
+    "errorGeneric": "出了点问题，请重试。"
+  },
+  "Terms": {
+    "heading": "服务条款",
+    "lastUpdated": "最后更新：2026年4月",
+    "placeholder": "Terms of service content goes here. Replace this placeholder with your actual terms."
+  },
+  "Privacy": {
+    "heading": "隐私政策",
+    "lastUpdated": "最后更新：2026年4月",
+    "placeholder": "Privacy policy content goes here. Replace this placeholder with your actual policy."
+  },
+  "VerifyBanner": {
+    "message": "请验证您的邮箱以开始生成。",
+    "resend": "重新发送邮件",
+    "sending": "发送中…",
+    "sent": "验证邮件已发送！请检查您的收件箱。",
+    "sendError": "邮件发送失败，请重试。",
+    "alreadyVerified": "我已经验证过了"
   },
   "Metadata": {
     "siteName": "WebsitePls",

@@ -9,11 +9,12 @@ export async function GET(
 ) {
   const { versionId } = await context.params;
 
-  const version = await prisma.version.findUnique({
-    where: { id: versionId },
+  const version = await prisma.version.findFirst({
+    where: { id: versionId, project: { deletedAt: null } },
     include: {
       project: {
         select: {
+          name: true,
           status: true,
           guestSessionId: true,
           userId: true,
@@ -40,17 +41,24 @@ export async function GET(
 
   let step: string | null = null;
   let percent: number | null = null;
+  let commentary: string | null = null;
 
-  if (projectStatus === "GENERATING") {
+  // Read job data for both GENERATING (progress) and READY (commentary).
+  if (projectStatus === "GENERATING" || projectStatus === "READY") {
     try {
       const queue = getGenerationQueue();
       const job = await queue.getJob(versionId);
       const prog = job?.progress as
-        | { step?: string; percent?: number }
+        | { step?: string; percent?: number; commentary?: string }
         | undefined;
       if (prog) {
         step = prog.step ?? null;
         percent = prog.percent ?? null;
+        commentary = prog.commentary ?? null;
+      }
+      // Fallback: check job return value for completed jobs
+      if (!commentary && job?.returnvalue?.commentary) {
+        commentary = job.returnvalue.commentary as string;
       }
     } catch {
       // Best-effort — if Redis is slow the poll still returns status
@@ -60,8 +68,10 @@ export async function GET(
   return NextResponse.json({
     versionId: version.id,
     projectId: version.projectId,
+    projectName: version.project?.name ?? null,
     projectStatus,
     step,
     percent,
+    commentary,
   });
 }

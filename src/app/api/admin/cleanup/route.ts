@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { timingSafeEqual } from "node:crypto";
 import { checkRateLimit } from "@/lib/rateLimit";
 import { cleanupExpiredGuestSessions } from "@/lib/cleanup/guestSessions";
+import { purgeExpiredSoftDeletedProjects } from "@/lib/cleanup/softDeletedProjects";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("api:admin:cleanup");
 
 /**
  * POST /api/admin/cleanup
@@ -19,8 +24,14 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const auth = req.headers.get("authorization");
-  if (auth !== `Bearer ${secret}`) {
+  const auth = req.headers.get("authorization") ?? "";
+  const expected = `Bearer ${secret}`;
+  const authBuf = Buffer.from(auth);
+  const expectedBuf = Buffer.from(expected);
+  if (
+    authBuf.length !== expectedBuf.length ||
+    !timingSafeEqual(authBuf, expectedBuf)
+  ) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
@@ -37,10 +48,16 @@ export async function POST(req: NextRequest) {
         { status: 429, headers: { "Retry-After": "3600" } },
       );
     }
-  } catch {
-    // Redis down — allow through since the secret already authenticated.
+  } catch (err) {
+    log.warn("Redis rate-limit check failed — allowing through", {
+      error: String(err),
+    });
   }
 
-  const result = await cleanupExpiredGuestSessions();
-  return NextResponse.json(result);
+  const [guestSessions, softDeletePurge] = await Promise.all([
+    cleanupExpiredGuestSessions(),
+    purgeExpiredSoftDeletedProjects(),
+  ]);
+
+  return NextResponse.json({ guestSessions, softDeletePurge });
 }

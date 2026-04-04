@@ -1,4 +1,7 @@
 {
+  "Common": {
+    "back": "Quay lại"
+  },
   "Landing": {
     "heading": "Bạn muốn xây dựng gì?",
     "description": "Mô tả trang web của bạn và chúng tôi sẽ tạo nó trong vài giây.",
@@ -37,7 +40,8 @@
     "thoughtFor": "Đã suy nghĩ {time}",
     "retrying": "Đang thử lại…",
     "interrupted": "Quá trình tạo trước đó đã bị gián đoạn. Vui lòng thử lại.",
-    "networkError": "Lỗi mạng. Vui lòng kiểm tra kết nối và thử lại."
+    "networkError": "Lỗi mạng. Vui lòng kiểm tra kết nối và thử lại.",
+    "timedOut": "Tạo đã hết thời gian. Vui lòng thử lại."
   },
   "Progress": {
     "generating": "Đang tạo trang web của bạn…",
@@ -84,7 +88,8 @@
     "accountMenu": "Menu tài khoản",
     "user": "Người dùng",
     "credit": "{count, plural, other {# tín dụng}}",
-    "myProjects": "Dự án của tôi"
+    "myProjects": "Dự án của tôi",
+    "settings": "Cài đặt"
   },
   "GenerationLimit": {
     "remaining": "Còn {remaining}/{max} lượt tạo miễn phí.",
@@ -98,15 +103,50 @@
     "description": "Đăng nhập để lưu dự án và nhận thêm lượt tạo.",
     "emailLabel": "Địa chỉ email",
     "emailPlaceholder": "you@example.com",
-    "sendLink": "Gửi liên kết",
-    "sending": "Đang gửi...",
+    "passwordLabel": "Mật khẩu",
+    "passwordPlaceholder": "Nhập mật khẩu của bạn",
+    "signIn": "Đăng nhập",
+    "signingIn": "Đang đăng nhập...",
+    "noAccount": "Chưa có tài khoản?",
+    "signUp": "Đăng ký",
     "orContinueWith": "hoặc tiếp tục với",
     "google": "Google",
     "github": "GitHub",
-    "terms": "Bằng cách đăng nhập, bạn đồng ý với điều khoản dịch vụ của chúng tôi.",
-    "checkEmail": "Kiểm tra email của bạn",
-    "emailSent": "Chúng tôi đã gửi liên kết đăng nhập đến {email}",
+    "termsPrefix": "Bằng cách đăng nhập, bạn đồng ý với",
+    "termsLink": "điều khoản dịch vụ",
+    "termsAnd": "và",
+    "privacyLink": "chính sách bảo mật",
+    "termsSuffix": ".",
+    "forgotPassword": "Quên mật khẩu?",
+    "invalidCredentials": "Email hoặc mật khẩu không hợp lệ.",
     "errorOAuth": "Email này đã được liên kết với phương thức đăng nhập khác.",
+    "errorGeneric": "Đã xảy ra lỗi. Vui lòng thử lại."
+  },
+  "Signup": {
+    "heading": "Tạo tài khoản",
+    "description": "Đăng ký để lưu dự án và nhận thêm lượt tạo.",
+    "nameLabel": "Tên (tùy chọn)",
+    "namePlaceholder": "Tên của bạn",
+    "emailLabel": "Địa chỉ email",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Mật khẩu",
+    "passwordPlaceholder": "Ít nhất 8 ký tự",
+    "confirmPasswordLabel": "Xác nhận mật khẩu",
+    "confirmPasswordPlaceholder": "Nhập lại mật khẩu của bạn",
+    "createAccount": "Tạo tài khoản",
+    "creatingAccount": "Đang tạo tài khoản...",
+    "hasAccount": "Đã có tài khoản?",
+    "signIn": "Đăng nhập",
+    "orContinueWith": "hoặc tiếp tục với",
+    "google": "Google",
+    "github": "GitHub",
+    "termsPrefix": "Bằng cách tạo tài khoản, bạn đồng ý với",
+    "termsLink": "điều khoản dịch vụ",
+    "termsAnd": "và",
+    "privacyLink": "chính sách bảo mật",
+    "termsSuffix": ".",
+    "passwordMismatch": "Mật khẩu không khớp.",
+    "passwordTooShort": "Mật khẩu phải có ít nhất 8 ký tự.",
     "errorGeneric": "Đã xảy ra lỗi. Vui lòng thử lại."
   },
   "Projects": {
@@ -115,7 +155,6 @@
     "newProject": "Dự án mới",
     "noProjects": "Chưa có dự án nào. Hãy tạo dự án đầu tiên!",
     "preview": "Xem trước",
-    "backToHome": "Quay lại trang chủ",
     "edit": "Chỉnh sửa",
     "delete": "Xóa",
     "deleteConfirmTitle": "Xóa dự án?",
@@ -127,6 +166,8 @@
     "rename": "Đổi tên",
     "renameLabel": "Tên dự án",
     "renameError": "Đổi tên dự án thất bại.",
+    "renameSuccess": "Đã đổi tên dự án.",
+    "deleteSuccess": "Đã xóa dự án.",
     "moreActions": "Thêm thao tác",
     "renameTitle": "Đổi tên dự án",
     "displayName": "Tên hiển thị",
@@ -151,9 +192,43 @@
     "goHome": "Về trang chủ"
   },
   "VerifyEmail": {
-    "heading": "Kiểm tra email của bạn",
-    "description": "Chúng tôi đã gửi liên kết đăng nhập đến địa chỉ email của bạn. Nhấp vào liên kết để đăng nhập.",
+    "verifying": "Đang xác minh email của bạn...",
+    "successHeading": "Email đã được xác minh",
+    "successDescription": "Email của bạn đã được xác minh. Bạn có thể đăng nhập ngay.",
+    "signIn": "Đăng nhập",
+    "errorHeading": "Xác minh thất bại",
+    "errorDescription": "Liên kết này không hợp lệ hoặc đã hết hạn. Vui lòng yêu cầu email xác minh mới.",
     "backToSignIn": "Quay lại đăng nhập"
+  },
+  "ForgotPassword": {
+    "heading": "Quên mật khẩu?",
+    "description": "Nhập email của bạn và chúng tôi sẽ gửi liên kết đặt lại mật khẩu.",
+    "emailLabel": "Địa chỉ email",
+    "emailPlaceholder": "you@example.com",
+    "sendResetLink": "Gửi liên kết đặt lại",
+    "sending": "Đang gửi...",
+    "sentHeading": "Kiểm tra email của bạn",
+    "sentDescription": "Nếu có tài khoản với email đó, chúng tôi đã gửi liên kết đặt lại mật khẩu.",
+    "backToSignIn": "Quay lại đăng nhập"
+  },
+  "ResetPassword": {
+    "heading": "Đặt mật khẩu mới",
+    "description": "Nhập mật khẩu mới của bạn bên dưới.",
+    "passwordLabel": "Mật khẩu mới",
+    "passwordPlaceholder": "Ít nhất 8 ký tự",
+    "confirmPasswordLabel": "Xác nhận mật khẩu mới",
+    "confirmPasswordPlaceholder": "Nhập lại mật khẩu mới của bạn",
+    "resetPassword": "Đặt lại mật khẩu",
+    "resetting": "Đang đặt lại...",
+    "successHeading": "Đã đặt lại mật khẩu",
+    "successDescription": "Mật khẩu của bạn đã được cập nhật. Bạn có thể đăng nhập bằng mật khẩu mới.",
+    "signIn": "Đăng nhập",
+    "invalidLink": "Liên kết đặt lại không hợp lệ",
+    "invalidLinkDescription": "Liên kết đặt lại mật khẩu này bị thiếu hoặc không đúng định dạng.",
+    "requestNewLink": "Yêu cầu liên kết mới",
+    "passwordMismatch": "Mật khẩu không khớp.",
+    "passwordTooShort": "Mật khẩu phải có ít nhất 8 ký tự.",
+    "errorGeneric": "Đã xảy ra lỗi. Vui lòng thử lại."
   },
   "Error": {
     "code": "500",
@@ -167,6 +242,38 @@
     "heading": "Không tìm thấy trang",
     "description": "Trang bạn đang tìm không tồn tại.",
     "goHome": "Về trang chủ"
+  },
+  "Settings": {
+    "heading": "Cài đặt",
+    "description": "Quản lý hồ sơ và cài đặt tài khoản của bạn.",
+    "avatarLabel": "Ảnh hồ sơ",
+    "changeAvatar": "Đổi ảnh",
+    "avatarHint": "JPG, PNG, WebP hoặc GIF. Tối đa 2 MB.",
+    "nameLabel": "Tên",
+    "namePlaceholder": "Tên của bạn",
+    "emailLabel": "Email",
+    "save": "Lưu thay đổi",
+    "saving": "Đang lưu...",
+    "saved": "Thay đổi của bạn đã được lưu.",
+    "errorGeneric": "Đã xảy ra lỗi. Vui lòng thử lại."
+  },
+  "Terms": {
+    "heading": "Điều khoản Dịch vụ",
+    "lastUpdated": "Cập nhật lần cuối: tháng 4 năm 2026",
+    "placeholder": "Terms of service content goes here. Replace this placeholder with your actual terms."
+  },
+  "Privacy": {
+    "heading": "Chính sách Bảo mật",
+    "lastUpdated": "Cập nhật lần cuối: tháng 4 năm 2026",
+    "placeholder": "Privacy policy content goes here. Replace this placeholder with your actual policy."
+  },
+  "VerifyBanner": {
+    "message": "Vui lòng xác minh email của bạn để bắt đầu tạo trang web.",
+    "resend": "Gửi lại email",
+    "sending": "Đang gửi…",
+    "sent": "Đã gửi email xác minh! Kiểm tra hộp thư đến của bạn.",
+    "sendError": "Gửi email thất bại. Vui lòng thử lại.",
+    "alreadyVerified": "Tôi đã xác minh rồi"
   },
   "Metadata": {
     "siteName": "WebsitePls",

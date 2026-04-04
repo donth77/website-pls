@@ -1,4 +1,7 @@
 {
+  "Common": {
+    "back": "ย้อนกลับ"
+  },
   "Landing": {
     "heading": "คุณต้องการสร้างอะไร?",
     "description": "อธิบายเว็บไซต์ของคุณ แล้วเราจะสร้างให้ในไม่กี่วินาที",
@@ -37,7 +40,8 @@
     "thoughtFor": "คิดเป็นเวลา {time}",
     "retrying": "กำลังลองอีกครั้ง…",
     "interrupted": "การสร้างก่อนหน้าถูกขัดจังหวะ กรุณาลองอีกครั้ง",
-    "networkError": "ข้อผิดพลาดของเครือข่าย กรุณาตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง"
+    "networkError": "ข้อผิดพลาดของเครือข่าย กรุณาตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง",
+    "timedOut": "การสร้างหมดเวลา กรุณาลองอีกครั้ง"
   },
   "Progress": {
     "generating": "กำลังสร้างเว็บไซต์ของคุณ…",
@@ -84,7 +88,8 @@
     "accountMenu": "เมนูบัญชี",
     "user": "ผู้ใช้",
     "credit": "{count, plural, other {# เครดิต}}",
-    "myProjects": "โปรเจกต์ของฉัน"
+    "myProjects": "โปรเจกต์ของฉัน",
+    "settings": "การตั้งค่า"
   },
   "GenerationLimit": {
     "remaining": "เหลือ {remaining}/{max} ครั้งที่สร้างได้ฟรี",
@@ -98,15 +103,50 @@
     "description": "เข้าสู่ระบบเพื่อบันทึกโปรเจกต์และรับรอบสร้างเพิ่มเติม",
     "emailLabel": "ที่อยู่อีเมล",
     "emailPlaceholder": "you@example.com",
-    "sendLink": "ส่งลิงก์",
-    "sending": "กำลังส่ง...",
+    "passwordLabel": "รหัสผ่าน",
+    "passwordPlaceholder": "ป้อนรหัสผ่านของคุณ",
+    "signIn": "เข้าสู่ระบบ",
+    "signingIn": "กำลังเข้าสู่ระบบ...",
+    "noAccount": "ยังไม่มีบัญชี?",
+    "signUp": "สมัครสมาชิก",
     "orContinueWith": "หรือดำเนินการต่อด้วย",
     "google": "Google",
     "github": "GitHub",
-    "terms": "เมื่อเข้าสู่ระบบ คุณยอมรับข้อกำหนดการใช้บริการของเรา",
-    "checkEmail": "ตรวจสอบอีเมลของคุณ",
-    "emailSent": "เราส่งลิงก์เข้าสู่ระบบไปที่ {email}",
+    "termsPrefix": "เมื่อเข้าสู่ระบบ คุณยอมรับ",
+    "termsLink": "ข้อกำหนดการใช้บริการ",
+    "termsAnd": "และ",
+    "privacyLink": "นโยบายความเป็นส่วนตัว",
+    "termsSuffix": ".",
+    "forgotPassword": "ลืมรหัสผ่าน?",
+    "invalidCredentials": "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
     "errorOAuth": "อีเมลนี้เชื่อมโยงกับวิธีการเข้าสู่ระบบอื่นแล้ว",
+    "errorGeneric": "เกิดข้อผิดพลาด กรุณาลองอีกครั้ง"
+  },
+  "Signup": {
+    "heading": "สร้างบัญชี",
+    "description": "สมัครสมาชิกเพื่อบันทึกโปรเจกต์และรับรอบสร้างเพิ่มเติม",
+    "nameLabel": "ชื่อ (ไม่บังคับ)",
+    "namePlaceholder": "ชื่อของคุณ",
+    "emailLabel": "ที่อยู่อีเมล",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "รหัสผ่าน",
+    "passwordPlaceholder": "อย่างน้อย 8 ตัวอักษร",
+    "confirmPasswordLabel": "ยืนยันรหัสผ่าน",
+    "confirmPasswordPlaceholder": "ป้อนรหัสผ่านอีกครั้ง",
+    "createAccount": "สร้างบัญชี",
+    "creatingAccount": "กำลังสร้างบัญชี...",
+    "hasAccount": "มีบัญชีอยู่แล้ว?",
+    "signIn": "เข้าสู่ระบบ",
+    "orContinueWith": "หรือดำเนินการต่อด้วย",
+    "google": "Google",
+    "github": "GitHub",
+    "termsPrefix": "เมื่อสร้างบัญชี คุณยอมรับ",
+    "termsLink": "ข้อกำหนดการใช้บริการ",
+    "termsAnd": "และ",
+    "privacyLink": "นโยบายความเป็นส่วนตัว",
+    "termsSuffix": ".",
+    "passwordMismatch": "รหัสผ่านไม่ตรงกัน",
+    "passwordTooShort": "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
     "errorGeneric": "เกิดข้อผิดพลาด กรุณาลองอีกครั้ง"
   },
   "Projects": {
@@ -115,7 +155,6 @@
     "newProject": "โปรเจกต์ใหม่",
     "noProjects": "ยังไม่มีโปรเจกต์ สร้างโปรเจกต์แรกของคุณ!",
     "preview": "ตัวอย่าง",
-    "backToHome": "กลับสู่หน้าหลัก",
     "edit": "แก้ไข",
     "delete": "ลบ",
     "deleteConfirmTitle": "ลบโปรเจกต์?",
@@ -127,6 +166,8 @@
     "rename": "เปลี่ยนชื่อ",
     "renameLabel": "ชื่อโปรเจกต์",
     "renameError": "เปลี่ยนชื่อโปรเจกต์ไม่สำเร็จ",
+    "renameSuccess": "เปลี่ยนชื่อโปรเจกต์แล้ว",
+    "deleteSuccess": "ลบโปรเจกต์แล้ว",
     "moreActions": "การดำเนินการเพิ่มเติม",
     "renameTitle": "เปลี่ยนชื่อโปรเจกต์",
     "displayName": "ชื่อที่แสดง",
@@ -151,9 +192,43 @@
     "goHome": "ไปหน้าหลัก"
   },
   "VerifyEmail": {
-    "heading": "ตรวจสอบอีเมลของคุณ",
-    "description": "เราส่งลิงก์เข้าสู่ระบบไปยังที่อยู่อีเมลของคุณแล้ว คลิกลิงก์เพื่อเข้าสู่ระบบ",
+    "verifying": "กำลังยืนยันอีเมลของคุณ...",
+    "successHeading": "ยืนยันอีเมลแล้ว",
+    "successDescription": "อีเมลของคุณได้รับการยืนยันแล้ว คุณสามารถเข้าสู่ระบบได้แล้ว",
+    "signIn": "เข้าสู่ระบบ",
+    "errorHeading": "การยืนยันล้มเหลว",
+    "errorDescription": "ลิงก์นี้ไม่ถูกต้องหรือหมดอายุแล้ว กรุณาขออีเมลยืนยันใหม่",
     "backToSignIn": "กลับไปเข้าสู่ระบบ"
+  },
+  "ForgotPassword": {
+    "heading": "ลืมรหัสผ่าน?",
+    "description": "ป้อนอีเมลของคุณ แล้วเราจะส่งลิงก์สำหรับรีเซ็ตรหัสผ่านให้",
+    "emailLabel": "ที่อยู่อีเมล",
+    "emailPlaceholder": "you@example.com",
+    "sendResetLink": "ส่งลิงก์รีเซ็ต",
+    "sending": "กำลังส่ง...",
+    "sentHeading": "ตรวจสอบอีเมลของคุณ",
+    "sentDescription": "หากมีบัญชีที่ใช้อีเมลนั้น เราได้ส่งลิงก์รีเซ็ตรหัสผ่านให้แล้ว",
+    "backToSignIn": "กลับไปเข้าสู่ระบบ"
+  },
+  "ResetPassword": {
+    "heading": "ตั้งรหัสผ่านใหม่",
+    "description": "ป้อนรหัสผ่านใหม่ของคุณด้านล่าง",
+    "passwordLabel": "รหัสผ่านใหม่",
+    "passwordPlaceholder": "อย่างน้อย 8 ตัวอักษร",
+    "confirmPasswordLabel": "ยืนยันรหัสผ่านใหม่",
+    "confirmPasswordPlaceholder": "ป้อนรหัสผ่านใหม่อีกครั้ง",
+    "resetPassword": "รีเซ็ตรหัสผ่าน",
+    "resetting": "กำลังรีเซ็ต...",
+    "successHeading": "รีเซ็ตรหัสผ่านแล้ว",
+    "successDescription": "รหัสผ่านของคุณได้รับการอัปเดตแล้ว คุณสามารถเข้าสู่ระบบด้วยรหัสผ่านใหม่ได้แล้ว",
+    "signIn": "เข้าสู่ระบบ",
+    "invalidLink": "ลิงก์รีเซ็ตไม่ถูกต้อง",
+    "invalidLinkDescription": "ลิงก์รีเซ็ตรหัสผ่านนี้หายไปหรือไม่ถูกต้อง",
+    "requestNewLink": "ขอลิงก์ใหม่",
+    "passwordMismatch": "รหัสผ่านไม่ตรงกัน",
+    "passwordTooShort": "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
+    "errorGeneric": "เกิดข้อผิดพลาด กรุณาลองอีกครั้ง"
   },
   "Error": {
     "code": "500",
@@ -167,6 +242,38 @@
     "heading": "ไม่พบหน้า",
     "description": "ไม่พบหน้าที่คุณกำลังมองหา",
     "goHome": "ไปหน้าหลัก"
+  },
+  "Settings": {
+    "heading": "การตั้งค่า",
+    "description": "จัดการโปรไฟล์และการตั้งค่าบัญชีของคุณ",
+    "avatarLabel": "รูปโปรไฟล์",
+    "changeAvatar": "เปลี่ยนรูป",
+    "avatarHint": "JPG, PNG, WebP หรือ GIF สูงสุด 2 MB",
+    "nameLabel": "ชื่อ",
+    "namePlaceholder": "ชื่อของคุณ",
+    "emailLabel": "อีเมล",
+    "save": "บันทึกการเปลี่ยนแปลง",
+    "saving": "กำลังบันทึก...",
+    "saved": "บันทึกการเปลี่ยนแปลงของคุณแล้ว",
+    "errorGeneric": "เกิดข้อผิดพลาด กรุณาลองอีกครั้ง"
+  },
+  "Terms": {
+    "heading": "ข้อกำหนดการใช้บริการ",
+    "lastUpdated": "อัปเดตล่าสุด: เมษายน 2026",
+    "placeholder": "Terms of service content goes here. Replace this placeholder with your actual terms."
+  },
+  "Privacy": {
+    "heading": "นโยบายความเป็นส่วนตัว",
+    "lastUpdated": "อัปเดตล่าสุด: เมษายน 2026",
+    "placeholder": "Privacy policy content goes here. Replace this placeholder with your actual policy."
+  },
+  "VerifyBanner": {
+    "message": "กรุณายืนยันอีเมลของคุณเพื่อเริ่มสร้างเว็บไซต์",
+    "resend": "ส่งอีเมลอีกครั้ง",
+    "sending": "กำลังส่ง…",
+    "sent": "ส่งอีเมลยืนยันแล้ว! ตรวจสอบกล่องจดหมายของคุณ",
+    "sendError": "ส่งอีเมลไม่สำเร็จ กรุณาลองอีกครั้ง",
+    "alreadyVerified": "ฉันยืนยันแล้ว"
   },
   "Metadata": {
     "siteName": "WebsitePls",

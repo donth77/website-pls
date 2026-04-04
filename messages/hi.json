@@ -1,4 +1,7 @@
 {
+  "Common": {
+    "back": "वापस"
+  },
   "Landing": {
     "heading": "आप क्या बनाना चाहते हैं?",
     "description": "अपनी वेबसाइट का वर्णन करें और हम इसे कुछ ही सेकंड में बना देंगे।",
@@ -37,7 +40,8 @@
     "thoughtFor": "{time} सोचा",
     "retrying": "पुनः प्रयास…",
     "interrupted": "पिछला जनरेशन बाधित हुआ। कृपया पुनः प्रयास करें।",
-    "networkError": "नेटवर्क त्रुटि। कृपया अपना कनेक्शन जांचें और पुनः प्रयास करें।"
+    "networkError": "नेटवर्क त्रुटि। कृपया अपना कनेक्शन जांचें और पुनः प्रयास करें।",
+    "timedOut": "जनरेशन का समय समाप्त हो गया। कृपया पुनः प्रयास करें।"
   },
   "Progress": {
     "generating": "आपकी वेबसाइट बनाई जा रही है…",
@@ -84,7 +88,8 @@
     "accountMenu": "अकाउंट मेन्यू",
     "user": "उपयोगकर्ता",
     "credit": "{count, plural, other {# क्रेडिट}}",
-    "myProjects": "मेरे प्रोजेक्ट"
+    "myProjects": "मेरे प्रोजेक्ट",
+    "settings": "सेटिंग्स"
   },
   "GenerationLimit": {
     "remaining": "{remaining}/{max} मुफ़्त {remaining, plural, other {जनरेशन}} शेष।",
@@ -98,15 +103,50 @@
     "description": "अपने प्रोजेक्ट सेव करने और अधिक जनरेशन पाने के लिए साइन इन करें।",
     "emailLabel": "ईमेल पता",
     "emailPlaceholder": "you@example.com",
-    "sendLink": "लिंक भेजें",
-    "sending": "भेजा जा रहा है...",
+    "passwordLabel": "पासवर्ड",
+    "passwordPlaceholder": "अपना पासवर्ड दर्ज करें",
+    "signIn": "साइन इन करें",
+    "signingIn": "साइन इन हो रहा है...",
+    "noAccount": "खाता नहीं है?",
+    "signUp": "साइन अप करें",
     "orContinueWith": "या इससे जारी रखें",
     "google": "Google",
     "github": "GitHub",
-    "terms": "साइन इन करके, आप हमारी सेवा की शर्तों से सहमत होते हैं।",
-    "checkEmail": "अपना ईमेल देखें",
-    "emailSent": "हमने {email} पर साइन-इन लिंक भेजा है",
+    "termsPrefix": "साइन इन करके, आप हमारी",
+    "termsLink": "सेवा की शर्तों",
+    "termsAnd": "और",
+    "privacyLink": "गोपनीयता नीति",
+    "termsSuffix": ".",
+    "forgotPassword": "पासवर्ड भूल गए?",
+    "invalidCredentials": "अमान्य ईमेल या पासवर्ड।",
     "errorOAuth": "यह ईमेल पहले से किसी अन्य साइन-इन विधि से जुड़ा है।",
+    "errorGeneric": "कुछ गलत हो गया। कृपया फिर से कोशिश करें।"
+  },
+  "Signup": {
+    "heading": "खाता बनाएं",
+    "description": "अपने प्रोजेक्ट सेव करने और अधिक जनरेशन पाने के लिए साइन अप करें।",
+    "nameLabel": "नाम (वैकल्पिक)",
+    "namePlaceholder": "आपका नाम",
+    "emailLabel": "ईमेल पता",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "पासवर्ड",
+    "passwordPlaceholder": "कम से कम 8 अक्षर",
+    "confirmPasswordLabel": "पासवर्ड की पुष्टि करें",
+    "confirmPasswordPlaceholder": "अपना पासवर्ड फिर से दर्ज करें",
+    "createAccount": "खाता बनाएं",
+    "creatingAccount": "खाता बनाया जा रहा है...",
+    "hasAccount": "पहले से खाता है?",
+    "signIn": "साइन इन करें",
+    "orContinueWith": "या इससे जारी रखें",
+    "google": "Google",
+    "github": "GitHub",
+    "termsPrefix": "खाता बनाकर, आप हमारी",
+    "termsLink": "सेवा की शर्तों",
+    "termsAnd": "और",
+    "privacyLink": "गोपनीयता नीति",
+    "termsSuffix": ".",
+    "passwordMismatch": "पासवर्ड मेल नहीं खाते।",
+    "passwordTooShort": "पासवर्ड कम से कम 8 अक्षरों का होना चाहिए।",
     "errorGeneric": "कुछ गलत हो गया। कृपया फिर से कोशिश करें।"
   },
   "Projects": {
@@ -115,7 +155,6 @@
     "newProject": "नया प्रोजेक्ट",
     "noProjects": "अभी तक कोई प्रोजेक्ट नहीं है। अपना पहला प्रोजेक्ट बनाएं!",
     "preview": "प्रीव्यू",
-    "backToHome": "होम पर वापस जाएं",
     "edit": "संपादित करें",
     "delete": "हटाएं",
     "deleteConfirmTitle": "प्रोजेक्ट हटाएं?",
@@ -127,6 +166,8 @@
     "rename": "नाम बदलें",
     "renameLabel": "प्रोजेक्ट का नाम",
     "renameError": "प्रोजेक्ट का नाम बदलने में विफल।",
+    "renameSuccess": "प्रोजेक्ट का नाम बदला गया।",
+    "deleteSuccess": "प्रोजेक्ट हटाया गया।",
     "moreActions": "अधिक कार्य",
     "renameTitle": "प्रोजेक्ट का नाम बदलें",
     "displayName": "प्रदर्शित नाम",
@@ -151,9 +192,43 @@
     "goHome": "होमपेज पर जाएं"
   },
   "VerifyEmail": {
-    "heading": "अपना ईमेल देखें",
-    "description": "हमने आपके ईमेल पते पर एक साइन-इन लिंक भेजा है। साइन इन करने के लिए लिंक पर क्लिक करें।",
+    "verifying": "आपका ईमेल सत्यापित किया जा रहा है...",
+    "successHeading": "ईमेल सत्यापित",
+    "successDescription": "आपका ईमेल सत्यापित हो गया है। अब आप साइन इन कर सकते हैं।",
+    "signIn": "साइन इन करें",
+    "errorHeading": "सत्यापन विफल",
+    "errorDescription": "यह लिंक अमान्य है या समाप्त हो गया है। कृपया एक नया सत्यापन ईमेल का अनुरोध करें।",
     "backToSignIn": "साइन इन पर वापस जाएं"
+  },
+  "ForgotPassword": {
+    "heading": "पासवर्ड भूल गए?",
+    "description": "अपना ईमेल दर्ज करें और हम आपको पासवर्ड रीसेट करने का लिंक भेजेंगे।",
+    "emailLabel": "ईमेल पता",
+    "emailPlaceholder": "you@example.com",
+    "sendResetLink": "रीसेट लिंक भेजें",
+    "sending": "भेजा जा रहा है...",
+    "sentHeading": "अपना ईमेल जांचें",
+    "sentDescription": "यदि उस ईमेल से कोई खाता मौजूद है, तो हमने पासवर्ड रीसेट लिंक भेज दिया है।",
+    "backToSignIn": "साइन इन पर वापस जाएं"
+  },
+  "ResetPassword": {
+    "heading": "नया पासवर्ड सेट करें",
+    "description": "नीचे अपना नया पासवर्ड दर्ज करें।",
+    "passwordLabel": "नया पासवर्ड",
+    "passwordPlaceholder": "कम से कम 8 अक्षर",
+    "confirmPasswordLabel": "नए पासवर्ड की पुष्टि करें",
+    "confirmPasswordPlaceholder": "अपना नया पासवर्ड फिर से दर्ज करें",
+    "resetPassword": "पासवर्ड रीसेट करें",
+    "resetting": "रीसेट हो रहा है...",
+    "successHeading": "पासवर्ड रीसेट हो गया",
+    "successDescription": "आपका पासवर्ड अपडेट हो गया है। अब आप अपने नए पासवर्ड से साइन इन कर सकते हैं।",
+    "signIn": "साइन इन करें",
+    "invalidLink": "अमान्य रीसेट लिंक",
+    "invalidLinkDescription": "यह पासवर्ड रीसेट लिंक गायब या गलत है।",
+    "requestNewLink": "नया लिंक का अनुरोध करें",
+    "passwordMismatch": "पासवर्ड मेल नहीं खाते।",
+    "passwordTooShort": "पासवर्ड कम से कम 8 अक्षरों का होना चाहिए।",
+    "errorGeneric": "कुछ गलत हो गया। कृपया फिर से कोशिश करें।"
   },
   "Error": {
     "code": "500",
@@ -167,6 +242,38 @@
     "heading": "पेज नहीं मिला",
     "description": "आप जो पेज ढूंढ रहे हैं वह मौजूद नहीं है।",
     "goHome": "होमपेज पर जाएं"
+  },
+  "Settings": {
+    "heading": "सेटिंग्स",
+    "description": "अपनी प्रोफ़ाइल और अकाउंट सेटिंग्स प्रबंधित करें।",
+    "avatarLabel": "प्रोफ़ाइल फ़ोटो",
+    "changeAvatar": "फ़ोटो बदलें",
+    "avatarHint": "JPG, PNG, WebP, या GIF। अधिकतम 2 MB।",
+    "nameLabel": "नाम",
+    "namePlaceholder": "आपका नाम",
+    "emailLabel": "ईमेल",
+    "save": "बदलाव सहेजें",
+    "saving": "सहेजा जा रहा है...",
+    "saved": "आपके बदलाव सहेज लिए गए हैं।",
+    "errorGeneric": "कुछ गलत हो गया। कृपया फिर से कोशिश करें।"
+  },
+  "Terms": {
+    "heading": "सेवा की शर्तें",
+    "lastUpdated": "अंतिम अपडेट: अप्रैल 2026",
+    "placeholder": "Terms of service content goes here. Replace this placeholder with your actual terms."
+  },
+  "Privacy": {
+    "heading": "गोपनीयता नीति",
+    "lastUpdated": "अंतिम अपडेट: अप्रैल 2026",
+    "placeholder": "Privacy policy content goes here. Replace this placeholder with your actual policy."
+  },
+  "VerifyBanner": {
+    "message": "कृपया जनरेट करना शुरू करने के लिए अपना ईमेल सत्यापित करें।",
+    "resend": "ईमेल पुनः भेजें",
+    "sending": "भेजा जा रहा है…",
+    "sent": "सत्यापन ईमेल भेजा गया! अपना इनबॉक्स जांचें।",
+    "sendError": "ईमेल भेजने में विफल। कृपया पुनः प्रयास करें।",
+    "alreadyVerified": "मैंने पहले ही सत्यापित कर लिया है"
   },
   "Metadata": {
     "siteName": "WebsitePls",

@@ -1,4 +1,7 @@
 {
+  "Common": {
+    "back": "Voltar"
+  },
   "Landing": {
     "heading": "O que você gostaria de criar?",
     "description": "Descreva seu site e nós o geraremos em segundos.",
@@ -37,7 +40,8 @@
     "thoughtFor": "Pensou por {time}",
     "retrying": "Tentando novamente…",
     "interrupted": "A geração anterior foi interrompida. Tente novamente.",
-    "networkError": "Erro de rede. Verifique sua conexão e tente novamente."
+    "networkError": "Erro de rede. Verifique sua conexão e tente novamente.",
+    "timedOut": "A geração expirou. Tente novamente."
   },
   "Progress": {
     "generating": "Gerando seu site…",
@@ -84,7 +88,8 @@
     "accountMenu": "Menu da conta",
     "user": "Usuário",
     "credit": "{count, plural, one {# crédito} other {# créditos}}",
-    "myProjects": "Meus projetos"
+    "myProjects": "Meus projetos",
+    "settings": "Configurações"
   },
   "GenerationLimit": {
     "remaining": "{remaining}/{max} {remaining, plural, one {geração gratuita restante} other {gerações gratuitas restantes}}.",
@@ -98,15 +103,50 @@
     "description": "Entre para salvar seus projetos e obter mais gerações.",
     "emailLabel": "Endereço de e-mail",
     "emailPlaceholder": "you@example.com",
-    "sendLink": "Enviar link",
-    "sending": "Enviando...",
+    "passwordLabel": "Senha",
+    "passwordPlaceholder": "Digite sua senha",
+    "signIn": "Entrar",
+    "signingIn": "Entrando...",
+    "noAccount": "Não tem uma conta?",
+    "signUp": "Criar conta",
     "orContinueWith": "ou continue com",
     "google": "Google",
     "github": "GitHub",
-    "terms": "Ao entrar, você concorda com nossos termos de serviço.",
-    "checkEmail": "Verifique seu e-mail",
-    "emailSent": "Enviamos um link de login para {email}",
+    "termsPrefix": "Ao entrar, você concorda com nossos",
+    "termsLink": "termos de serviço",
+    "termsAnd": "e",
+    "privacyLink": "política de privacidade",
+    "termsSuffix": ".",
+    "forgotPassword": "Esqueceu a senha?",
+    "invalidCredentials": "E-mail ou senha inválidos.",
     "errorOAuth": "Este e-mail já está associado a outro método de login.",
+    "errorGeneric": "Algo deu errado. Tente novamente."
+  },
+  "Signup": {
+    "heading": "Criar uma conta",
+    "description": "Cadastre-se para salvar seus projetos e obter mais gerações.",
+    "nameLabel": "Nome (opcional)",
+    "namePlaceholder": "Seu nome",
+    "emailLabel": "Endereço de e-mail",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Senha",
+    "passwordPlaceholder": "Pelo menos 8 caracteres",
+    "confirmPasswordLabel": "Confirmar senha",
+    "confirmPasswordPlaceholder": "Digite sua senha novamente",
+    "createAccount": "Criar conta",
+    "creatingAccount": "Criando conta...",
+    "hasAccount": "Já tem uma conta?",
+    "signIn": "Entrar",
+    "orContinueWith": "ou continue com",
+    "google": "Google",
+    "github": "GitHub",
+    "termsPrefix": "Ao criar uma conta, você concorda com nossos",
+    "termsLink": "termos de serviço",
+    "termsAnd": "e",
+    "privacyLink": "política de privacidade",
+    "termsSuffix": ".",
+    "passwordMismatch": "As senhas não coincidem.",
+    "passwordTooShort": "A senha deve ter pelo menos 8 caracteres.",
     "errorGeneric": "Algo deu errado. Tente novamente."
   },
   "Projects": {
@@ -115,7 +155,6 @@
     "newProject": "Novo projeto",
     "noProjects": "Nenhum projeto ainda. Crie o seu primeiro!",
     "preview": "Prévia",
-    "backToHome": "Voltar ao início",
     "edit": "Editar",
     "delete": "Excluir",
     "deleteConfirmTitle": "Excluir projeto?",
@@ -127,6 +166,8 @@
     "rename": "Renomear",
     "renameLabel": "Nome do projeto",
     "renameError": "Falha ao renomear o projeto.",
+    "renameSuccess": "Projeto renomeado.",
+    "deleteSuccess": "Projeto excluído.",
     "moreActions": "Mais ações",
     "renameTitle": "Renomear projeto",
     "displayName": "Nome de exibição",
@@ -151,9 +192,43 @@
     "goHome": "Ir para a página inicial"
   },
   "VerifyEmail": {
-    "heading": "Verifique seu e-mail",
-    "description": "Enviamos um link de login para o seu e-mail. Clique no link para entrar.",
+    "verifying": "Verificando seu e-mail...",
+    "successHeading": "E-mail verificado",
+    "successDescription": "Seu e-mail foi verificado. Agora você pode entrar.",
+    "signIn": "Entrar",
+    "errorHeading": "Verificação falhou",
+    "errorDescription": "Este link é inválido ou expirou. Solicite um novo e-mail de verificação.",
     "backToSignIn": "Voltar ao login"
+  },
+  "ForgotPassword": {
+    "heading": "Esqueceu sua senha?",
+    "description": "Digite seu e-mail e enviaremos um link para redefinir sua senha.",
+    "emailLabel": "Endereço de e-mail",
+    "emailPlaceholder": "you@example.com",
+    "sendResetLink": "Enviar link de redefinição",
+    "sending": "Enviando...",
+    "sentHeading": "Verifique seu e-mail",
+    "sentDescription": "Se existir uma conta com esse e-mail, enviamos um link para redefinição de senha.",
+    "backToSignIn": "Voltar ao login"
+  },
+  "ResetPassword": {
+    "heading": "Defina uma nova senha",
+    "description": "Digite sua nova senha abaixo.",
+    "passwordLabel": "Nova senha",
+    "passwordPlaceholder": "Pelo menos 8 caracteres",
+    "confirmPasswordLabel": "Confirmar nova senha",
+    "confirmPasswordPlaceholder": "Digite sua nova senha novamente",
+    "resetPassword": "Redefinir senha",
+    "resetting": "Redefinindo...",
+    "successHeading": "Senha redefinida",
+    "successDescription": "Sua senha foi atualizada. Agora você pode entrar com sua nova senha.",
+    "signIn": "Entrar",
+    "invalidLink": "Link de redefinição inválido",
+    "invalidLinkDescription": "Este link de redefinição de senha está ausente ou malformado.",
+    "requestNewLink": "Solicitar novo link",
+    "passwordMismatch": "As senhas não coincidem.",
+    "passwordTooShort": "A senha deve ter pelo menos 8 caracteres.",
+    "errorGeneric": "Algo deu errado. Tente novamente."
   },
   "Error": {
     "code": "500",
@@ -167,6 +242,38 @@
     "heading": "Página não encontrada",
     "description": "A página que você procura não existe.",
     "goHome": "Ir para a página inicial"
+  },
+  "Settings": {
+    "heading": "Configurações",
+    "description": "Gerencie seu perfil e configurações da conta.",
+    "avatarLabel": "Foto de perfil",
+    "changeAvatar": "Alterar foto",
+    "avatarHint": "JPG, PNG, WebP ou GIF. Máx. 2 MB.",
+    "nameLabel": "Nome",
+    "namePlaceholder": "Seu nome",
+    "emailLabel": "E-mail",
+    "save": "Salvar alterações",
+    "saving": "Salvando...",
+    "saved": "Suas alterações foram salvas.",
+    "errorGeneric": "Algo deu errado. Tente novamente."
+  },
+  "Terms": {
+    "heading": "Termos de Serviço",
+    "lastUpdated": "Última atualização: abril de 2026",
+    "placeholder": "Terms of service content goes here. Replace this placeholder with your actual terms."
+  },
+  "Privacy": {
+    "heading": "Política de Privacidade",
+    "lastUpdated": "Última atualização: abril de 2026",
+    "placeholder": "Privacy policy content goes here. Replace this placeholder with your actual policy."
+  },
+  "VerifyBanner": {
+    "message": "Por favor, verifique seu e-mail para começar a gerar.",
+    "resend": "Reenviar e-mail",
+    "sending": "Enviando…",
+    "sent": "E-mail de verificação enviado! Verifique sua caixa de entrada.",
+    "sendError": "Falha ao enviar o e-mail. Por favor, tente novamente.",
+    "alreadyVerified": "Já verifiquei"
   },
   "Metadata": {
     "siteName": "WebsitePls",

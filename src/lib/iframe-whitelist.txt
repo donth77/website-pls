@@ -1,0 +1,48 @@
+# Whitelisted origins for frame-src CSP directive in preview routes.
+# One origin per line. Lines starting with # and blank lines are ignored.
+# All entries must be HTTPS.
+
+# Video platforms
+https://www.youtube.com
+https://www.youtube-nocookie.com
+https://player.vimeo.com
+https://www.dailymotion.com
+https://player.bilibili.com
+https://rumble.com
+https://player.youku.com
+https://players.youku.com
+https://open.iqiyi.com
+https://streamable.com
+
+# Live streaming
+https://player.twitch.tv
+https://player.kick.com
+
+# Social media
+https://www.instagram.com
+https://www.facebook.com
+https://www.linkedin.com
+https://assets.pinterest.com
+https://www.tiktok.com
+https://platform.twitter.com
+
+# Business video hosting
+https://www.loom.com
+https://fast.wistia.net
+https://play.vidyard.com
+
+# Music & audio
+https://w.soundcloud.com
+https://open.spotify.com
+
+# Maps
+https://www.google.com/maps
+https://maps.google.com
+
+# Productivity & forms
+https://calendly.com
+https://docs.google.com
+https://form.typeform.com
+
+# Developer tools
+https://codepen.io

@@ -265,15 +265,15 @@ export function GeneratorApp() {
           isMac={isMac}
           onInfoOpen={() => setIsInfoOpen(true)}
           textareaRef={landingInputRef}
+          turnstile={
+            <TurnstileWidget
+              onToken={setTurnstileToken}
+              onExpire={() => setTurnstileToken(null)}
+              onError={() => setTurnstileToken(null)}
+              resetRef={turnstileResetRef}
+            />
+          }
         />
-        <div className="mt-3 flex justify-center">
-          <TurnstileWidget
-            onToken={setTurnstileToken}
-            onExpire={() => setTurnstileToken(null)}
-            onError={() => setTurnstileToken(null)}
-            resetRef={turnstileResetRef}
-          />
-        </div>
       </div>
 
       {/* ════════════════════ BUILDER ════════════════════ */}

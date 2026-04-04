@@ -14,6 +14,7 @@ export interface LandingProps {
   isMac: boolean;
   onInfoOpen: () => void;
   textareaRef?: React.RefObject<HTMLTextAreaElement | null>;
+  turnstile?: React.ReactNode;
 }
 
 export function Landing({
@@ -24,6 +25,7 @@ export function Landing({
   isMac,
   onInfoOpen,
   textareaRef,
+  turnstile,
 }: LandingProps) {
   const t = useTranslations("Landing");
   const charRatio = inputValue.length / MAX_USER_PROMPT_CHARS;
@@ -78,10 +80,11 @@ export function Landing({
           </Button>
         </div>
 
-        {/* Char count (visible when typing) */}
-        {inputValue.length > 0 && (
+        {/* Below-input area — fixed height so content changes don't shift the textarea */}
+        <div className="h-44">
+          {/* Char count (visible when typing) */}
           <div
-            className={`mt-2 text-right font-mono text-xs ${charCountColor}`}
+            className={`mt-2 text-right font-mono text-xs transition-opacity ${inputValue.length > 0 ? "opacity-100" : "opacity-0"} ${charCountColor}`}
             role="status"
             aria-live="polite"
             aria-atomic="true"
@@ -89,11 +92,11 @@ export function Landing({
             {inputValue.length.toLocaleString()}/
             {MAX_USER_PROMPT_CHARS.toLocaleString()}
           </div>
-        )}
 
-        {/* Example prompts */}
-        {!inputValue && (
-          <div className="mt-5 flex flex-wrap justify-center gap-2">
+          {/* Example prompts */}
+          <div
+            className={`mt-2 flex flex-wrap justify-center gap-2 transition-opacity ${inputValue ? "pointer-events-none opacity-0" : "opacity-100"}`}
+          >
             {EXAMPLE_KEYS.map((key) => {
               const text = t(key);
               return (
@@ -108,16 +111,21 @@ export function Landing({
               );
             })}
           </div>
-        )}
 
-        {/* Keyboard hint */}
-        <p className="mt-4 text-center text-xs text-zinc-500 dark:text-zinc-400">
-          {t("keyboardHint", { key: isMac ? "\u2318" : "Ctrl" })}
-        </p>
+          {/* Keyboard hint */}
+          {/* <p className="mt-4 text-center text-xs text-zinc-500 dark:text-zinc-400">
+            {t("keyboardHint", { key: isMac ? "\u2318" : "Ctrl" })}
+          </p> */}
 
-        {/* Generation limit indicator */}
-        <div className="mt-3">
-          <GenerationLimit />
+          {/* Generation limit indicator */}
+          <div className="mt-3">
+            <GenerationLimit />
+          </div>
+
+          {/* Turnstile widget */}
+          {turnstile && (
+            <div className="mt-3 flex justify-center">{turnstile}</div>
+          )}
         </div>
       </div>
 
