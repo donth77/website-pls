@@ -35,6 +35,8 @@
     "generationFailed": "Generation failed. You can try again.",
     "complete": "Complete",
     "retrying": "Retrying…",
+    "interrupted": "Previous generation was interrupted. Please try again.",
+    "networkError": "Network error. Please check your connection and try again.",
     "thoughtFor": "Thought for {time}"
   },
   "Progress": {
@@ -64,7 +66,8 @@
     "downloadHtml": "Download HTML",
     "generating": "Generating your website…",
     "placeholder": "Your preview will appear here",
-    "loading": "Loading preview…"
+    "loading": "Loading preview…",
+    "iframeTitle": "Generated site preview"
   },
   "Info": {
     "title": "About WebsitePls",

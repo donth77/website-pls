@@ -186,7 +186,7 @@ export function useGeneration() {
         if (!res.ok) {
           setStatus("ERROR");
           updateAssistantMessage({
-            content: "Previous generation was interrupted. Please try again.",
+            content: tMsg("interrupted"),
             status: "ERROR",
           });
           return;
@@ -195,7 +195,7 @@ export function useGeneration() {
         if (json.projectStatus === "ERROR" || json.projectStatus === "DRAFT") {
           setStatus(json.projectStatus as GenerationStatus);
           updateAssistantMessage({
-            content: "Previous generation was interrupted. Please try again.",
+            content: tMsg("interrupted"),
             status: "ERROR",
           });
         }
@@ -341,7 +341,7 @@ export function useGeneration() {
     } catch {
       setStatus("ERROR");
       updateAssistantMessage({
-        content: "Network error. Please check your connection and try again.",
+        content: tMsg("networkError"),
         status: "ERROR",
         error: "Network error",
       });

@@ -160,7 +160,7 @@ export function PreviewPanel({
               </Button>
             )}
             <iframe
-              title="Generated site preview"
+              title={t("iframeTitle")}
               src={previewSrc}
               onLoad={() => setIframeLoaded(true)}
               className={
