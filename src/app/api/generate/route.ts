@@ -14,6 +14,7 @@ import {
 import { ErrorCode } from "@/lib/types";
 import { resolveClientIp } from "@/lib/clientIp";
 import { validateCsrf } from "@/lib/csrf";
+import { recordEvent, recordRateLimitHit } from "@/lib/admin/metrics";
 
 const baseLog = createLogger("api:generate");
 
@@ -35,7 +36,7 @@ const MONETIZATION_ENABLED = process.env.ENABLE_MONETIZATION === "true";
 const TITLE_GENERATION_AVAILABLE = !!process.env.OPENROUTER_API_KEY;
 
 export async function POST(req: NextRequest) {
-  const csrfError = validateCsrf(req);
+  const csrfError = validateCsrf(req, "POST /api/generate");
   if (csrfError) return csrfError;
 
   const requestId = crypto.randomUUID();
@@ -124,6 +125,31 @@ export async function POST(req: NextRequest) {
         windowSeconds: 3600,
       });
       if (!rl.allowed) {
+        log.warn("generate rate limit exceeded", {
+          event: "rate_limit.hit",
+          endpoint: "POST /api/generate",
+          ownerType: owner.type,
+          ...(owner.type === "user"
+            ? { userId: owner.userId }
+            : { guestSessionId: owner.guestSessionId }),
+          limit: rateLimitMax,
+          remaining: rl.remaining,
+          retryAfterSeconds: 60,
+          status: 429,
+        });
+        const rlBucket =
+          owner.type === "user" ? "generate:user" : "generate:guest";
+        const rlId =
+          owner.type === "user" ? owner.userId : owner.guestSessionId;
+        void recordRateLimitHit(rlBucket, rlId).catch(() => {});
+        void recordEvent("rate_limit.hit", {
+          endpoint: "POST /api/generate",
+          ownerType: owner.type,
+          ...(owner.type === "user"
+            ? { userId: owner.userId }
+            : { guestSessionId: owner.guestSessionId }),
+          limit: rateLimitMax,
+        }).catch(() => {});
         return NextResponse.json(
           {
             error: "Rate limit exceeded. Try again later.",
@@ -134,7 +160,13 @@ export async function POST(req: NextRequest) {
       }
     } catch (err) {
       // If Redis is down, allow the request through (fail-open).
-      log.warn("Rate limit check failed, allowing request", {
+      log.warn("generate rate limit check failed, allowing", {
+        event: "rate_limit.failed_open",
+        endpoint: "POST /api/generate",
+        ownerType: owner.type,
+        ...(owner.type === "user"
+          ? { userId: owner.userId }
+          : { guestSessionId: owner.guestSessionId }),
         error: String(err),
       });
       rateLimitBypassed = true;
@@ -145,6 +177,18 @@ export async function POST(req: NextRequest) {
     if (owner.type === "guest") {
       const gen = await consumeGuestGeneration(owner.guestSessionId);
       if (!gen.allowed) {
+        log.warn("guest generation cap reached", {
+          event: "generation_limit.hit",
+          endpoint: "POST /api/generate",
+          ownerType: "guest",
+          guestSessionId: owner.guestSessionId,
+          status: 403,
+        });
+        void recordEvent("generation_limit.hit", {
+          endpoint: "POST /api/generate",
+          ownerType: "guest",
+          guestSessionId: owner.guestSessionId,
+        }).catch(() => {});
         return NextResponse.json(
           {
             error: "You've used all your free generations. Sign up for more!",
@@ -161,6 +205,18 @@ export async function POST(req: NextRequest) {
         owner.userId,
       );
       if (result.length === 0) {
+        log.warn("user credits exhausted", {
+          event: "generation_limit.hit",
+          endpoint: "POST /api/generate",
+          ownerType: "user",
+          userId: owner.userId,
+          status: 403,
+        });
+        void recordEvent("generation_limit.hit", {
+          endpoint: "POST /api/generate",
+          ownerType: "user",
+          userId: owner.userId,
+        }).catch(() => {});
         return NextResponse.json(
           {
             error: "No credits remaining.",
@@ -175,6 +231,24 @@ export async function POST(req: NextRequest) {
       forwardedFor: req.headers.get("x-forwarded-for"),
     });
     if (!lakera.ok) {
+      log.warn("lakera rejected prompt", {
+        event: "lakera.rejected",
+        endpoint: "POST /api/generate",
+        ownerType: owner.type,
+        ...(owner.type === "user"
+          ? { userId: owner.userId }
+          : { guestSessionId: owner.guestSessionId }),
+        lakeraCode: lakera.code,
+        status: lakera.httpStatus,
+      });
+      void recordEvent("lakera.rejected", {
+        endpoint: "POST /api/generate",
+        ownerType: owner.type,
+        ...(owner.type === "user"
+          ? { userId: owner.userId }
+          : { guestSessionId: owner.guestSessionId }),
+        lakeraCode: lakera.code,
+      }).catch(() => {});
       return NextResponse.json(
         { error: lakera.message, code: lakera.code },
         { status: lakera.httpStatus },
@@ -184,12 +258,22 @@ export async function POST(req: NextRequest) {
 
     // Circuit breaker: if multiple security layers failed open, reject.
     if (securityBypasses >= 2) {
-      log.error("Multiple security layers bypassed, rejecting request", {
+      log.error("multiple security layers bypassed, rejecting", {
+        event: "security.cascade_rejected",
+        endpoint: "POST /api/generate",
         securityBypasses,
         turnstileSkipped: !!turnstile.skipped,
         rateLimitBypassed,
         lakeraSkipped: "skipped" in lakera && !!lakera.skipped,
+        status: 503,
       });
+      void recordEvent("security.cascade_rejected", {
+        endpoint: "POST /api/generate",
+        securityBypasses,
+        turnstileSkipped: !!turnstile.skipped,
+        rateLimitBypassed,
+        lakeraSkipped: "skipped" in lakera && !!lakera.skipped,
+      }).catch(() => {});
       return NextResponse.json(
         { error: "Service temporarily unavailable. Please try again shortly." },
         { status: 503 },

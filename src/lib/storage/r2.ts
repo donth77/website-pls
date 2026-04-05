@@ -4,6 +4,7 @@ import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
+  CopyObjectCommand,
   ListObjectsV2Command,
   DeleteObjectsCommand,
 } from "@aws-sdk/client-s3";
@@ -110,6 +111,26 @@ export async function listFiles(prefix: string): Promise<string[]> {
   } while (continuationToken);
 
   return keys;
+}
+
+/**
+ * Copy an object within the same bucket. Used when publishing a site so the
+ * public `published/{slug}/...` path is a server-side copy of the private
+ * `projects/{id}/versions/{id}/...` path — no round-trip through the Node
+ * runtime required.
+ */
+export async function copyFile(
+  sourceKey: string,
+  destinationKey: string,
+): Promise<void> {
+  const bucket = getBucketName();
+  await getR2Client().send(
+    new CopyObjectCommand({
+      Bucket: bucket,
+      CopySource: `${bucket}/${sourceKey}`,
+      Key: destinationKey,
+    }),
+  );
 }
 
 /** Delete multiple objects from R2 in a single batch request. */

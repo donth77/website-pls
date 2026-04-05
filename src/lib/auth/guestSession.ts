@@ -3,9 +3,13 @@ import { cookies } from "next/headers";
 import { prisma } from "@/lib/db/prisma";
 import { checkRateLimit } from "@/lib/rateLimit";
 import { ErrorCode } from "@/lib/types";
+import { createLogger } from "@/lib/logger";
+import { recordEvent, recordRateLimitHit } from "@/lib/admin/metrics";
 import { COOKIE_NAME, signSessionId } from "./cookie";
 import { resolveOwner, type Owner } from "./resolveOwner";
 import { recordAuthenticatedIp, isAuthenticatedIp } from "./ipBlock";
+
+const log = createLogger("auth:guest-session");
 
 /** Server-side constant — not stored per-row to prevent DB-level tampering. */
 export const GUEST_MAX_GENERATIONS = parseInt(
@@ -74,6 +78,20 @@ export async function ensureGuestSession(
       windowSeconds: 3600,
     });
     if (!rl.allowed) {
+      log.warn("guest session creation rate limit exceeded", {
+        event: "rate_limit.hit",
+        endpoint: "guest-session-create",
+        clientIp,
+        limit: GUEST_SESSION_CREATE_LIMIT,
+        remaining: rl.remaining,
+        status: 429,
+      });
+      void recordRateLimitHit("guest-session-create", clientIp).catch(() => {});
+      void recordEvent("rate_limit.hit", {
+        endpoint: "guest-session-create",
+        clientIp,
+        limit: GUEST_SESSION_CREATE_LIMIT,
+      }).catch(() => {});
       return {
         ok: false,
         error: "Too many sessions created. Try again later.",
@@ -81,7 +99,13 @@ export async function ensureGuestSession(
         httpStatus: 429,
       };
     }
-  } catch {
+  } catch (err) {
+    log.warn("guest session rate limit check failed, allowing", {
+      event: "rate_limit.failed_open",
+      endpoint: "guest-session-create",
+      clientIp,
+      error: String(err),
+    });
     // Redis down — fail open for session creation (generation rate limit
     // still applies as a secondary layer).
   }

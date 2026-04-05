@@ -8,11 +8,91 @@ const log = createLogger("api:projects");
 
 const MAX_PROJECT_NAME_LEN = 100;
 
+/**
+ * GET /api/projects/[projectId]
+ *
+ * Fetch project metadata including any active published site. Used by the
+ * generator UI to render the publish button in the correct state.
+ *
+ * Ownership-scoped lookup: returns 404 for both "not found" and "not yours"
+ * so the endpoint doesn't leak project existence across accounts.
+ */
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ projectId: string }> },
+) {
+  const { projectId } = await params;
+  const owner = await resolveOwner();
+
+  if (owner.type === "anonymous") {
+    return NextResponse.json({ error: "Not found." }, { status: 404 });
+  }
+
+  const project = await prisma.project.findFirst({
+    where: {
+      id: projectId,
+      deletedAt: null,
+      ...(owner.type === "user"
+        ? { userId: owner.userId }
+        : { guestSessionId: owner.guestSessionId }),
+    },
+    select: {
+      id: true,
+      name: true,
+      status: true,
+      publishedSites: {
+        where: { isActive: true },
+        select: {
+          subdomain: true,
+          versionId: true,
+          publishedAt: true,
+          version: { select: { versionNumber: true } },
+        },
+        take: 1,
+      },
+    },
+  });
+
+  if (!project) {
+    log.warn("projects ownership rejected", {
+      event: "auth.ownership_rejected",
+      endpoint: "GET /api/projects/[projectId]",
+      ...(owner.type === "user"
+        ? { userId: owner.userId }
+        : { guestSessionId: owner.guestSessionId }),
+      resourceType: "project",
+      resourceId: projectId,
+      status: 404,
+    });
+    return NextResponse.json({ error: "Not found." }, { status: 404 });
+  }
+
+  const published = project.publishedSites[0];
+  const host = _req.headers.get("host");
+  const proto =
+    _req.headers.get("x-forwarded-proto") ??
+    (_req.nextUrl.protocol.replace(":", "") || "https");
+
+  return NextResponse.json({
+    id: project.id,
+    name: project.name,
+    status: project.status,
+    publishedSite:
+      published?.subdomain && published.version
+        ? {
+            slug: published.subdomain,
+            publishedUrl: `${proto}://${host}/p/${published.subdomain}`,
+            publishedVersionNumber: published.version.versionNumber,
+          }
+        : null,
+  });
+}
+
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ projectId: string }> },
 ) {
-  const csrfError = validateCsrf(req);
+  const csrfError = validateCsrf(req, "PATCH /api/projects/[projectId]");
   if (csrfError) return csrfError;
 
   const { projectId } = await params;
@@ -50,6 +130,15 @@ export async function PATCH(
     (owner.type === "guest" && project.guestSessionId === owner.guestSessionId);
 
   if (!ownsProject) {
+    log.warn("projects ownership rejected", {
+      event: "auth.ownership_rejected",
+      ...(owner.type === "user"
+        ? { userId: owner.userId }
+        : { guestSessionId: owner.guestSessionId }),
+      resourceType: "project",
+      resourceId: projectId,
+      status: 403,
+    });
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
@@ -67,7 +156,7 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ projectId: string }> },
 ) {
-  const csrfError = validateCsrf(req);
+  const csrfError = validateCsrf(req, "DELETE /api/projects/[projectId]");
   if (csrfError) return csrfError;
 
   const { projectId } = await params;
@@ -97,6 +186,15 @@ export async function DELETE(
     (owner.type === "guest" && project.guestSessionId === owner.guestSessionId);
 
   if (!ownsProject) {
+    log.warn("projects ownership rejected", {
+      event: "auth.ownership_rejected",
+      ...(owner.type === "user"
+        ? { userId: owner.userId }
+        : { guestSessionId: owner.guestSessionId }),
+      resourceType: "project",
+      resourceId: projectId,
+      status: 403,
+    });
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 

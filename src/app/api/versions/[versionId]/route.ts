@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { getGenerationQueue } from "@/lib/queue/generationQueue";
 import { resolveOwner } from "@/lib/auth/resolveOwner";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("api:versions");
 
 export async function GET(
   req: NextRequest,
@@ -34,6 +37,18 @@ export async function GET(
       version.project?.guestSessionId === owner.guestSessionId) ||
     (owner.type === "user" && version.project?.userId === owner.userId);
   if (!ownsProject) {
+    log.warn("version poll ownership rejected", {
+      event: "auth.ownership_rejected",
+      endpoint: "GET /api/versions/[versionId]",
+      ownerType: owner.type,
+      ...(owner.type === "user" ? { userId: owner.userId } : {}),
+      ...(owner.type === "guest"
+        ? { guestSessionId: owner.guestSessionId }
+        : {}),
+      resourceType: "version",
+      resourceId: versionId,
+      status: 403,
+    });
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 

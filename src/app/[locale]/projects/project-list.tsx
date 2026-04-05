@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import {
   Globe,
   AlertCircle,
+  ArrowUpRight,
   Clock,
   Loader2,
   MoreVertical,
@@ -43,14 +44,25 @@ interface ProjectSummary {
     promptDelta: string | null;
     commentary: string | null;
   }[];
+  publishedSites: { subdomain: string | null }[];
 }
 
-const STATUS_ICON: Record<string, React.ReactNode> = {
-  READY: <Globe className="h-4 w-4 text-green-500" />,
-  GENERATING: <Loader2 className="h-4 w-4 animate-spin text-blue-500" />,
-  ERROR: <AlertCircle className="h-4 w-4 text-red-500" />,
-  DRAFT: <Clock className="h-4 w-4 text-zinc-400" />,
-};
+function renderStatusIcon(status: string, isPublished: boolean) {
+  switch (status) {
+    case "READY":
+      return (
+        <Globe
+          className={`h-4 w-4 ${isPublished ? "text-indigo-500" : "text-green-500"}`}
+        />
+      );
+    case "GENERATING":
+      return <Loader2 className="h-4 w-4 animate-spin text-blue-500" />;
+    case "ERROR":
+      return <AlertCircle className="h-4 w-4 text-red-500" />;
+    default:
+      return <Clock className="h-4 w-4 text-zinc-400" />;
+  }
+}
 
 function formatDate(date: Date) {
   return new Date(date).toLocaleDateString(undefined, {
@@ -256,12 +268,16 @@ const menuItemDestructiveClass =
 
 function ProjectCardMenu({
   project,
-  onPreview,
+  onViewPublished,
+  onOpenInNewTab,
   onRename,
   onDelete,
 }: {
   project: ProjectSummary;
-  onPreview: (() => void) | null;
+  /** Set only when the project has a published site. Uses ArrowUpRight. */
+  onViewPublished: (() => void) | null;
+  /** Always present. Opens the builder for this project in a new tab. */
+  onOpenInNewTab: () => void;
   onRename: () => void;
   onDelete: () => void;
 }) {
@@ -304,19 +320,31 @@ function ProjectCardMenu({
             </p>
           </div>
           <div className="py-1">
-            {onPreview && (
+            {onViewPublished && (
               <button
                 type="button"
                 className={menuItemClass}
                 onClick={() => {
                   setSheetOpen(false);
-                  onPreview();
+                  onViewPublished();
                 }}
               >
-                <ExternalLink className="h-4 w-4" />
-                {t("preview")}
+                <ArrowUpRight className="h-4 w-4" />
+                {t("viewPublishedSite")}
               </button>
             )}
+            <button
+              type="button"
+              className={menuItemClass}
+              disabled={isGenerating}
+              onClick={() => {
+                setSheetOpen(false);
+                onOpenInNewTab();
+              }}
+            >
+              <ExternalLink className="h-4 w-4" />
+              {t("openInNewTab")}
+            </button>
             <button
               type="button"
               className={menuItemClass}
@@ -366,12 +394,20 @@ function ProjectCardMenu({
         gutter={4}
         className="z-50 w-48 rounded-xl border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-900"
       >
-        {onPreview && (
-          <MenuItem className={menuItemClass} onClick={onPreview}>
-            <ExternalLink className="h-4 w-4" />
-            {t("preview")}
+        {onViewPublished && (
+          <MenuItem className={menuItemClass} onClick={onViewPublished}>
+            <ArrowUpRight className="h-4 w-4" />
+            {t("viewPublishedSite")}
           </MenuItem>
         )}
+        <MenuItem
+          className={menuItemClass}
+          disabled={isGenerating}
+          onClick={onOpenInNewTab}
+        >
+          <ExternalLink className="h-4 w-4" />
+          {t("openInNewTab")}
+        </MenuItem>
         <MenuItem
           className={menuItemClass}
           disabled={isGenerating}
@@ -418,6 +454,31 @@ export function ProjectList({ projects }: { projects: ProjectSummary[] }) {
       // sessionStorage full or unavailable — navigate anyway
     }
     router.push("/");
+  }
+
+  /**
+   * Open this project in the builder in a new tab. Writes the session state
+   * to sessionStorage *before* calling `window.open` so the new tab inherits
+   * it as part of browsing-context-group session storage duplication.
+   *
+   * NOTE: `noopener` is intentionally omitted — setting it places the new
+   * tab in its own top-level browsing context group, which means session
+   * storage is NOT copied and the builder would boot with no project loaded.
+   * Same-origin, same-site, internal navigation so the lack of `noopener`
+   * is a non-issue.
+   */
+  function handleOpenInNewTab(project: ProjectSummary) {
+    const state = buildSessionState(project, {
+      websiteReady: tMsg("websiteReady"),
+      generationFailed: tMsg("generationFailed"),
+    });
+    try {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(state));
+    } catch {
+      // sessionStorage full or unavailable — open anyway; the new tab will
+      // load the landing page since it has no state to hydrate from.
+    }
+    window.open("/", "_blank");
   }
 
   async function handleRenameSave(newName: string) {
@@ -496,10 +557,12 @@ export function ProjectList({ projects }: { projects: ProjectSummary[] }) {
       <div className="space-y-3">
         {localProjects.map((project) => {
           const latestVersion = project.versions[project.versions.length - 1];
-          const previewUrl = latestVersion
-            ? `/preview/${latestVersion.id}`
-            : null;
+          const publishedSlug = project.publishedSites[0]?.subdomain ?? null;
           const isGenerating = project.status === "GENERATING";
+
+          const onViewPublished = publishedSlug
+            ? () => window.open(`/p/${publishedSlug}`, "_blank", "noopener")
+            : null;
 
           return (
             <div
@@ -520,13 +583,32 @@ export function ProjectList({ projects }: { projects: ProjectSummary[] }) {
               }`}
             >
               <div className="flex-shrink-0">
-                {STATUS_ICON[project.status] ?? STATUS_ICON.DRAFT}
+                {renderStatusIcon(project.status, !!publishedSlug)}
               </div>
 
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                  {project.name}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                    {project.name}
+                  </p>
+                  {publishedSlug && (
+                    <Button
+                      onClick={(e: React.MouseEvent) => {
+                        e.stopPropagation();
+                        window.open(
+                          `/p/${publishedSlug}`,
+                          "_blank",
+                          "noopener",
+                        );
+                      }}
+                      aria-label={t("viewPublishedSite")}
+                      className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 transition hover:bg-indigo-100 dark:border-indigo-900 dark:bg-indigo-950 dark:text-indigo-300 dark:hover:bg-indigo-900"
+                    >
+                      <Globe className="h-3.5 w-3.5" />
+                      {t("publishedBadge")}
+                    </Button>
+                  )}
+                </div>
                 <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
                   v{latestVersion?.versionNumber ?? 0} &middot;{" "}
                   {formatDate(project.updatedAt)}
@@ -539,11 +621,8 @@ export function ProjectList({ projects }: { projects: ProjectSummary[] }) {
               >
                 <ProjectCardMenu
                   project={project}
-                  onPreview={
-                    previewUrl && project.status === "READY"
-                      ? () => window.open(previewUrl, "_blank")
-                      : null
-                  }
+                  onViewPublished={onViewPublished}
+                  onOpenInNewTab={() => handleOpenInNewTab(project)}
                   onRename={() => setRenamingProject(project)}
                   onDelete={() => setDeleteTargetId(project.id)}
                 />

@@ -2,8 +2,9 @@ import { useState } from "react";
 import {
   Download,
   ExternalLink,
-  Maximize2,
-  Minimize2,
+  Globe,
+  // Maximize2,
+  // Minimize2,
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
@@ -33,13 +34,13 @@ function IconButton({
   return (
     <TooltipProvider>
       <TooltipAnchor
-        render={<Button onClick={onClick} className={className} />}
+        render={
+          <Button onClick={onClick} className={className} aria-label={label} />
+        }
       >
         {children}
       </TooltipAnchor>
-      <Tooltip type="label" className={tooltipClass}>
-        {label}
-      </Tooltip>
+      <Tooltip className={tooltipClass}>{label}</Tooltip>
     </TooltipProvider>
   );
 }
@@ -55,6 +56,18 @@ export interface PreviewPanelProps {
   progressStep?: string;
   onToggleSidebar: () => void;
   isSidebarCollapsed: boolean;
+  /**
+   * Publish button wiring. Omit all three to hide the button (guest users,
+   * landing page, etc.).
+   */
+  onPublish?: () => void;
+  /** Whether the current project has an active published site. */
+  isPublished?: boolean;
+  /**
+   * Whether the published version is older than the latest generated version.
+   * When true, the button label becomes "Publish changes" as a subtle nudge.
+   */
+  hasUnpublishedChanges?: boolean;
 }
 
 export function PreviewPanel({
@@ -68,8 +81,12 @@ export function PreviewPanel({
   progressStep,
   onToggleSidebar,
   isSidebarCollapsed,
+  onPublish,
+  isPublished,
+  hasUnpublishedChanges,
 }: PreviewPanelProps) {
   const t = useTranslations("Preview");
+  const tPublish = useTranslations("Publish");
   const tProgress = useTranslations("Progress");
   const previewSrc = versionId ? `/preview/${versionId}` : null;
   const [iframeLoaded, setIframeLoaded] = useState(false);
@@ -98,8 +115,8 @@ export function PreviewPanel({
           </span>
         </div>
         {status === "READY" && versionId && (
-          <div className="flex gap-1">
-            <IconButton
+          <div className="flex items-center gap-1">
+            {/* <IconButton
               label={
                 isPreviewFullscreen ? t("exitFullscreen") : t("fullscreen")
               }
@@ -111,7 +128,7 @@ export function PreviewPanel({
               ) : (
                 <Maximize2 className="h-4 w-4" />
               )}
-            </IconButton>
+            </IconButton> */}
             <IconButton
               label={t("openNewTab")}
               className={iconBtnClass}
@@ -126,6 +143,38 @@ export function PreviewPanel({
             >
               <Download className="h-4 w-4" />
             </IconButton>
+            {onPublish && (
+              <Button
+                onClick={onPublish}
+                aria-label={
+                  isPublished
+                    ? hasUnpublishedChanges
+                      ? tPublish("publishChanges")
+                      : tPublish("managePublication")
+                    : tPublish("publish")
+                }
+                className={
+                  isPublished
+                    ? "ml-1 flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-2.5 py-1.5 text-xs font-medium text-indigo-700 transition hover:bg-indigo-100 dark:border-indigo-900 dark:bg-indigo-950 dark:text-indigo-300 dark:hover:bg-indigo-900"
+                    : "ml-1 flex items-center gap-1.5 rounded-lg bg-indigo-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-indigo-700"
+                }
+              >
+                <Globe className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">
+                  {isPublished
+                    ? hasUnpublishedChanges
+                      ? tPublish("publishChanges")
+                      : tPublish("published")
+                    : tPublish("publish")}
+                </span>
+                {isPublished && hasUnpublishedChanges && (
+                  <span
+                    className="h-1.5 w-1.5 rounded-full bg-amber-500"
+                    aria-hidden="true"
+                  />
+                )}
+              </Button>
+            )}
           </div>
         )}
       </div>
@@ -150,7 +199,7 @@ export function PreviewPanel({
                 </p>
               </div>
             )}
-            {isPreviewFullscreen && (
+            {/* {isPreviewFullscreen && (
               <Button
                 onClick={onToggleFullscreen}
                 className="absolute top-3 right-3 z-20 rounded-lg bg-black/60 p-2 text-white backdrop-blur-sm transition hover:bg-black/80"
@@ -158,7 +207,7 @@ export function PreviewPanel({
               >
                 <Minimize2 className="h-5 w-5" />
               </Button>
-            )}
+            )} */}
             <iframe
               title={t("iframeTitle")}
               src={previewSrc}

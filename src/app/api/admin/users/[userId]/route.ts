@@ -48,7 +48,14 @@ export async function DELETE(
     select: {
       id: true,
       email: true,
-      projects: { select: { id: true } },
+      projects: {
+        select: {
+          id: true,
+          publishedSites: {
+            select: { storageKey: true, subdomain: true },
+          },
+        },
+      },
     },
   });
   if (!user) {
@@ -65,6 +72,7 @@ export async function DELETE(
   // orphaned objects are recoverable, but a half-deleted DB state is worse.
   let filesRemoved = 0;
   for (const project of user.projects) {
+    // Drafts under projects/{id}/...
     try {
       const keys = await listFiles(`projects/${project.id}/`);
       if (keys.length > 0) {
@@ -76,6 +84,23 @@ export async function DELETE(
         projectId: project.id,
         error: String(err),
       });
+    }
+
+    // Published sites under published/{slug}/index.html (keys already loaded).
+    const publishedKeys = project.publishedSites
+      .map((p) => p.storageKey)
+      .filter((k): k is string => !!k);
+    if (publishedKeys.length > 0) {
+      try {
+        await deleteFiles(publishedKeys);
+        filesRemoved += publishedKeys.length;
+      } catch (err) {
+        log.warn("R2 published cleanup failed", {
+          projectId: project.id,
+          slugs: project.publishedSites.map((p) => p.subdomain),
+          error: String(err),
+        });
+      }
     }
   }
 

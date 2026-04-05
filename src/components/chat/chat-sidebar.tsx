@@ -23,6 +23,12 @@ export interface ChatSidebarProps {
   isSidebarCollapsed: boolean;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
   sidebarInputRef: React.RefObject<HTMLTextAreaElement | null>;
+  /**
+   * Turnstile widget slot — rendered below the input. Invisible while
+   * Cloudflare runs its managed challenge silently; becomes a compact
+   * inline box only when a suspicious request triggers interaction.
+   */
+  turnstile?: React.ReactNode;
 }
 
 export function ChatSidebar({
@@ -43,6 +49,7 @@ export function ChatSidebar({
   isSidebarCollapsed,
   messagesEndRef,
   sidebarInputRef,
+  turnstile,
 }: ChatSidebarProps) {
   const t = useTranslations("Chat");
 
@@ -171,12 +178,11 @@ export function ChatSidebar({
             <ArrowUp className="h-3.5 w-3.5" />
           </Button>
         </div>
-        {/* <p
-          id="chat-input-help"
-          className="mt-1.5 hidden text-[10px] text-zinc-500 md:block dark:text-zinc-400"
-        >
-          {t("inputHelp")}
-        </p> */}
+        {turnstile && (
+          <div className="mt-2 flex max-w-full justify-center overflow-hidden">
+            {turnstile}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -33,6 +33,11 @@ export default async function ProjectsPage() {
           commentary: true,
         },
       },
+      publishedSites: {
+        where: { isActive: true },
+        select: { subdomain: true },
+        take: 1,
+      },
     },
   });
 

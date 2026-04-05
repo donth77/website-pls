@@ -3,11 +3,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { useTranslations } from "next-intl";
+import { useSession } from "next-auth/react";
 import { useGeneration } from "@/hooks/use-generation";
 import { Landing } from "./landing";
 import { ChatSidebar } from "../chat/chat-sidebar";
 import { PreviewPanel } from "./preview-panel";
 import { InfoModal } from "../ui/info-modal";
+import { PublishModal, type PublishedState } from "../publish-modal";
 import { TurnstileWidget } from "../turnstile-widget";
 import { useTabStore, TabList, Tab } from "@ariakit/react";
 
@@ -16,9 +18,52 @@ const MIN_SIDEBAR_REM = 20;
 const MAX_PANEL_FRACTION = 0.5;
 const COLLAPSE_THRESHOLD_REM = 14;
 
+/**
+ * sessionStorage key for the cached publish state. Kept separate from the
+ * main `useGeneration` persistence (which owns project/version/messages) so
+ * each concern writes through independently.
+ */
+const PUBLISH_SESSION_KEY = "websitepls:publishedEntry";
+
+type PublishedEntry = {
+  projectId: string;
+  value: PublishedState | null;
+};
+
+/**
+ * Restore the publish-state cache from sessionStorage. Wrapped in try/catch
+ * so SSR (where sessionStorage is undefined) and quota/parse errors return
+ * null cleanly — the fetch effect will then populate it normally.
+ */
+function loadPublishedEntry(): PublishedEntry | null {
+  try {
+    const raw = sessionStorage.getItem(PUBLISH_SESSION_KEY);
+    return raw ? (JSON.parse(raw) as PublishedEntry) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Mirror the current publish-state cache into sessionStorage. Called from
+ * a write-through effect whenever `publishedEntry` changes.
+ */
+function savePublishedEntry(entry: PublishedEntry | null): void {
+  try {
+    if (entry) {
+      sessionStorage.setItem(PUBLISH_SESSION_KEY, JSON.stringify(entry));
+    } else {
+      sessionStorage.removeItem(PUBLISH_SESSION_KEY);
+    }
+  } catch {
+    /* quota or unavailable — drop silently */
+  }
+}
+
 export function GeneratorApp() {
   const tChat = useTranslations("Chat");
   const tPreview = useTranslations("Preview");
+  const { status: sessionStatus } = useSession();
   const {
     phase,
     mobileView,
@@ -29,6 +74,7 @@ export function GeneratorApp() {
     canSubmit,
     status,
     isSubmitting,
+    projectId,
     projectName,
     versionId,
     versionNumber,
@@ -144,6 +190,76 @@ export function GeneratorApp() {
       setIsSidebarCollapsed(true);
     }
   }, [isSidebarCollapsed, sidebarFraction]);
+
+  /* ═══════════════ Publish state ═══════════════ */
+  const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
+  // Keyed on projectId so swapping projects clears stale publish data
+  // via derived state rather than a state-resetting effect.
+  //
+  // Lazy-initialised from sessionStorage so navigating back to the editor
+  // restores the published state synchronously on first render. Without this
+  // cache, every remount starts with `null`, and the brief window before the
+  // `/api/projects/{id}` fetch resolves causes the toolbar to flash "Publish"
+  // before flipping to "Published". The fetch below still runs as a refresh,
+  // so the cache self-heals if it's wrong.
+  const [publishedEntry, setPublishedEntry] = useState<{
+    projectId: string;
+    value: PublishedState | null;
+  } | null>(() => loadPublishedEntry());
+
+  // Write-through: whenever publishedEntry changes (fetch result, publish,
+  // unpublish, project swap to null), mirror it into sessionStorage so the
+  // next mount restores instantly.
+  useEffect(() => {
+    savePublishedEntry(publishedEntry);
+  }, [publishedEntry]);
+
+  // Fetch publish state whenever projectId changes. No deduping ref:
+  // StrictMode's double-invocation preserves refs across the two runs, so
+  // a ref-based gate skips the second run and the first run's cancelled
+  // cleanup silently drops its fetch — leaving publishedEntry unset. Two
+  // parallel fetches are harmless; the cleanup's `cancelled` flag keeps
+  // stale results from clobbering fresh ones.
+  useEffect(() => {
+    if (!projectId) return;
+    let cancelled = false;
+    fetch(`/api/projects/${projectId}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { publishedSite?: PublishedState | null } | null) => {
+        if (cancelled) return;
+        setPublishedEntry({
+          projectId,
+          value: data?.publishedSite ?? null,
+        });
+      })
+      .catch(() => {
+        /* best-effort — button stays in unknown state until next fetch */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId]);
+
+  // Derived: only expose publish state that matches the current projectId.
+  // Swapping projects instantly hides stale data without a state reset.
+  const publishedState =
+    publishedEntry && publishedEntry.projectId === projectId
+      ? publishedEntry.value
+      : null;
+
+  const isAuthenticated = sessionStatus === "authenticated";
+  const hasUnpublishedChanges =
+    !!publishedState &&
+    versionNumber !== null &&
+    versionNumber > publishedState.publishedVersionNumber;
+
+  const handlePublishedChange = useCallback(
+    (value: PublishedState | null) => {
+      if (!projectId) return;
+      setPublishedEntry({ projectId, value });
+    },
+    [projectId],
+  );
 
   /* ═══════════════ Mobile card-swipe ═══════════════ */
   const mobileTrackRef = useRef<HTMLDivElement>(null);
@@ -377,6 +493,14 @@ export function GeneratorApp() {
                 isSidebarCollapsed={isSidebarCollapsed}
                 messagesEndRef={messagesEndRef}
                 sidebarInputRef={sidebarInputRef}
+                turnstile={
+                  <TurnstileWidget
+                    onToken={setTurnstileToken}
+                    onExpire={() => setTurnstileToken(null)}
+                    onError={() => setTurnstileToken(null)}
+                    resetRef={turnstileResetRef}
+                  />
+                }
               />
             </div>
 
@@ -430,6 +554,13 @@ export function GeneratorApp() {
                 progressStep={generatingMsg?.progressStep}
                 onToggleSidebar={toggleSidebar}
                 isSidebarCollapsed={isSidebarCollapsed}
+                onPublish={
+                  isAuthenticated && projectId
+                    ? () => setIsPublishModalOpen(true)
+                    : undefined
+                }
+                isPublished={!!publishedState}
+                hasUnpublishedChanges={hasUnpublishedChanges}
               />
             </div>
           </div>
@@ -446,6 +577,20 @@ export function GeneratorApp() {
 
       {/* ════════════════════ INFO MODAL ════════════════════ */}
       <InfoModal isOpen={isInfoOpen} onClose={() => setIsInfoOpen(false)} />
+
+      {/* ════════════════════ PUBLISH MODAL ════════════════════ */}
+      {projectId && (
+        <PublishModal
+          isOpen={isPublishModalOpen}
+          onClose={() => setIsPublishModalOpen(false)}
+          projectId={projectId}
+          projectName={projectName}
+          currentVersionNumber={versionNumber}
+          published={publishedState}
+          onPublished={handlePublishedChange}
+          onUnpublished={() => handlePublishedChange(null)}
+        />
+      )}
     </div>
   );
 }

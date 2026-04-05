@@ -36,7 +36,7 @@ https://w.soundcloud.com
 https://open.spotify.com
 
 # Maps
-https://www.google.com/maps
+https://www.google.com/maps/embed
 https://maps.google.com
 
 # Productivity & forms

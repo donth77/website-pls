@@ -59,7 +59,7 @@ export function AuthButton() {
   }
 
   return (
-    <MenuProvider>
+    <MenuProvider placement="bottom-end">
       <MenuButton
         className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-zinc-200 bg-zinc-100 transition hover:ring-2 hover:ring-zinc-300 active:ring-2 active:ring-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:ring-zinc-600 dark:active:ring-zinc-600"
         aria-label={t("accountMenu")}
@@ -96,7 +96,6 @@ export function AuthButton() {
 
       <Menu
         gutter={8}
-        placement="bottom-end"
         className="z-50 w-64 rounded-xl border border-zinc-200 bg-white py-1.5 shadow-lg dark:border-zinc-700 dark:bg-zinc-900"
       >
         <div className="border-b border-zinc-100 px-4 py-3 dark:border-zinc-800">

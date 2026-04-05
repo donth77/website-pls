@@ -88,10 +88,17 @@ button,
 }
 
 /* Global focus indicators — ensures every interactive element is visible to
-   keyboard users without needing per-element Tailwind classes (WCAG 2.4.7). */
-*:focus-visible {
-  outline: 2px solid var(--color-indigo-500);
-  outline-offset: 2px;
+   keyboard users without needing per-element Tailwind classes (WCAG 2.4.7).
+   Placed in @layer base so Tailwind utilities (@layer utilities is higher in
+   the layer order) can override it — e.g. `focus-visible:outline-none` on an
+   input whose parent already owns the focus ring via `focus-within:ring-*`.
+   Without the layer, unlayered CSS would beat layered utilities regardless
+   of specificity, and the global outline would bleed through. */
+@layer base {
+  *:focus-visible {
+    outline: 2px solid var(--color-indigo-500);
+    outline-offset: 2px;
+  }
 }
 
 /* Sidebar uses a CSS variable for resizable width on desktop */

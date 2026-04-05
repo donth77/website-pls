@@ -479,31 +479,18 @@ export function useGeneration() {
     window.open(`/preview/${versionId}`, "_blank", "noopener,noreferrer");
   }
 
-  async function downloadPreviewHtml() {
+  function downloadPreviewHtml() {
     if (!versionId) return;
-    try {
-      const res = await fetch(`/preview/${versionId}`);
-      if (!res.ok) return;
-      const html = await res.text();
-      const blob = new Blob([html], { type: "text/html" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      const slug = (projectName ?? "website")
-        .normalize("NFKD")
-        .replace(/[\u0300-\u036f]/g, "") // strip diacritics
-        .replace(/\p{Emoji_Presentation}/gu, "") // strip emojis
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "");
-      a.download = `${slug || "website"}.html`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch {
-      /* best-effort */
-    }
+    // The server sets Content-Disposition with a sanitized filename based on
+    // the project name — no client-side blob or filename handling needed.
+    // A plain anchor navigation lets the browser honor the attachment header
+    // natively.
+    const a = document.createElement("a");
+    a.href = `/api/versions/${versionId}/export`;
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 
   return {
@@ -519,6 +506,7 @@ export function useGeneration() {
     // Generation
     status,
     isSubmitting,
+    projectId,
     projectName,
     versionId,
     versionNumber,
