@@ -6,6 +6,7 @@ import { GENERATION_QUEUE_NAME } from "@/lib/queue/generationQueue";
 import { createWorkerRedis } from "@/lib/queue/redis";
 import { uploadFile, downloadFile } from "@/lib/storage/r2";
 import { runGenerationPipeline } from "@/lib/ai/orchestrator";
+import { ingestDocument } from "@/lib/rag/ingest";
 
 type GenerateJobData = {
   projectId: string;
@@ -13,6 +14,10 @@ type GenerateJobData = {
   userPrompt: string;
   refinementPrompt?: string;
   requestId?: string;
+  referenceFileStorageKey?: string;
+  referenceFileName?: string;
+  referenceContentType?: string;
+  referenceFileSize?: number;
 };
 
 const baseLog = createLogger("worker");
@@ -71,8 +76,17 @@ const worker = new Worker(
   GENERATION_QUEUE_NAME,
   async (job) => {
     const data = job.data as GenerateJobData;
-    const { projectId, versionId, userPrompt, refinementPrompt, requestId } =
-      data;
+    const {
+      projectId,
+      versionId,
+      userPrompt,
+      refinementPrompt,
+      requestId,
+      referenceFileStorageKey,
+      referenceFileName,
+      referenceContentType,
+      referenceFileSize,
+    } = data;
     const log = baseLog.child({
       requestId,
       projectId,
@@ -80,7 +94,10 @@ const worker = new Worker(
       jobId: job.id,
     });
 
-    log.info("Job started", { isRefinement: !!refinementPrompt });
+    log.info("Job started", {
+      isRefinement: !!refinementPrompt,
+      hasReferenceFile: !!referenceFileStorageKey,
+    });
 
     // Hard timeout — rejects if the job exceeds JOB_TIMEOUT_MS.
     const timeoutPromise = new Promise<never>((_, reject) => {
@@ -116,6 +133,37 @@ const worker = new Worker(
               })
             : Promise.resolve(null);
 
+          // Ingest reference material if the API route uploaded one. Fail-open:
+          // errors are logged but don't stop the generation, because users
+          // still get a site (just without the RAG lift).
+          if (
+            referenceFileStorageKey &&
+            referenceFileName &&
+            referenceContentType &&
+            typeof referenceFileSize === "number"
+          ) {
+            await job.updateProgress({
+              step: "Reading your document…",
+              percent: 10,
+            });
+            try {
+              await ingestDocument({
+                projectId,
+                storageKey: referenceFileStorageKey,
+                meta: {
+                  fileName: referenceFileName,
+                  contentType: referenceContentType,
+                  fileSize: referenceFileSize,
+                },
+                requestId,
+              });
+            } catch (ingestErr) {
+              log.warn("Reference document ingestion failed, proceeding without RAG", {
+                error: ingestErr instanceof Error ? ingestErr.message : String(ingestErr),
+              });
+            }
+          }
+
           // For refinements, fetch the previous version's HTML from R2.
           let previousHtml: string | undefined;
           if (refinementPrompt) {
@@ -137,6 +185,7 @@ const worker = new Worker(
             userPrompt,
             previousHtml,
             refinementPrompt,
+            requestId,
             onProgress: (step, percent) => {
               job.updateProgress({ step, percent }).catch((e) => {
                 log.warn("Progress update failed", { error: String(e) });
