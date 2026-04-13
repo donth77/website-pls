@@ -1,10 +1,18 @@
+import { useMemo } from "react";
 import { ArrowUp, CircleHelp } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@ariakit/react";
+
 import { MAX_USER_PROMPT_CHARS } from "@/lib/ai/promptSafety";
+import { useTypewriterPlaceholder } from "@/hooks/use-typewriter-placeholder";
 import { GenerationLimit } from "../generation-limit";
 
-const EXAMPLE_KEYS = ["example1", "example2", "example3", "example4"] as const;
+const PLACEHOLDER_KEYS = [
+  "example1",
+  "example2",
+  "example3",
+  "example4",
+] as const;
 
 export interface LandingProps {
   inputValue: string;
@@ -31,6 +39,17 @@ export function Landing({
   referenceMaterial,
 }: LandingProps) {
   const t = useTranslations("Landing");
+  const placeholderPhrases = useMemo(
+    () => PLACEHOLDER_KEYS.map((key) => t(key)),
+    [t],
+  );
+  const animatedPlaceholder = useTypewriterPlaceholder({
+    phrases: placeholderPhrases,
+    enabled: inputValue.length === 0,
+    typeMs: 35,
+    deleteMs: 15,
+    holdMs: 2500,
+  });
   const charRatio = inputValue.length / MAX_USER_PROMPT_CHARS;
   const charCountColor =
     charRatio >= 1
@@ -50,11 +69,17 @@ export function Landing({
     <>
       <div className="w-full max-w-2xl">
         {/* Heading */}
-        <div className="mb-8 text-center">
-          <h1 className="text-4xl font-semibold tracking-tight text-zinc-900 sm:text-5xl dark:text-zinc-50">
-            {t("heading")}
+        <div className="mb-10 text-center">
+          <h1 className="font-serif text-5xl leading-[1.05] font-normal tracking-tight text-zinc-900 sm:text-6xl md:text-7xl dark:text-zinc-50">
+            {t.rich("heading", {
+              accent: (chunks) => (
+                <span className="inline-block bg-gradient-to-br from-zinc-900 via-zinc-600 to-zinc-400 bg-clip-text pr-2 pb-1 [font-family:var(--font-serif-accent)] text-transparent italic dark:from-zinc-100 dark:via-zinc-400 dark:to-zinc-600">
+                  {chunks}
+                </span>
+              ),
+            })}
           </h1>
-          <p className="mt-3 text-base text-zinc-500 dark:text-zinc-400">
+          <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed font-light text-zinc-500 md:text-xl dark:text-zinc-400">
             {t("description")}
           </p>
         </div>
@@ -68,7 +93,7 @@ export function Landing({
             value={inputValue}
             onChange={(e) => onInputChange(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={t("placeholder")}
+            placeholder={animatedPlaceholder}
             aria-label={t("inputLabel")}
             maxLength={MAX_USER_PROMPT_CHARS}
             autoFocus
@@ -87,7 +112,7 @@ export function Landing({
         {referenceMaterial && <div className="mt-3">{referenceMaterial}</div>}
 
         {/* Below-input area — fixed height so content changes don't shift the textarea */}
-        <div className="h-44">
+        <div className="h-28">
           {/* Char count (visible when typing) */}
           <div
             className={`mt-2 text-right font-mono text-xs transition-opacity ${inputValue.length > 0 ? "opacity-100" : "opacity-0"} ${charCountColor}`}
@@ -98,30 +123,6 @@ export function Landing({
             {inputValue.length.toLocaleString()}/
             {MAX_USER_PROMPT_CHARS.toLocaleString()}
           </div>
-
-          {/* Example prompts */}
-          <div
-            className={`mt-2 flex flex-wrap justify-center gap-2 transition-opacity ${inputValue ? "pointer-events-none opacity-0" : "opacity-100"}`}
-          >
-            {EXAMPLE_KEYS.map((key) => {
-              const text = t(key);
-              return (
-                <Button
-                  key={key}
-                  className="cursor-pointer rounded-full border border-zinc-200 bg-white px-3.5 py-1.5 text-xs text-zinc-500 shadow-sm transition hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
-                  onClick={() => onInputChange(text)}
-                  aria-label={text}
-                >
-                  {text.length > 55 ? text.slice(0, 55) + "\u2026" : text}
-                </Button>
-              );
-            })}
-          </div>
-
-          {/* Keyboard hint */}
-          {/* <p className="mt-4 text-center text-xs text-zinc-500 dark:text-zinc-400">
-            {t("keyboardHint", { key: isMac ? "\u2318" : "Ctrl" })}
-          </p> */}
 
           {/* Generation limit indicator */}
           <div className="mt-3">

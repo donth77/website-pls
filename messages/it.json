@@ -3,7 +3,7 @@
     "back": "Indietro"
   },
   "Landing": {
-    "heading": "Cosa vuoi creare?",
+    "heading": "Cosa vuoi <accent>creare</accent>?",
     "description": "Descrivi il tuo sito web e lo genereremo in pochi secondi.",
     "placeholder": "es. \"Un sito portfolio per un fotografo con tema scuro e galleria immagini\"",
     "generate": "Genera sito web",

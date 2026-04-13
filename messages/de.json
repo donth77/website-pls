@@ -3,7 +3,7 @@
     "back": "Zurück"
   },
   "Landing": {
-    "heading": "Was möchten Sie erstellen?",
+    "heading": "Was möchten Sie <accent>erstellen</accent>?",
     "description": "Beschreiben Sie Ihre Website und wir generieren sie in Sekunden.",
     "placeholder": "z. B. „Eine Portfolio-Seite für einen Fotografen mit dunklem Design und Bildergalerie“",
     "generate": "Website generieren",

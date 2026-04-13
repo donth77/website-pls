@@ -3,7 +3,7 @@
     "back": "Terug"
   },
   "Landing": {
-    "heading": "Wat wil je bouwen?",
+    "heading": "Wat wil je <accent>bouwen</accent>?",
     "description": "Beschrijf je website en wij genereren deze in enkele seconden.",
     "placeholder": "bijv. \"Een portfoliosite voor een fotograaf met een donker thema en afbeeldingengalerij\"",
     "generate": "Website genereren",

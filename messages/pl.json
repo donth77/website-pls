@@ -3,7 +3,7 @@
     "back": "Wstecz"
   },
   "Landing": {
-    "heading": "Co chcesz zbudować?",
+    "heading": "Co chcesz <accent>zbudować</accent>?",
     "description": "Opisz swoją stronę, a wygenerujemy ją w kilka sekund.",
     "placeholder": "np. \"Strona portfolio dla fotografa z ciemnym motywem i galerią zdjęć\"",
     "generate": "Wygeneruj stronę",

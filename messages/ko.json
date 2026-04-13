@@ -3,7 +3,7 @@
     "back": "뒤로"
   },
   "Landing": {
-    "heading": "무엇을 만들고 싶으신가요?",
+    "heading": "무엇을 <accent>만들고</accent> 싶으신가요?",
     "description": "원하는 웹사이트를 설명하면 몇 초 만에 생성해 드립니다.",
     "placeholder": "예: \"다크 테마와 이미지 갤러리가 있는 사진작가용 포트폴리오 사이트\"",
     "generate": "웹사이트 생성",

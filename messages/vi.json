@@ -3,7 +3,7 @@
     "back": "Quay lại"
   },
   "Landing": {
-    "heading": "Bạn muốn xây dựng gì?",
+    "heading": "Bạn muốn <accent>xây dựng</accent> gì?",
     "description": "Mô tả trang web của bạn và chúng tôi sẽ tạo nó trong vài giây.",
     "placeholder": "ví dụ: \"Trang portfolio cho nhiếp ảnh gia với giao diện tối và thư viện ảnh\"",
     "generate": "Tạo trang web",

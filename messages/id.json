@@ -3,7 +3,7 @@
     "back": "Kembali"
   },
   "Landing": {
-    "heading": "Apa yang ingin Anda buat?",
+    "heading": "Apa yang ingin Anda <accent>buat</accent>?",
     "description": "Jelaskan situs web Anda dan kami akan membuatnya dalam hitungan detik.",
     "placeholder": "mis. \"Situs portofolio untuk fotografer dengan tema gelap dan galeri gambar\"",
     "generate": "Buat situs web",

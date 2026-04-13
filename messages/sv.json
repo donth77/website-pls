@@ -3,7 +3,7 @@
     "back": "Tillbaka"
   },
   "Landing": {
-    "heading": "Vad vill du bygga?",
+    "heading": "Vad vill du <accent>bygga</accent>?",
     "description": "Beskriv din webbplats och vi genererar den på några sekunder.",
     "placeholder": "t.ex. \"En portföljsida för en fotograf med mörkt tema och bildgalleri\"",
     "generate": "Generera webbplats",

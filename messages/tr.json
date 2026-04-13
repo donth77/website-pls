@@ -3,7 +3,7 @@
     "back": "Geri"
   },
   "Landing": {
-    "heading": "Ne oluşturmak istersiniz?",
+    "heading": "Ne <accent>oluşturmak</accent> istersiniz?",
     "description": "Web sitenizi tanımlayın, birkaç saniye içinde oluşturalım.",
     "placeholder": "ör. \"Koyu temalı ve resim galerisi olan bir fotoğrafçı portföy sitesi\"",
     "generate": "Web sitesi oluştur",
