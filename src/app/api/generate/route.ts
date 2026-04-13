@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { screenUserPromptWithLakera } from "@/lib/ai/lakera";
 import { validateUserPrompt } from "@/lib/ai/promptSafety";
 import { verifyTurnstileToken } from "@/lib/turnstile";
-import { checkRateLimit } from "@/lib/rateLimit";
+import { checkRateLimit, consumeByteQuota } from "@/lib/rateLimit";
 import { createLogger } from "@/lib/logger";
 import { prisma } from "@/lib/db/prisma";
 import { ProjectStatus } from "@/generated/prisma/enums";
@@ -36,6 +36,25 @@ const MONETIZATION_ENABLED = process.env.ENABLE_MONETIZATION === "true";
 
 /** Will the worker generate an LLM title? */
 const TITLE_GENERATION_AVAILABLE = !!process.env.OPENROUTER_API_KEY;
+
+/**
+ * Max chars for the placeholder project name derived from the user prompt.
+ * Worker replaces this with an LLM-generated title when TITLE_GENERATION_AVAILABLE,
+ * but this still bounds the row width if that step fails.
+ */
+const MAX_PROJECT_NAME_LEN = 100;
+
+/** Per-user reference-upload byte quota per hour (default 100 MB). */
+const RAG_UPLOAD_BYTES_PER_HR = parseInt(
+  process.env.RAG_UPLOAD_BYTES_PER_HR ?? `${100 * 1024 * 1024}`,
+  10,
+);
+
+function derivePlaceholderName(prompt: string): string {
+  const collapsed = prompt.replace(/\s+/g, " ").trim();
+  if (collapsed.length <= MAX_PROJECT_NAME_LEN) return collapsed;
+  return `${collapsed.slice(0, MAX_PROJECT_NAME_LEN - 1).trimEnd()}…`;
+}
 
 export async function POST(req: NextRequest) {
   const csrfError = validateCsrf(req, "POST /api/generate");
@@ -189,6 +208,51 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Per-user hourly byte quota on reference uploads. Each file is only
+    // 10 MB, but rate-limited generations could still chew through embedding
+    // quota and R2 storage in bulk. Uses a fixed window, best-effort — if
+    // Redis is down we fail open (the per-file size cap and generation rate
+    // limit still apply).
+    if (uploadedFile && owner.type === "user") {
+      try {
+        const quota = await consumeByteQuota({
+          key: `rag-upload:user:${owner.userId}`,
+          limit: RAG_UPLOAD_BYTES_PER_HR,
+          windowSeconds: 3600,
+          bytes: uploadedFile.size,
+        });
+        if (!quota.allowed) {
+          log.warn("reference upload byte quota exceeded", {
+            event: "rag.upload.quota_exceeded",
+            endpoint: "POST /api/generate",
+            userId: owner.userId,
+            bytesUsed: quota.used,
+            bytesLimit: RAG_UPLOAD_BYTES_PER_HR,
+            status: 429,
+          });
+          void recordEvent("rag.upload.quota_exceeded", {
+            endpoint: "POST /api/generate",
+            userId: owner.userId,
+            bytesUsed: quota.used,
+          }).catch(() => {});
+          return NextResponse.json(
+            {
+              error:
+                "You've uploaded too much reference material in the past hour. Try again later.",
+              code: ErrorCode.RATE_LIMIT,
+            },
+            { status: 429 },
+          );
+        }
+      } catch (err) {
+        log.warn("byte quota check failed, allowing", {
+          event: "rag.upload.quota_failed_open",
+          userId: owner.userId,
+          error: String(err),
+        });
+      }
+    }
+
     // Block unverified email users from generating.
     if (owner.type === "user") {
       const user = await prisma.user.findUnique({
@@ -298,10 +362,11 @@ export async function POST(req: NextRequest) {
     } else if (owner.type === "user" && MONETIZATION_ENABLED) {
       // Atomic credit decrement: only succeeds if credits > 0.
       // Skipped when monetization is disabled — users only hit the rate limit.
-      const result = await prisma.$queryRawUnsafe<{ credits: number }[]>(
-        `UPDATE users SET credits = credits - 1 WHERE id = $1 AND credits > 0 RETURNING credits`,
-        owner.userId,
-      );
+      const result = await prisma.$queryRaw<{ credits: number }[]>`
+        UPDATE users SET credits = credits - 1
+        WHERE id = ${owner.userId} AND credits > 0
+        RETURNING credits
+      `;
       if (result.length === 0) {
         log.warn("user credits exhausted", {
           event: "generation_limit.hit",
@@ -452,7 +517,7 @@ export async function POST(req: NextRequest) {
           const newProject = await tx.project.create({
             data: {
               id: newProjectId,
-              name: prompt,
+              name: derivePlaceholderName(prompt),
               prompt,
               status: ProjectStatus.GENERATING,
               ...(owner.type === "guest"

@@ -9,6 +9,7 @@ import {
   AllEmbeddingProvidersFailedError,
   TARGET_DIMS,
 } from "./embed";
+import { toVectorLiteral } from "./vectorLiteral";
 
 const log = createLogger("rag.ingest");
 
@@ -154,7 +155,7 @@ export async function ingestDocument(
       });
 
       for (const [i, chunk] of chunks.entries()) {
-        const vector = `[${cascade.embeddings[i].join(",")}]`;
+        const vector = toVectorLiteral(cascade.embeddings[i]);
         await tx.$executeRawUnsafe(
           `INSERT INTO reference_chunks (id, reference_document_id, chunk_index, content, embedding, token_count, created_at)
            VALUES (gen_random_uuid()::text, $1, $2, $3, $4::vector, $5, NOW())`,

@@ -8,6 +8,7 @@ import { validateSlug, generateUniqueSlug } from "@/lib/publish/slugs";
 import { scrubRedirectMetaTags } from "@/lib/publish/scrub";
 import { createLogger } from "@/lib/logger";
 import { recordEvent, recordRateLimitHit } from "@/lib/admin/metrics";
+import { resolvePublicOrigin } from "@/lib/http/publicUrl";
 
 const log = createLogger("api:publish");
 
@@ -27,11 +28,7 @@ function publishedKey(slug: string): string {
 
 /** Build the public URL from the request's host. */
 function publishedUrl(req: NextRequest, slug: string): string {
-  const host = req.headers.get("host");
-  const proto =
-    req.headers.get("x-forwarded-proto") ??
-    (req.nextUrl.protocol.replace(":", "") || "https");
-  return `${proto}://${host}/p/${slug}`;
+  return `${resolvePublicOrigin(req.headers)}/p/${slug}`;
 }
 
 /** Narrow a Prisma error to the unique-constraint case. */

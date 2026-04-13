@@ -7,6 +7,7 @@ import {
   TARGET_DIMS,
   type EmbeddingProviderName,
 } from "./embed";
+import { toVectorLiteral } from "./vectorLiteral";
 
 const log = createLogger("rag.retrieve");
 
@@ -101,7 +102,7 @@ export async function retrieveContext(
     return null;
   }
 
-  const vectorLiteral = `[${queryVector.join(",")}]`;
+  const vectorLiteral = toVectorLiteral(queryVector);
   const rows = await prisma.$queryRawUnsafe<ChunkRow[]>(
     `SELECT id, content
      FROM reference_chunks

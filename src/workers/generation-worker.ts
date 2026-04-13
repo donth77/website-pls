@@ -266,10 +266,11 @@ const worker = new Worker(
             });
             log.info("Refunded credit to user", { userId: project.userId });
           } else if (project?.guestSessionId) {
-            await prisma.$queryRawUnsafe(
-              `UPDATE guest_sessions SET generations_used = GREATEST(generations_used - 1, 0) WHERE id = $1`,
-              project.guestSessionId,
-            );
+            await prisma.$executeRaw`
+              UPDATE guest_sessions
+              SET generations_used = GREATEST(generations_used - 1, 0)
+              WHERE id = ${project.guestSessionId}
+            `;
             log.info("Refunded generation to guest", {
               guestSessionId: project.guestSessionId,
             });

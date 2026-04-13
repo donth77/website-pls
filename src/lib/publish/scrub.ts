@@ -8,8 +8,8 @@
  * An LLM-emitted (or prompt-injected) meta refresh would turn any published
  * site into an open phishing redirect.
  *
- * Applied at publish time only. The preview route intentionally keeps the
- * original HTML intact so the author can see exactly what the model emitted.
+ * Applied at both publish and preview time: even the author shouldn't be
+ * silently redirected when viewing a prompt-injected site.
  *
  * Uses a permissive regex rather than a full HTML parser because the attack
  * surface is narrow (two specific `http-equiv` values) and the regex is
