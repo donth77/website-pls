@@ -16,10 +16,7 @@ import { resolveClientIp } from "@/lib/clientIp";
 import { validateCsrf } from "@/lib/csrf";
 import { recordEvent, recordRateLimitHit } from "@/lib/admin/metrics";
 import { uploadFile } from "@/lib/storage/r2";
-import {
-  MAX_FILE_SIZE_BYTES,
-  SUPPORTED_MIME_TYPES,
-} from "@/lib/rag/extract";
+import { MAX_FILE_SIZE_BYTES, SUPPORTED_MIME_TYPES } from "@/lib/rag/extract";
 
 const baseLog = createLogger("api:generate");
 
@@ -114,9 +111,7 @@ export async function POST(req: NextRequest) {
         );
       }
       if (
-        !(SUPPORTED_MIME_TYPES as readonly string[]).includes(
-          uploadedFile.type,
-        )
+        !(SUPPORTED_MIME_TYPES as readonly string[]).includes(uploadedFile.type)
       ) {
         return NextResponse.json(
           {
@@ -495,7 +490,8 @@ export async function POST(req: NextRequest) {
       try {
         const origName = uploadedFile.name || "reference";
         const lastDot = origName.lastIndexOf(".");
-        const ext = lastDot > 0 ? origName.slice(lastDot + 1).toLowerCase() : "bin";
+        const ext =
+          lastDot > 0 ? origName.slice(lastDot + 1).toLowerCase() : "bin";
         const safeExt = /^[a-z0-9]{1,8}$/.test(ext) ? ext : "bin";
         const safeName = `${crypto.randomUUID()}.${safeExt}`;
         const key = `projects/${projectId}/references/${safeName}`;

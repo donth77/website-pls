@@ -313,5 +313,20 @@
   },
   "A11y": {
     "skipToContent": "Hoppa till huvudinnehållet"
+  },
+  "ReferenceMaterial": {
+    "label": "Referensmaterial",
+    "guestDisabled": "Logga in för att bifoga referensmaterial",
+    "emptyCta": "Lägg till referensmaterial",
+    "emptyHint": "valfritt",
+    "pendingHint": "{size} · redo att laddas upp",
+    "statusReady": "Klar",
+    "statusFailed": "Misslyckades",
+    "statusPending": "Bearbetar…",
+    "remove": "Ta bort",
+    "removeDisabledWhileGenerating": "Kan inte tas bort under generering",
+    "clearPending": "Rensa",
+    "errorTooLarge": "Filen är för stor (max 10 MB)",
+    "errorWrongType": "Filtypen stöds inte (PDF, TXT eller MD)"
   }
 }

@@ -189,8 +189,7 @@ export async function ingestDocument(
       truncated: extracted.truncated,
     };
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : String(error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     childLog.error("rag.ingest.failed", { errorMessage });
 
     const isAllProvidersFailed =
@@ -217,7 +216,8 @@ export async function ingestDocument(
       })
       .catch((updateErr) => {
         childLog.error("rag.ingest.failure_status_write_failed", {
-          updateError: updateErr instanceof Error ? updateErr.message : String(updateErr),
+          updateError:
+            updateErr instanceof Error ? updateErr.message : String(updateErr),
         });
       });
 

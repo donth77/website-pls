@@ -15,6 +15,8 @@ export interface LandingProps {
   onInfoOpen: () => void;
   textareaRef?: React.RefObject<HTMLTextAreaElement | null>;
   turnstile?: React.ReactNode;
+  /** Slot for the reference material control (rendered below the textarea). */
+  referenceMaterial?: React.ReactNode;
 }
 
 export function Landing({
@@ -26,6 +28,7 @@ export function Landing({
   onInfoOpen,
   textareaRef,
   turnstile,
+  referenceMaterial,
 }: LandingProps) {
   const t = useTranslations("Landing");
   const charRatio = inputValue.length / MAX_USER_PROMPT_CHARS;
@@ -79,6 +82,9 @@ export function Landing({
             <ArrowUp className="h-5 w-5" />
           </Button>
         </div>
+
+        {/* Reference material (Phase 1 RAG) — rendered above below-input block */}
+        {referenceMaterial && <div className="mt-3">{referenceMaterial}</div>}
 
         {/* Below-input area — fixed height so content changes don't shift the textarea */}
         <div className="h-44">

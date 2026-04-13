@@ -26,9 +26,7 @@ const JINA_EMBEDDINGS_URL = "https://api.jina.ai/v1/embeddings";
  * v2→v3 compat shim, which logs a deprecation warning on every call.
  * Owning ~60 lines of adapter is cheaper than depending on that shim.
  */
-export function createJinaEmbeddingModel(
-  config: JinaConfig,
-): EmbeddingModelV3 {
+export function createJinaEmbeddingModel(config: JinaConfig): EmbeddingModelV3 {
   const modelId = config.modelId ?? "jina-embeddings-v3";
 
   return {

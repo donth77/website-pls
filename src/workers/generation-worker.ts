@@ -158,9 +158,15 @@ const worker = new Worker(
                 requestId,
               });
             } catch (ingestErr) {
-              log.warn("Reference document ingestion failed, proceeding without RAG", {
-                error: ingestErr instanceof Error ? ingestErr.message : String(ingestErr),
-              });
+              log.warn(
+                "Reference document ingestion failed, proceeding without RAG",
+                {
+                  error:
+                    ingestErr instanceof Error
+                      ? ingestErr.message
+                      : String(ingestErr),
+                },
+              );
             }
           }
 

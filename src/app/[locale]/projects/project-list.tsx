@@ -145,6 +145,7 @@ function buildSessionState(
     originalPrompt: project.prompt ?? "",
     messages,
     generationStartTime: status === "GENERATING" ? Date.now() : null,
+    currentReferenceDocument: null,
   };
 }
 

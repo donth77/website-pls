@@ -313,5 +313,20 @@
   },
   "A11y": {
     "skipToContent": "Langsung ke konten utama"
+  },
+  "ReferenceMaterial": {
+    "label": "Materi referensi",
+    "guestDisabled": "Masuk untuk melampirkan materi referensi",
+    "emptyCta": "Tambahkan materi referensi",
+    "emptyHint": "opsional",
+    "pendingHint": "{size} · siap diunggah",
+    "statusReady": "Siap",
+    "statusFailed": "Gagal",
+    "statusPending": "Memproses…",
+    "remove": "Hapus",
+    "removeDisabledWhileGenerating": "Tidak dapat dihapus saat membuat",
+    "clearPending": "Kosongkan",
+    "errorTooLarge": "File terlalu besar (maks 10 MB)",
+    "errorWrongType": "Jenis file tidak didukung (PDF, TXT, atau MD)"
   }
 }

@@ -62,7 +62,10 @@ export async function retrieveContext(
     return null;
   }
 
-  if (!doc.embeddingProvider || !isValidEmbeddingProvider(doc.embeddingProvider)) {
+  if (
+    !doc.embeddingProvider ||
+    !isValidEmbeddingProvider(doc.embeddingProvider)
+  ) {
     childLog.warn("rag.retrieval.invalid_provider", {
       referenceDocumentId: doc.id,
       embeddingProvider: doc.embeddingProvider,

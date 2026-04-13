@@ -18,7 +18,10 @@ interface Embedder {
   providerOptions: SharedV3ProviderOptions;
 }
 
-function getEmbedder(provider: EmbeddingProviderName, kind: EmbedKind): Embedder {
+function getEmbedder(
+  provider: EmbeddingProviderName,
+  kind: EmbedKind,
+): Embedder {
   switch (provider) {
     case "jina":
       return {
@@ -29,7 +32,8 @@ function getEmbedder(provider: EmbeddingProviderName, kind: EmbedKind): Embedder
         providerOptions: {
           jina: {
             outputDimension: TARGET_DIMS,
-            inputType: kind === "query" ? "retrieval.query" : "retrieval.passage",
+            inputType:
+              kind === "query" ? "retrieval.query" : "retrieval.passage",
           },
         },
       };

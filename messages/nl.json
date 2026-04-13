@@ -313,5 +313,20 @@
   },
   "A11y": {
     "skipToContent": "Ga naar hoofdinhoud"
+  },
+  "ReferenceMaterial": {
+    "label": "Referentiemateriaal",
+    "guestDisabled": "Meld je aan om referentiemateriaal toe te voegen",
+    "emptyCta": "Referentiemateriaal toevoegen",
+    "emptyHint": "optioneel",
+    "pendingHint": "{size} · klaar om te uploaden",
+    "statusReady": "Klaar",
+    "statusFailed": "Mislukt",
+    "statusPending": "Verwerken…",
+    "remove": "Verwijderen",
+    "removeDisabledWhileGenerating": "Kan niet verwijderen tijdens genereren",
+    "clearPending": "Wissen",
+    "errorTooLarge": "Bestand te groot (max 10 MB)",
+    "errorWrongType": "Bestandstype niet ondersteund (PDF, TXT of MD)"
   }
 }

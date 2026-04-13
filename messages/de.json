@@ -313,5 +313,20 @@
   },
   "A11y": {
     "skipToContent": "Zum Hauptinhalt springen"
+  },
+  "ReferenceMaterial": {
+    "label": "Referenzmaterial",
+    "guestDisabled": "Melde dich an, um Referenzmaterial anzuhängen",
+    "emptyCta": "Referenzmaterial hinzufügen",
+    "emptyHint": "optional",
+    "pendingHint": "{size} · bereit zum Hochladen",
+    "statusReady": "Bereit",
+    "statusFailed": "Fehlgeschlagen",
+    "statusPending": "Verarbeitung…",
+    "remove": "Entfernen",
+    "removeDisabledWhileGenerating": "Während der Generierung nicht entfernbar",
+    "clearPending": "Löschen",
+    "errorTooLarge": "Datei zu groß (max. 10 MB)",
+    "errorWrongType": "Dateityp nicht unterstützt (PDF, TXT oder MD)"
   }
 }

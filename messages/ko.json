@@ -313,5 +313,20 @@
   },
   "A11y": {
     "skipToContent": "본문으로 건너뛰기"
+  },
+  "ReferenceMaterial": {
+    "label": "참고 자료",
+    "guestDisabled": "참고 자료를 첨부하려면 로그인하세요",
+    "emptyCta": "참고 자료 추가",
+    "emptyHint": "선택 사항",
+    "pendingHint": "{size} · 업로드 준비됨",
+    "statusReady": "준비됨",
+    "statusFailed": "실패",
+    "statusPending": "처리 중…",
+    "remove": "제거",
+    "removeDisabledWhileGenerating": "생성 중에는 제거할 수 없습니다",
+    "clearPending": "지우기",
+    "errorTooLarge": "파일이 너무 큼 (최대 10 MB)",
+    "errorWrongType": "지원하지 않는 파일 형식 (PDF, TXT 또는 MD)"
   }
 }

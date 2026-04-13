@@ -50,6 +50,20 @@ export async function GET(
         },
         take: 1,
       },
+      referenceDocuments: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: {
+          id: true,
+          fileName: true,
+          fileSize: true,
+          contentType: true,
+          status: true,
+          tokenCount: true,
+          embeddingProvider: true,
+          createdAt: true,
+        },
+      },
     },
   });
 
@@ -73,6 +87,8 @@ export async function GET(
     _req.headers.get("x-forwarded-proto") ??
     (_req.nextUrl.protocol.replace(":", "") || "https");
 
+  const referenceDoc = project.referenceDocuments[0] ?? null;
+
   return NextResponse.json({
     id: project.id,
     name: project.name,
@@ -85,6 +101,17 @@ export async function GET(
             publishedVersionNumber: published.version.versionNumber,
           }
         : null,
+    referenceDocument: referenceDoc
+      ? {
+          id: referenceDoc.id,
+          fileName: referenceDoc.fileName,
+          fileSize: referenceDoc.fileSize,
+          contentType: referenceDoc.contentType,
+          status: referenceDoc.status,
+          tokenCount: referenceDoc.tokenCount,
+          embeddingProvider: referenceDoc.embeddingProvider,
+        }
+      : null,
   });
 }
 

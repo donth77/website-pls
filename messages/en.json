@@ -312,5 +312,20 @@
   },
   "A11y": {
     "skipToContent": "Skip to main content"
+  },
+  "ReferenceMaterial": {
+    "label": "Reference material",
+    "guestDisabled": "Sign in to attach reference material",
+    "emptyCta": "Add reference material",
+    "emptyHint": "optional",
+    "pendingHint": "{size} · ready to upload",
+    "statusReady": "Ready",
+    "statusFailed": "Failed",
+    "statusPending": "Processing…",
+    "remove": "Remove",
+    "removeDisabledWhileGenerating": "Cannot remove while generating",
+    "clearPending": "Clear",
+    "errorTooLarge": "File too large (max 10 MB)",
+    "errorWrongType": "Unsupported file type (PDF, TXT, or MD)"
   }
 }

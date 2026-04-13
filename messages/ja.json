@@ -313,5 +313,20 @@
   },
   "A11y": {
     "skipToContent": "メインコンテンツへスキップ"
+  },
+  "ReferenceMaterial": {
+    "label": "参考資料",
+    "guestDisabled": "参考資料を添付するにはサインインしてください",
+    "emptyCta": "参考資料を追加",
+    "emptyHint": "任意",
+    "pendingHint": "{size} · アップロード準備完了",
+    "statusReady": "準備完了",
+    "statusFailed": "失敗",
+    "statusPending": "処理中…",
+    "remove": "削除",
+    "removeDisabledWhileGenerating": "生成中は削除できません",
+    "clearPending": "クリア",
+    "errorTooLarge": "ファイルが大きすぎます（最大10 MB）",
+    "errorWrongType": "サポートされていないファイル形式（PDF、TXT、またはMD）"
   }
 }

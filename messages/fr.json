@@ -313,5 +313,20 @@
   },
   "A11y": {
     "skipToContent": "Aller au contenu principal"
+  },
+  "ReferenceMaterial": {
+    "label": "Matériel de référence",
+    "guestDisabled": "Connectez-vous pour joindre du matériel de référence",
+    "emptyCta": "Ajouter du matériel de référence",
+    "emptyHint": "facultatif",
+    "pendingHint": "{size} · prêt à téléverser",
+    "statusReady": "Prêt",
+    "statusFailed": "Échec",
+    "statusPending": "Traitement…",
+    "remove": "Supprimer",
+    "removeDisabledWhileGenerating": "Impossible de supprimer pendant la génération",
+    "clearPending": "Effacer",
+    "errorTooLarge": "Fichier trop volumineux (max 10 Mo)",
+    "errorWrongType": "Type de fichier non pris en charge (PDF, TXT ou MD)"
   }
 }

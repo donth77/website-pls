@@ -313,5 +313,20 @@
   },
   "A11y": {
     "skipToContent": "Перейти к основному содержимому"
+  },
+  "ReferenceMaterial": {
+    "label": "Справочный материал",
+    "guestDisabled": "Войдите, чтобы прикрепить справочный материал",
+    "emptyCta": "Добавить справочный материал",
+    "emptyHint": "необязательно",
+    "pendingHint": "{size} · готов к загрузке",
+    "statusReady": "Готово",
+    "statusFailed": "Ошибка",
+    "statusPending": "Обработка…",
+    "remove": "Удалить",
+    "removeDisabledWhileGenerating": "Нельзя удалить во время генерации",
+    "clearPending": "Очистить",
+    "errorTooLarge": "Файл слишком большой (макс. 10 МБ)",
+    "errorWrongType": "Неподдерживаемый тип файла (PDF, TXT или MD)"
   }
 }

@@ -313,5 +313,20 @@
   },
   "A11y": {
     "skipToContent": "跳转到主要内容"
+  },
+  "ReferenceMaterial": {
+    "label": "参考资料",
+    "guestDisabled": "请登录以附加参考资料",
+    "emptyCta": "添加参考资料",
+    "emptyHint": "可选",
+    "pendingHint": "{size} · 准备上传",
+    "statusReady": "就绪",
+    "statusFailed": "失败",
+    "statusPending": "处理中…",
+    "remove": "移除",
+    "removeDisabledWhileGenerating": "生成过程中无法移除",
+    "clearPending": "清除",
+    "errorTooLarge": "文件过大（最大 10 MB）",
+    "errorWrongType": "不支持的文件类型（PDF、TXT 或 MD）"
   }
 }

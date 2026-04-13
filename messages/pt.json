@@ -313,5 +313,20 @@
   },
   "A11y": {
     "skipToContent": "Pular para o conteúdo principal"
+  },
+  "ReferenceMaterial": {
+    "label": "Material de referência",
+    "guestDisabled": "Entre para anexar material de referência",
+    "emptyCta": "Adicionar material de referência",
+    "emptyHint": "opcional",
+    "pendingHint": "{size} · pronto para enviar",
+    "statusReady": "Pronto",
+    "statusFailed": "Erro",
+    "statusPending": "Processando…",
+    "remove": "Remover",
+    "removeDisabledWhileGenerating": "Não é possível remover durante a geração",
+    "clearPending": "Limpar",
+    "errorTooLarge": "Arquivo muito grande (máx 10 MB)",
+    "errorWrongType": "Tipo de arquivo não suportado (PDF, TXT ou MD)"
   }
 }

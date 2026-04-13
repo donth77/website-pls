@@ -7,6 +7,10 @@ import { useSession } from "next-auth/react";
 import { useGeneration } from "@/hooks/use-generation";
 import { Landing } from "./landing";
 import { ChatSidebar } from "../chat/chat-sidebar";
+import {
+  ProjectReferenceMaterial,
+  type ReferenceDocumentInfo,
+} from "./project-reference-material";
 import { PreviewPanel } from "./preview-panel";
 import { InfoModal } from "../ui/info-modal";
 import { PublishModal, type PublishedState } from "../publish-modal";
@@ -89,6 +93,11 @@ export function GeneratorApp() {
     downloadPreviewHtml,
     setTurnstileToken,
     turnstileResetRef,
+    selectedFile,
+    setSelectedFile,
+    currentReferenceDocument,
+    setCurrentReferenceDocument,
+    removeReferenceDocument,
     isInfoOpen,
     setIsInfoOpen,
     isMac,
@@ -214,31 +223,49 @@ export function GeneratorApp() {
     savePublishedEntry(publishedEntry);
   }, [publishedEntry]);
 
-  // Fetch publish state whenever projectId changes. No deduping ref:
-  // StrictMode's double-invocation preserves refs across the two runs, so
-  // a ref-based gate skips the second run and the first run's cancelled
-  // cleanup silently drops its fetch — leaving publishedEntry unset. Two
-  // parallel fetches are harmless; the cleanup's `cancelled` flag keeps
-  // stale results from clobbering fresh ones.
+  // Fetch publish state whenever projectId or status changes. Status is in
+  // the deps so we re-fetch after generation completes — the worker creates
+  // the ReferenceDocument row mid-job, so the initial fetch right after
+  // enqueue may return null even though the user attached a file. No
+  // deduping ref: StrictMode's double-invocation preserves refs across the
+  // two runs, so a ref-based gate skips the second run and the first run's
+  // cancelled cleanup silently drops its fetch — leaving publishedEntry
+  // unset. Two parallel fetches are harmless; the cleanup's `cancelled`
+  // flag keeps stale results from clobbering fresh ones.
   useEffect(() => {
     if (!projectId) return;
     let cancelled = false;
     fetch(`/api/projects/${projectId}`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((data: { publishedSite?: PublishedState | null } | null) => {
-        if (cancelled) return;
-        setPublishedEntry({
-          projectId,
-          value: data?.publishedSite ?? null,
-        });
-      })
+      .then(
+        (
+          data: {
+            publishedSite?: PublishedState | null;
+            referenceDocument?: ReferenceDocumentInfo | null;
+          } | null,
+        ) => {
+          if (cancelled) return;
+          setPublishedEntry({
+            projectId,
+            value: data?.publishedSite ?? null,
+          });
+          setCurrentReferenceDocument((prev) => {
+            if (data?.referenceDocument) return data.referenceDocument;
+            // Server says no document yet — keep an optimistic pending
+            // placeholder so the chip doesn't flicker empty while the
+            // worker is still creating the row.
+            if (prev && prev.id.startsWith("optimistic-")) return prev;
+            return null;
+          });
+        },
+      )
       .catch(() => {
         /* best-effort — button stays in unknown state until next fetch */
       });
     return () => {
       cancelled = true;
     };
-  }, [projectId]);
+  }, [projectId, status, setCurrentReferenceDocument]);
 
   // Derived: only expose publish state that matches the current projectId.
   // Swapping projects instantly hides stale data without a state reset.
@@ -248,6 +275,11 @@ export function GeneratorApp() {
       : null;
 
   const isAuthenticated = sessionStatus === "authenticated";
+  // True once the GET /api/projects/[id] fetch has resolved (or was restored
+  // from sessionStorage). Used to gate the reference-material popover trigger
+  // so it doesn't flash an empty paperclip during the initial fetch window.
+  const projectMetaLoaded =
+    !!publishedEntry && publishedEntry.projectId === projectId;
   const hasUnpublishedChanges =
     !!publishedState &&
     versionNumber !== null &&
@@ -389,6 +421,18 @@ export function GeneratorApp() {
               resetRef={turnstileResetRef}
             />
           }
+          referenceMaterial={
+            <ProjectReferenceMaterial
+              isAuthenticated={isAuthenticated}
+              referenceDocument={currentReferenceDocument}
+              pendingFile={selectedFile}
+              isGenerating={status === "GENERATING"}
+              onFileSelected={setSelectedFile}
+              onClearPending={() => setSelectedFile(null)}
+              onRemove={removeReferenceDocument}
+              variant="inline"
+            />
+          }
         />
       </div>
 
@@ -500,6 +544,24 @@ export function GeneratorApp() {
                     onError={() => setTurnstileToken(null)}
                     resetRef={turnstileResetRef}
                   />
+                }
+                hasReferenceDocument={
+                  !!currentReferenceDocument || !!selectedFile
+                }
+                referenceStateLoaded={projectMetaLoaded}
+                referenceMaterial={
+                  projectMetaLoaded ? (
+                    <ProjectReferenceMaterial
+                      isAuthenticated={isAuthenticated}
+                      referenceDocument={currentReferenceDocument}
+                      pendingFile={selectedFile}
+                      isGenerating={status === "GENERATING"}
+                      onFileSelected={setSelectedFile}
+                      onClearPending={() => setSelectedFile(null)}
+                      onRemove={removeReferenceDocument}
+                      variant="chip"
+                    />
+                  ) : undefined
                 }
               />
             </div>
