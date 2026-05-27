@@ -12,13 +12,12 @@ import { createLogger } from "@/lib/logger";
 const log = createLogger("auth");
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  // Derive OAuth redirect URL from the incoming Host. Trust the host in
-  // dev (LAN IP / Turbopack), and in prod when behind a controlled proxy
-  // (Railway, Vercel, etc.) by setting AUTH_TRUST_HOST=true. AUTH_URL
-  // pins to a single origin when set for stricter behavior.
-  trustHost:
-    process.env.AUTH_TRUST_HOST === "true" ||
-    process.env.NODE_ENV !== "production",
+  // We always sit behind a controlled proxy in production (Railway,
+  // Cloudflare) and need to trust the forwarded Host header. Auth.js's
+  // AUTH_TRUST_HOST env var would also do this, but a hardcoded `true`
+  // sidesteps any env-string fragility (whitespace, casing, quotes).
+  // For stricter behavior pin a single origin via AUTH_URL.
+  trustHost: true,
   // Cast: our PrismaClient is generated to src/generated/prisma, not @prisma/client.
   // The adapter only calls methods at runtime — the type mismatch is harmless.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
