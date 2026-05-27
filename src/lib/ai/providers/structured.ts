@@ -111,14 +111,27 @@ export async function generateStructured<Schema extends z.ZodType>(
   // with double-newlines preserves block boundaries for the model.
   const systemContent = systemBlocks.map((b) => b.text).join("\n\n");
 
-  // OpenAI's reasoning-tier models (GPT-5.x, o-series) reject `max_tokens`
-  // with "Use 'max_completion_tokens' instead." The newer field works on
-  // older chat models too, so we always use it. OpenRouter accepts both
-  // and forwards to whichever the upstream model expects.
-  const completion = await client.chat.completions.parse({
+  // OpenAI's reasoning-tier models (GPT-5.x, o-series) reject:
+  //   - `max_tokens`  → require `max_completion_tokens` instead
+  //   - custom `temperature` → only the default (1) is allowed
+  // The newer `max_completion_tokens` field works on older chat models
+  // too, so it's safe to always use. For temperature we omit it entirely:
+  // trying to detect which model IDs are reasoning-tier is brittle (the
+  // list changes over time). OpenRouter forwards both quirks to its
+  // upstream models.
+  //
+  // Streaming is critical here, not just nice-to-have. Reasoning models
+  // can think silently for minutes before emitting visible tokens. With
+  // a non-streaming `parse()` call, any intermediate proxy (Cloudflare,
+  // a dev server, the platform's load balancer) will time the idle TCP
+  // connection out and the user sees "Connection error" after several
+  // minutes. Streaming keeps chunks flowing so the connection stays
+  // warm; `finalChatCompletion()` resolves to the same parsed payload
+  // `chat.completions.parse()` would have returned.
+  void temperature;
+  const stream = client.chat.completions.stream({
     model,
     max_completion_tokens: maxTokens,
-    temperature,
     messages: [
       { role: "system", content: systemContent },
       { role: "user", content: userContent },
@@ -126,6 +139,13 @@ export async function generateStructured<Schema extends z.ZodType>(
     response_format: zodResponseFormat(schema, schemaName),
   });
 
+  // Surface SDK stream-level errors so Node doesn't crash on an unhandled
+  // 'error' event before finalChatCompletion() resolves.
+  if (input.onStreamError) {
+    stream.on("error", input.onStreamError);
+  }
+
+  const completion = await stream.finalChatCompletion();
   const choice = completion.choices[0];
   const parsed = choice?.message.parsed as z.infer<Schema> | null;
   if (!parsed) {

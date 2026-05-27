@@ -30,7 +30,11 @@ type GenerateJobData = {
 const baseLog = createLogger("worker");
 const queueConnection = createWorkerRedis();
 
-const JOB_TIMEOUT_MS = 300_000; // 5 minutes — matches lockDuration
+// Hard ceiling on a single job. Bumped from 5min when GPT-5.x reasoning
+// models started genuinely needing more time for 16k-token structured
+// outputs. lockDuration below must stay in sync — if it expires before
+// JOB_TIMEOUT_MS, BullMQ marks the job stalled and double-runs it.
+const JOB_TIMEOUT_MS = 600_000; // 10 minutes
 
 const OPENROUTER_API = "https://openrouter.ai/api/v1/chat/completions";
 const TITLE_MODEL =
@@ -388,7 +392,7 @@ const worker = new Worker(
   },
   {
     connection: queueConnection,
-    lockDuration: 300_000,
+    lockDuration: 600_000, // must stay >= JOB_TIMEOUT_MS
     stalledInterval: 60_000,
   },
 );
