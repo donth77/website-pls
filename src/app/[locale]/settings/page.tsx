@@ -5,10 +5,12 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Button } from "@ariakit/react";
-import { Camera, User } from "lucide-react";
+import { Camera, Key, User } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "@/i18n/navigation";
 import { BackButton } from "@/components/back-button";
+import { ByokProvider } from "@/lib/byok/context";
+import { ByokPanel } from "@/components/byok/byok-panel";
 
 export default function SettingsPage() {
   const t = useTranslations("Settings");
@@ -210,6 +212,27 @@ export default function SettingsPage() {
             {isSaving ? t("saving") : t("save")}
           </Button>
         </form>
+
+        {/* BYOK — same vault as the in-app key icon; localStorage is the
+            source of truth so saves here are visible to the chat sidebar
+            on its next mount. Wrapped in its own provider since the
+            settings page doesn't mount GeneratorApp's. */}
+        <section className="mt-12 border-t border-zinc-200 pt-8 dark:border-zinc-800">
+          <div className="mb-4 flex items-center gap-2">
+            <Key className="h-4 w-4 text-zinc-500 dark:text-zinc-400" />
+            <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
+              Anthropic API key
+            </h2>
+          </div>
+          <p className="mb-5 text-xs text-zinc-500 dark:text-zinc-400">
+            Bring your own key to skip per-account limits and pick the model.
+            Keys are stored in this browser only — they never reach our server
+            except as a per-request header on your own generations.
+          </p>
+          <ByokProvider>
+            <ByokPanel />
+          </ByokProvider>
+        </section>
       </div>
     </div>
   );
