@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Button } from "@ariakit/react";
@@ -62,9 +62,11 @@ export default function SettingsPage() {
     return null;
   }
 
+  // Redirect via effect so router.push isn't called during the SSR
+  // pre-render pass (next-intl's router touches `location`, which throws
+  // server-side when called from a render body).
   if (status === "unauthenticated" || !session) {
-    router.push("/login");
-    return null;
+    return <RedirectToLogin />;
   }
 
   function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -317,4 +319,15 @@ export default function SettingsPage() {
       </div>
     </div>
   );
+}
+
+/** Effect-based redirect so router.push runs after mount, not during the
+ *  SSR pre-render pass. next-intl's router internally touches `location`,
+ *  which throws server-side. */
+function RedirectToLogin() {
+  const router = useRouter();
+  useEffect(() => {
+    router.replace("/login");
+  }, [router]);
+  return null;
 }
