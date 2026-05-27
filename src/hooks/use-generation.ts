@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { ChatMessage, GenerationStatus } from "@/lib/types";
-import { errorCodeToMessage } from "@/lib/types";
+import { ErrorCode, errorCodeToMessage } from "@/lib/types";
 import { MAX_USER_PROMPT_CHARS } from "@/lib/ai/promptSafety";
 import type { ReferenceDocumentInfo } from "@/components/generator/project-reference-material";
+import { useByok } from "@/lib/byok/context";
 
 export const SESSION_KEY = "websitepls:generation";
 
@@ -49,6 +50,10 @@ function clearSession() {
 
 export function useGeneration() {
   const tMsg = useTranslations("Message");
+  const byok = useByok();
+  // Destructure the stable callbacks so effects can depend on them
+  // without re-firing when other byok state (e.g. budgetLow) toggles.
+  const { markBudgetLow } = byok;
 
   /* ── Restore from sessionStorage on mount ── */
   const restored = useRef(loadSession());
@@ -304,6 +309,9 @@ export function useGeneration() {
           });
           setMobileView("preview");
         } else if (nextStatus === "ERROR") {
+          if (json.errorCode === ErrorCode.PLATFORM_BUDGET_LOW) {
+            markBudgetLow();
+          }
           updateAssistantMessage({
             content: errorCodeToMessage(json.errorCode ?? null),
             status: "ERROR",
@@ -329,7 +337,7 @@ export function useGeneration() {
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [versionId, status, updateAssistantMessage, tMsg]);
+  }, [versionId, status, updateAssistantMessage, tMsg, markBudgetLow]);
 
   /* ═══════════════════════ Handlers ═══════════════════════ */
 
@@ -351,6 +359,15 @@ export function useGeneration() {
     // race with React state updates.
     const fileForThisRequest = selectedFile;
 
+    // BYOK headers — only when an unlocked key is in the vault. Sent on
+    // both multipart and JSON requests. The server ignores X-Anthropic-Model
+    // when no key is supplied.
+    const byokHeaders: Record<string, string> = {};
+    if (byok.activeKey) {
+      byokHeaders["x-anthropic-key"] = byok.activeKey;
+      byokHeaders["x-anthropic-model"] = byok.model;
+    }
+
     try {
       let res: Response;
       if (fileForThisRequest) {
@@ -365,18 +382,27 @@ export function useGeneration() {
         // Do NOT set content-type; browser sets multipart/form-data with boundary.
         res = await fetch("/api/generate", {
           method: "POST",
+          headers: byokHeaders,
           body: form,
         });
       } else {
         res = await fetch("/api/generate", {
           method: "POST",
-          headers: { "content-type": "application/json" },
+          headers: { "content-type": "application/json", ...byokHeaders },
           body: JSON.stringify({ ...params, turnstileToken }),
         });
       }
 
       const json = await res.json();
       if (!res.ok) {
+        // Surface BYOK-shaped errors to the context so the modal/banner UI
+        // can react. PLATFORM_BUDGET_LOW prompts the user for a key;
+        // BYOK_INVALID re-opens the modal so they can fix the bad key.
+        if (json?.code === ErrorCode.PLATFORM_BUDGET_LOW) {
+          byok.markBudgetLow();
+        } else if (json?.code === ErrorCode.BYOK_INVALID) {
+          byok.openModal();
+        }
         setStatus("ERROR");
         updateAssistantMessage({
           content: json?.error ?? errorCodeToMessage(json?.code),

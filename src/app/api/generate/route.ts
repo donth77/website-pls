@@ -18,6 +18,7 @@ import { recordEvent, recordRateLimitHit } from "@/lib/admin/metrics";
 import { uploadFile } from "@/lib/storage/r2";
 import { MAX_FILE_SIZE_BYTES, SUPPORTED_MIME_TYPES } from "@/lib/rag/extract";
 import { validateApiKeyFormat, testApiKey } from "@/lib/byok/key";
+import { resolveByokModel } from "@/lib/byok/models";
 
 const baseLog = createLogger("api:generate");
 
@@ -170,6 +171,14 @@ export async function POST(req: NextRequest) {
       byokKey = byokHeader.trim();
     }
     const isByok = byokKey !== null;
+
+    // BYOK-only: optional X-Anthropic-Model header. Ignored without a key
+    // (platform key runs are locked to the env-configured model). Unknown
+    // aliases fall through to the orchestrator default rather than failing.
+    let byokModel: string | null = null;
+    if (isByok) {
+      byokModel = resolveByokModel(req.headers.get("x-anthropic-model"));
+    }
 
     // Resolve client IP from trusted proxy headers (cf-connecting-ip > x-real-ip > x-forwarded-for rightmost).
     const clientIp = resolveClientIp(req);
@@ -662,6 +671,7 @@ export async function POST(req: NextRequest) {
         // Anthropic with the user's key. Worker scrubs this after the job
         // completes so it doesn't linger in Redis beyond the run.
         userApiKey: byokKey ?? undefined,
+        userModel: byokModel ?? undefined,
       },
       {
         jobId: versionId,

@@ -16,6 +16,8 @@ import { InfoModal } from "../ui/info-modal";
 import { PublishModal, type PublishedState } from "../publish-modal";
 import { TurnstileWidget } from "../turnstile-widget";
 import { useTabStore, TabList, Tab } from "@ariakit/react";
+import { ByokProvider } from "@/lib/byok/context";
+import { ByokModal } from "../byok/byok-modal";
 
 const DEFAULT_SIDEBAR_FRACTION = 1 / 3;
 const MIN_SIDEBAR_REM = 20;
@@ -65,6 +67,18 @@ function savePublishedEntry(entry: PublishedEntry | null): void {
 }
 
 export function GeneratorApp() {
+  // BYOK provider must wrap useGeneration (which reads from it). Keeping
+  // the provider close to the generator (rather than in the root layout)
+  // confines the BYOK context to the surface that actually uses it.
+  return (
+    <ByokProvider>
+      <GeneratorAppInner />
+      <ByokModal />
+    </ByokProvider>
+  );
+}
+
+function GeneratorAppInner() {
   const tChat = useTranslations("Chat");
   const tPreview = useTranslations("Preview");
   const { status: sessionStatus } = useSession();

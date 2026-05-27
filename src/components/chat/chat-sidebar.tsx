@@ -9,6 +9,8 @@ import {
 import { ChatMessageBubble } from "./chat-message";
 import type { ChatMessage, GenerationStatus } from "@/lib/types";
 import { MAX_USER_PROMPT_CHARS } from "@/lib/ai/promptSafety";
+import { ByokTrigger } from "../byok/byok-trigger";
+import { ByokBanner } from "../byok/byok-banner";
 
 export interface ChatSidebarProps {
   messages: ChatMessage[];
@@ -141,6 +143,7 @@ export function ChatSidebar({
               </PopoverProvider>
             )
           )}
+          <ByokTrigger />
           <Button
             className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
             onClick={onNewProject}
@@ -151,6 +154,10 @@ export function ChatSidebar({
           </Button>
         </div>
       </div>
+
+      {/* PLATFORM_BUDGET_LOW banner — renders nothing unless the server
+          told us free generations are unavailable AND no key is saved. */}
+      <ByokBanner />
 
       {/* Messages */}
       <div

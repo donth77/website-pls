@@ -21,6 +21,8 @@ type GenerateJobData = {
   referenceFileSize?: number;
   /** BYOK Anthropic key. Scrubbed from job data on completion. */
   userApiKey?: string;
+  /** BYOK-only model override (full Anthropic ID, already allowlist-resolved). */
+  userModel?: string;
 };
 
 const baseLog = createLogger("worker");
@@ -90,6 +92,7 @@ const worker = new Worker(
       referenceContentType,
       referenceFileSize,
       userApiKey,
+      userModel,
     } = data;
     const log = baseLog.child({
       requestId,
@@ -198,6 +201,7 @@ const worker = new Worker(
             refinementPrompt,
             requestId,
             apiKey: userApiKey,
+            model: userModel,
             onProgress: (step, percent) => {
               job.updateProgress({ step, percent }).catch((e) => {
                 log.warn("Progress update failed", { error: String(e) });
