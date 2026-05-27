@@ -390,7 +390,10 @@
     "loadingModels": "Loading models…",
     "openrouterDefault": "Default (anthropic/claude-sonnet-4)",
     "searchModels": "Search models…",
-    "noMatches": "No matches"
+    "noMatches": "No matches",
+    "reasoningEffortLabel": "Reasoning effort",
+    "thinkingLabel": "Extended thinking",
+    "thinkingHint": "Let the model spend extra tokens reasoning before it answers. Slower; can improve complex output."
   },
   "ErrorCode": {
     "PROMPT_BLOCKED": "Your prompt wasn't accepted by the safety filter. Try rephrasing it.",

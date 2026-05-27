@@ -130,6 +130,116 @@ export function listFixedModels(
   return [];
 }
 
+// ---------------------------------------------------------------------------
+// Reasoning / extended thinking
+// ---------------------------------------------------------------------------
+
+/**
+ * OpenAI's GPT-5 reasoning models accept these five effort values.
+ * Older docs listed "minimal" but the API rejects it ("Supported values
+ * are: 'none', 'low', 'medium', 'high', and 'xhigh'."), so we use the
+ * current set. `none` disables reasoning entirely.
+ */
+export const REASONING_EFFORT_OPTIONS = [
+  "none",
+  "low",
+  "medium",
+  "high",
+  "xhigh",
+] as const;
+
+export type ReasoningEffort = (typeof REASONING_EFFORT_OPTIONS)[number];
+
+/** Default effort when an OpenAI reasoning model is picked without override.
+ *  `none` keeps generation fast and avoids the 5-min-timeout case; users
+ *  can crank it up explicitly if they want better output. */
+export const DEFAULT_REASONING_EFFORT: ReasoningEffort = "none";
+
+/**
+ * Anthropic exposes two thinking APIs:
+ *   - Legacy: `thinking: { type: "enabled", budget_tokens: N }`
+ *   - Adaptive (newer): `thinking: { type: "adaptive" }` + `output_config.effort`
+ *
+ * Opus 4.7 REQUIRES adaptive (legacy enabled returns 400). Sonnet 4.6 and
+ * Opus 4.6 support both but adaptive is preferred per the migration guide.
+ * Haiku 4.5 and older 4.x snapshots only support the legacy shape.
+ */
+export function usesAdaptiveThinking(modelId: string): boolean {
+  return (
+    modelId.startsWith("claude-opus-4-7") ||
+    modelId.startsWith("claude-opus-4-6") ||
+    modelId.startsWith("claude-sonnet-4-6")
+  );
+}
+
+/**
+ * Effort level passed to Anthropic's adaptive thinking via
+ * `output_config.effort`. The live API accepts `low|medium|high|max`
+ * (plus `xhigh` on Opus 4.7), but `@anthropic-ai/sdk` v0.80.0's
+ * TypeScript types only know about `low|medium|high|max`. Once we
+ * upgrade the SDK we can return `xhigh` for Opus 4.7 — until then
+ * `high` is the safest cross-model value.
+ */
+export function adaptiveEffortFor(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  modelId: string,
+): "low" | "medium" | "high" | "max" {
+  // Param is intentionally accepted (and ignored) so call sites stay
+  // model-aware. Once the SDK's effort union includes "xhigh", switch
+  // to returning "xhigh" for opus-4-7.
+  return "high";
+}
+
+/**
+ * Anthropic legacy-thinking budget per model. `budget_tokens` must be
+ * >= 1024 and < max_tokens. Opus tiers get more budget than Sonnet
+ * because they're positioned for deeper reasoning. Only consulted on
+ * the legacy thinking path (Haiku 4.5, older 4.x snapshots).
+ */
+const THINKING_BUDGET_FALLBACK = 6000;
+
+export function thinkingBudgetFor(modelId: string): number {
+  if (modelId.startsWith("claude-opus-4-5")) return 12000;
+  if (modelId.startsWith("claude-opus-4-1")) return 10000;
+  if (modelId.startsWith("claude-sonnet-4-5")) return 6000;
+  return THINKING_BUDGET_FALLBACK;
+}
+
+/**
+ * OpenAI reasoning-tier models accept `reasoning_effort`. Mini and nano
+ * variants technically accept it too, but they're positioned as the
+ * "fast and cheap" options where exposing a reasoning dial is more
+ * confusing than useful — we treat them as non-reasoning for UI gating.
+ * The regex matches `-mini` / `-nano` as a suffix or followed by a date
+ * (e.g. `o3-mini-2025-01-31`).
+ */
+export function isOpenAIReasoningModel(model: string): boolean {
+  const m = model.toLowerCase();
+  const inReasoningFamily =
+    m.startsWith("gpt-5") ||
+    m.startsWith("o1") ||
+    m.startsWith("o3") ||
+    m.startsWith("o4");
+  const isMiniOrNano = /-(mini|nano)(-|$)/.test(m);
+  return inReasoningFamily && !isMiniOrNano;
+}
+
+/**
+ * Anthropic models that support extended thinking via
+ * `thinking: { type: "enabled", budget_tokens: N }`.
+ * Sonnet 4.5+ and Opus 4.1+ qualify; Haiku 4.5 and 3.x models do not.
+ */
+export function isAnthropicThinkingCapable(model: string): boolean {
+  return (
+    model.startsWith("claude-sonnet-4-5") ||
+    model.startsWith("claude-sonnet-4-6") ||
+    model.startsWith("claude-opus-4-1") ||
+    model.startsWith("claude-opus-4-5") ||
+    model.startsWith("claude-opus-4-6") ||
+    model.startsWith("claude-opus-4-7")
+  );
+}
+
 /**
  * Convert a UI-side alias (or already-full id) to the wire model ID
  * the provider's API actually expects. Strangers fall through to the

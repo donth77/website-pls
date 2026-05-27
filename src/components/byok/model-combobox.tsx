@@ -55,7 +55,6 @@ export function ModelCombobox({
   const [text, setText] = useState(selectedLabel);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setText(selectedLabel);
   }, [selectedLabel]);
 

@@ -102,20 +102,23 @@ export function ChatSidebar({
   return (
     <div className="flex h-full flex-col">
       {/* Header — between messages and input on mobile, top on desktop */}
-      <div className="order-2 flex shrink-0 items-center justify-between border-t border-zinc-200 px-4 py-3 md:order-none md:border-t-0 md:border-b dark:border-zinc-800">
-        <div className="flex items-center gap-2">
+      <div className="order-2 flex shrink-0 items-center justify-between gap-2 border-t border-zinc-200 px-4 py-3 md:order-none md:border-t-0 md:border-b dark:border-zinc-800">
+        {/* Title side: min-w-0 lets the truncating span actually truncate;
+            without it the flex parent's intrinsic content width wins and
+            a long title pushes the icons off-screen. */}
+        <div className="flex min-w-0 flex-1 items-center gap-2">
           {projectName && (
             <span className="truncate text-sm font-semibold text-zinc-800 dark:text-zinc-200">
               {projectName}
             </span>
           )}
           {projectName && versionNumber > 0 && (
-            <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
+            <span className="shrink-0 rounded-md bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
               v{versionNumber}
             </span>
           )}
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex shrink-0 items-center gap-1">
           {/* Reference material popover trigger — project-scoped control.
               Three visual states via color only:
                 loading  → zinc-300 / zinc-600 (very faint, non-interactive)

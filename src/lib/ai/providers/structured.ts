@@ -22,7 +22,13 @@ import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import type { z } from "zod";
-import type { Provider } from "@/lib/byok/providers";
+import {
+  adaptiveEffortFor,
+  thinkingBudgetFor,
+  usesAdaptiveThinking,
+  type Provider,
+  type ReasoningEffort,
+} from "@/lib/byok/providers";
 
 const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
 
@@ -41,6 +47,11 @@ export interface GenerateStructuredInput<Schema extends z.ZodType> {
   schemaName: string;
   maxTokens?: number;
   temperature?: number;
+  /** OpenAI / OpenRouter reasoning dial — ignored by Anthropic. */
+  reasoningEffort?: ReasoningEffort;
+  /** Enable Anthropic extended thinking. The request shape (legacy
+   *  `budget_tokens` vs adaptive + effort) is decided per-model below. */
+  anthropicThinking?: boolean;
   /** Optional Anthropic-stream hook for partial-JSON progress heuristics. */
   onAnthropicPartialJson?: (partialJson: unknown) => void;
   /** Optional error logger for stream-level Anthropic errors. */
@@ -68,19 +79,56 @@ export async function generateStructured<Schema extends z.ZodType>(
   } = input;
 
   if (provider === "anthropic") {
-    const anthropic = new Anthropic({ apiKey });
-    // Opus 4.7 returns 400 if `temperature`/`top_p`/`top_k` is set to any
-    // non-default value. Per Anthropic's migration guide, the safe fix is
-    // to omit the parameter entirely on affected models.
-    // https://platform.claude.com/docs/en/about-claude/models/migration-guide
+    // maxRetries: 0 — the BullMQ worker owns retry policy. The SDK's
+    // default of 2 + our `attempts: 2` would create cascading retries
+    // and surprise users with multi-minute hangs on transient 429s.
+    const anthropic = new Anthropic({ apiKey, maxRetries: 0 });
+
+    // Extended-thinking request shape depends on the model:
+    //   - Opus 4.7 *requires* `thinking: { type: "adaptive" }` + an
+    //     effort knob on `output_config.effort`; the legacy
+    //     `{ type: "enabled", budget_tokens }` shape returns 400.
+    //   - Sonnet 4.6 / Opus 4.6 support both but adaptive is preferred
+    //     per Anthropic's migration guide.
+    //   - Older 4.x models (Haiku 4.5, Sonnet 4.5, Opus 4.1/4.5) only
+    //     accept the legacy enabled+budget shape.
+    const thinkingEnabled = input.anthropicThinking === true;
+    const useAdaptive = thinkingEnabled && usesAdaptiveThinking(model);
+    const useLegacyThinking =
+      thinkingEnabled && !usesAdaptiveThinking(model);
+
+    // Only Opus 4.7 forbids custom `temperature`; the extended-thinking
+    // docs do not restrict it on the older models, so we keep it on
+    // Sonnet 4.5 / Haiku 4.5 / Opus 4.1/4.5 even when thinking is on.
     const allowsTemperature = !model.startsWith("claude-opus-4-7");
+
+    // Build output_config: format is always required, effort only when
+    // adaptive thinking is active.
+    const outputConfig: {
+      format: ReturnType<typeof zodOutputFormat>;
+      effort?: "low" | "medium" | "high" | "max";
+    } = { format: zodOutputFormat(schema) };
+    if (useAdaptive) {
+      outputConfig.effort = adaptiveEffortFor(model);
+    }
+
     const stream = anthropic.messages.stream({
       model,
       max_tokens: maxTokens,
       ...(allowsTemperature ? { temperature } : {}),
+      ...(useAdaptive
+        ? { thinking: { type: "adaptive" as const } }
+        : useLegacyThinking
+          ? {
+              thinking: {
+                type: "enabled" as const,
+                budget_tokens: thinkingBudgetFor(model),
+              },
+            }
+          : {}),
       system: systemBlocks,
       messages: [{ role: "user", content: userContent }],
-      output_config: { format: zodOutputFormat(schema) },
+      output_config: outputConfig,
     });
 
     if (input.onStreamError) {
@@ -99,10 +147,13 @@ export async function generateStructured<Schema extends z.ZodType>(
   }
 
   // OpenAI + OpenRouter share the OpenAI SDK; only baseURL differs.
+  // maxRetries: 0 — same reasoning as the Anthropic client: the BullMQ
+  // worker is the single source of truth for retry policy.
   const client = new OpenAI({
     apiKey,
     baseURL:
       provider === "openrouter" ? OPENROUTER_BASE_URL : undefined,
+    maxRetries: 0,
   });
 
   // Flatten Anthropic-shaped system blocks into a single OpenAI system
@@ -129,15 +180,43 @@ export async function generateStructured<Schema extends z.ZodType>(
   // warm; `finalChatCompletion()` resolves to the same parsed payload
   // `chat.completions.parse()` would have returned.
   void temperature;
-  const stream = client.chat.completions.stream({
+
+  // OpenAI and OpenRouter share the chat-completions surface but diverge
+  // on two params:
+  //   - tokens cap: OpenAI uses `max_completion_tokens` (newer field,
+  //     required on reasoning models). OpenRouter docs use `max_tokens`
+  //     throughout; acceptance of `max_completion_tokens` is undocumented.
+  //   - reasoning: OpenAI uses top-level `reasoning_effort`. OpenRouter's
+  //     documented shape is `reasoning: { effort: <value> }`; sending the
+  //     flat field may be silently dropped on some upstreams.
+  // reasoning is gated at the hook layer (only sent when the UI shows
+  // the dial — full-size gpt-5.x / o-series only).
+  const isOpenRouter = provider === "openrouter";
+  const tokensField = isOpenRouter
+    ? { max_tokens: maxTokens }
+    : { max_completion_tokens: maxTokens };
+  const reasoningField = input.reasoningEffort
+    ? isOpenRouter
+      ? { reasoning: { effort: input.reasoningEffort } }
+      : { reasoning_effort: input.reasoningEffort }
+    : {};
+
+  // OpenAI SDK's type doesn't know about OpenRouter's `reasoning` object,
+  // so we widen the param object once and pass through. Same SDK either
+  // way; only the wire shape differs.
+  const streamParams = {
     model,
-    max_completion_tokens: maxTokens,
+    ...tokensField,
+    ...reasoningField,
     messages: [
-      { role: "system", content: systemContent },
-      { role: "user", content: userContent },
+      { role: "system" as const, content: systemContent },
+      { role: "user" as const, content: userContent },
     ],
     response_format: zodResponseFormat(schema, schemaName),
-  });
+  };
+  const stream = client.chat.completions.stream(
+    streamParams as Parameters<typeof client.chat.completions.stream>[0],
+  );
 
   // Surface SDK stream-level errors so Node doesn't crash on an unhandled
   // 'error' event before finalChatCompletion() resolves.

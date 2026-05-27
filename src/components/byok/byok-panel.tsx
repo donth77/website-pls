@@ -8,7 +8,11 @@ import { useByok } from "@/lib/byok/context";
 import {
   PROVIDERS,
   PROVIDER_META,
+  REASONING_EFFORT_OPTIONS,
+  isAnthropicThinkingCapable,
+  isOpenAIReasoningModel,
   listFixedModels,
+  resolveModelId,
   type Provider,
 } from "@/lib/byok/providers";
 import { validateApiKeyFormat } from "@/lib/byok/key";
@@ -18,8 +22,14 @@ import { ModelCombobox } from "./model-combobox";
 type SaveMode = "plain" | "encrypted";
 
 interface ByokPanelProps {
-  /** Called after a successful save / unlock / remove. Used by the modal to auto-close. */
+  /** Called after a successful save / unlock. Modal uses this to auto-close
+   *  (or — in current design — not auto-close, so the user can tweak model
+   *  and reasoning settings post-save). */
   onAfterMutation?: () => void;
+  /** Called after a successful key removal. Separate from `onAfterMutation`
+   *  because remove is a destructive end-state — there's nothing left to
+   *  configure, so the modal should close even when post-save kept it open. */
+  onAfterRemove?: () => void;
   /** Called when the user clicks Cancel. Optional — settings has no cancel affordance. */
   onCancel?: () => void;
 }
@@ -33,7 +43,11 @@ interface ByokPanelProps {
  * Has no Dialog chrome of its own — wrap in `<ByokModal>` for in-app use
  * or render directly inside a settings page.
  */
-export function ByokPanel({ onAfterMutation, onCancel }: ByokPanelProps) {
+export function ByokPanel({
+  onAfterMutation,
+  onAfterRemove,
+  onCancel,
+}: ByokPanelProps) {
   const {
     status,
     storedProvider,
@@ -57,7 +71,7 @@ export function ByokPanel({ onAfterMutation, onCancel }: ByokPanelProps) {
         }}
         onRemove={() => {
           remove();
-          onAfterMutation?.();
+          onAfterRemove?.();
         }}
         onCancel={onCancel}
       />
@@ -94,7 +108,7 @@ export function ByokPanel({ onAfterMutation, onCancel }: ByokPanelProps) {
       onModelChange={(m) => setModelForProvider(activeProvider, m)}
       onRemove={() => {
         remove();
-        onAfterMutation?.();
+        onAfterRemove?.();
       }}
     />
   );
@@ -440,6 +454,8 @@ function ActiveKeyView({
         onChange={onModelChange}
       />
 
+      <ReasoningControls provider={provider} model={model} />
+
       <div className="mt-5 flex items-center justify-between">
         <ConsoleLink provider={provider} />
         <button
@@ -582,5 +598,117 @@ function OpenRouterModelPicker({
         </>
       )}
     </div>
+  );
+}
+
+/**
+ * Provider-specific reasoning UI:
+ *   - OpenAI:    4-segment chip control over reasoning_effort, but only
+ *                when the selected model is reasoning-tier (gpt-5*, o*).
+ *   - Anthropic: pill toggle switch for extended thinking, only when
+ *                the selected model supports it (Sonnet 4.5+, Opus 4.1+).
+ *   - OpenRouter: nothing — we don't try to manage cross-provider hints.
+ */
+function ReasoningControls({
+  provider,
+  model,
+}: {
+  provider: Provider;
+  model: string;
+}) {
+  const t = useTranslations("Byok");
+  const {
+    openaiReasoning,
+    setOpenaiReasoning,
+    anthropicThinking,
+    setAnthropicThinking,
+  } = useByok();
+
+  if (provider === "openai") {
+    // For OpenAI we store the alias as-is (alias === id); detect by the
+    // resolved wire ID for safety even when alias and id diverge.
+    const wireId = resolveModelId("openai", model || null);
+    if (!isOpenAIReasoningModel(wireId)) return null;
+    return (
+      <div className="mt-4">
+        <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
+          {t("reasoningEffortLabel")}
+        </label>
+        <div className="mt-2 grid grid-cols-5 gap-2">
+          {REASONING_EFFORT_OPTIONS.map((opt) => (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => setOpenaiReasoning(opt)}
+              className={`rounded-lg border px-2 py-2 text-xs font-medium capitalize transition ${
+                openaiReasoning === opt
+                  ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
+                  : "border-zinc-200 text-zinc-700 hover:border-zinc-300 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-600"
+              }`}
+            >
+              {opt}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (provider === "anthropic") {
+    // Anthropic chips store the alias; resolve to the wire ID for the
+    // capability check (the alias map could change without us noticing).
+    const wireId = resolveModelId("anthropic", model || null);
+    if (!isAnthropicThinkingCapable(wireId)) return null;
+    return (
+      <div className="mt-4 flex items-center justify-between">
+        <div>
+          <span className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
+            {t("thinkingLabel")}
+          </span>
+          <span className="mt-0.5 block text-[11px] text-zinc-500 dark:text-zinc-400">
+            {t("thinkingHint")}
+          </span>
+        </div>
+        <Switch
+          checked={anthropicThinking}
+          onChange={setAnthropicThinking}
+          aria-label={t("thinkingLabel")}
+        />
+      </div>
+    );
+  }
+
+  return null;
+}
+
+/** Anthropic-style pill toggle switch. role=switch + aria-checked so SR
+ *  tools announce it correctly without any extra label wiring. */
+function Switch({
+  checked,
+  onChange,
+  ...rest
+}: {
+  checked: boolean;
+  onChange: (next: boolean) => void;
+} & Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onChange">) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      {...rest}
+      className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition ${
+        checked
+          ? "bg-indigo-600"
+          : "bg-zinc-300 dark:bg-zinc-700"
+      }`}
+    >
+      <span
+        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition ${
+          checked ? "translate-x-4" : "translate-x-0.5"
+        }`}
+      />
+    </button>
   );
 }

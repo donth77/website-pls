@@ -16,10 +16,17 @@ import {
   saveEncryptedKey,
   unlockEncryptedKey,
 } from "./vault";
-import { DEFAULT_PROVIDER, PROVIDERS, type Provider } from "./providers";
+import {
+  DEFAULT_PROVIDER,
+  DEFAULT_REASONING_EFFORT,
+  PROVIDERS,
+  type Provider,
+  type ReasoningEffort,
+} from "./providers";
 
 const PROVIDER_STORAGE_KEY = "websitepls:byok-selected-provider";
 const MODELS_STORAGE_KEY = "websitepls:byok-models";
+const REASONING_STORAGE_KEY = "websitepls:byok-reasoning";
 
 export type ByokStatus =
   | "none"
@@ -46,6 +53,10 @@ export interface ByokContextValue {
   selectedProvider: Provider;
   /** Preferred model per provider. Empty string = use the provider's default. */
   modelByProvider: Record<Provider, string>;
+  /** OpenAI reasoning-effort dial (only meaningful for reasoning-tier models). */
+  openaiReasoning: ReasoningEffort;
+  /** Anthropic extended-thinking toggle (only shown for thinking-capable models). */
+  anthropicThinking: boolean;
   isModalOpen: boolean;
   /** Why the banner is showing, or null if it shouldn't be. */
   promptReason: ByokPromptReason | null;
@@ -63,6 +74,8 @@ export interface ByokContextValue {
   remove: () => void;
   /** Set the preferred model for a specific provider. */
   setModelForProvider: (provider: Provider, modelId: string) => void;
+  setOpenaiReasoning: (v: ReasoningEffort) => void;
+  setAnthropicThinking: (v: boolean) => void;
   setPromptReason: (reason: ByokPromptReason | null) => void;
 }
 
@@ -97,6 +110,38 @@ function loadStoredModelMap(): Record<Provider, string> {
   return emptyModelMap();
 }
 
+interface StoredReasoning {
+  openai?: ReasoningEffort;
+  anthropic?: boolean;
+}
+
+function loadStoredReasoning(): {
+  openai: ReasoningEffort;
+  anthropic: boolean;
+} {
+  try {
+    const raw = localStorage.getItem(REASONING_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as StoredReasoning;
+      return {
+        openai: parsed.openai ?? DEFAULT_REASONING_EFFORT,
+        anthropic: parsed.anthropic === true,
+      };
+    }
+  } catch {
+    /* ignore */
+  }
+  return { openai: DEFAULT_REASONING_EFFORT, anthropic: false };
+}
+
+function saveStoredReasoning(value: StoredReasoning): void {
+  try {
+    localStorage.setItem(REASONING_STORAGE_KEY, JSON.stringify(value));
+  } catch {
+    /* ignore */
+  }
+}
+
 export function ByokProvider({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<ByokStatus>("none");
   const [storedProvider, setStoredProvider] = useState<Provider | null>(null);
@@ -106,6 +151,10 @@ export function ByokProvider({ children }: { children: React.ReactNode }) {
   const [modelByProvider, setModelByProvider] = useState<
     Record<Provider, string>
   >(emptyModelMap());
+  const [openaiReasoning, setOpenaiReasoningState] = useState<ReasoningEffort>(
+    DEFAULT_REASONING_EFFORT,
+  );
+  const [anthropicThinking, setAnthropicThinkingState] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [promptReason, setPromptReasonState] =
     useState<ByokPromptReason | null>(null);
@@ -119,6 +168,9 @@ export function ByokProvider({ children }: { children: React.ReactNode }) {
     /* eslint-disable react-hooks/set-state-in-effect */
     setSelectedProviderState(loadStoredProvider());
     setModelByProvider(loadStoredModelMap());
+    const reasoning = loadStoredReasoning();
+    setOpenaiReasoningState(reasoning.openai);
+    setAnthropicThinkingState(reasoning.anthropic);
     const v = loadVaultStatus();
     if (v.kind === "plain") {
       const loaded = loadPlainKey();
@@ -204,6 +256,22 @@ export function ByokProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
+  const setOpenaiReasoning = useCallback(
+    (v: ReasoningEffort) => {
+      setOpenaiReasoningState(v);
+      saveStoredReasoning({ openai: v, anthropic: anthropicThinking });
+    },
+    [anthropicThinking],
+  );
+
+  const setAnthropicThinking = useCallback(
+    (v: boolean) => {
+      setAnthropicThinkingState(v);
+      saveStoredReasoning({ openai: openaiReasoning, anthropic: v });
+    },
+    [openaiReasoning],
+  );
+
   const setPromptReason = useCallback(
     (reason: ByokPromptReason | null) => setPromptReasonState(reason),
     [],
@@ -216,6 +284,8 @@ export function ByokProvider({ children }: { children: React.ReactNode }) {
       activeKey,
       selectedProvider,
       modelByProvider,
+      openaiReasoning,
+      anthropicThinking,
       isModalOpen,
       promptReason,
       openModal,
@@ -226,6 +296,8 @@ export function ByokProvider({ children }: { children: React.ReactNode }) {
       unlock,
       remove,
       setModelForProvider,
+      setOpenaiReasoning,
+      setAnthropicThinking,
       setPromptReason,
     }),
     [
@@ -234,6 +306,8 @@ export function ByokProvider({ children }: { children: React.ReactNode }) {
       activeKey,
       selectedProvider,
       modelByProvider,
+      openaiReasoning,
+      anthropicThinking,
       isModalOpen,
       promptReason,
       openModal,
@@ -244,6 +318,8 @@ export function ByokProvider({ children }: { children: React.ReactNode }) {
       unlock,
       remove,
       setModelForProvider,
+      setOpenaiReasoning,
+      setAnthropicThinking,
       setPromptReason,
     ],
   );

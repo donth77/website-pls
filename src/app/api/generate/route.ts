@@ -21,8 +21,10 @@ import { validateApiKeyFormat, testApiKey } from "@/lib/byok/key";
 import { resolveByokModel } from "@/lib/byok/models";
 import {
   PROVIDERS,
+  REASONING_EFFORT_OPTIONS,
   resolveModelId,
   type Provider,
+  type ReasoningEffort,
 } from "@/lib/byok/providers";
 import { isAllowedOpenRouterModel } from "@/lib/byok/openrouter-models";
 
@@ -172,12 +174,19 @@ export async function POST(req: NextRequest) {
     const providerHeader = req.headers.get("x-byok-provider");
     const newKeyHeader = req.headers.get("x-byok-key");
     const newModelHeader = req.headers.get("x-byok-model");
+    const reasoningHeader = req.headers.get("x-byok-reasoning");
     const legacyKeyHeader = req.headers.get("x-anthropic-key");
     const legacyModelHeader = req.headers.get("x-anthropic-model");
 
     let byokProvider: Provider | null = null;
     let byokKey: string | null = null;
     let byokModel: string | null = null;
+    // Provider-specific reasoning hint forwarded to the orchestrator:
+    //   - OpenAI:    a ReasoningEffort enum value
+    //   - Anthropic: true when the user enabled extended thinking
+    //   - OpenRouter: never set (we don't manage cross-provider reasoning)
+    let byokReasoningEffort: ReasoningEffort | null = null;
+    let byokThinking = false;
 
     const rawKey = newKeyHeader ?? legacyKeyHeader;
     if (rawKey && rawKey.length > 0) {
@@ -225,6 +234,23 @@ export async function POST(req: NextRequest) {
           }
         }
         byokModel = resolved;
+      }
+
+      // Reasoning hint — only meaningful for Anthropic + OpenAI. The hook
+      // sends nothing for OpenRouter; if a header somehow shows up we
+      // silently ignore it rather than failing the request.
+      if (reasoningHeader) {
+        if (byokProvider === "openai") {
+          if (
+            (REASONING_EFFORT_OPTIONS as readonly string[]).includes(
+              reasoningHeader,
+            )
+          ) {
+            byokReasoningEffort = reasoningHeader as ReasoningEffort;
+          }
+        } else if (byokProvider === "anthropic") {
+          byokThinking = reasoningHeader === "on";
+        }
       }
     }
     const isByok = byokKey !== null;
@@ -724,6 +750,8 @@ export async function POST(req: NextRequest) {
         userProvider: byokProvider ?? undefined,
         userApiKey: byokKey ?? undefined,
         userModel: byokModel ?? undefined,
+        userReasoningEffort: byokReasoningEffort ?? undefined,
+        userThinking: byokThinking || undefined,
       },
       {
         jobId: versionId,

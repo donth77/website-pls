@@ -80,6 +80,10 @@ const additions = {
     openrouterDefault: "Default (anthropic/claude-sonnet-4)",
     searchModels: "Search models…",
     noMatches: "No matches",
+    reasoningEffortLabel: "Reasoning effort",
+    thinkingLabel: "Extended thinking",
+    thinkingHint:
+      "Let the model spend extra tokens reasoning before it answers. Slower; can improve complex output.",
     activeStatus: "Using your Anthropic key",
     encryptedLabel: "encrypted",
     modelLabel: "Model",

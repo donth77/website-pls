@@ -6,6 +6,11 @@ import { MAX_USER_PROMPT_CHARS } from "@/lib/ai/promptSafety";
 import type { ReferenceDocumentInfo } from "@/components/generator/project-reference-material";
 import { useByok } from "@/lib/byok/context";
 import {
+  isAnthropicThinkingCapable,
+  isOpenAIReasoningModel,
+  resolveModelId,
+} from "@/lib/byok/providers";
+import {
   fire as fireDesktopNotification,
   getPermission as getNotificationPermission,
   isSupported as notificationsSupported,
@@ -130,6 +135,13 @@ export function useGeneration() {
   // True once the current run has fired its terminal notification — guards
   // against the polling effect re-firing on subsequent ticks.
   const notifiedThisRunRef = useRef(false);
+
+  /* ── BYOK locked-key gate ── */
+  // When the user submits while their BYOK key is encrypted-locked, we
+  // stash the prompt text here, open the unlock modal, and bail. After
+  // unlock succeeds, an effect picks the stash up and resumes the
+  // submit. Cleared on cancel or key deletion.
+  const pendingSubmitTextRef = useRef<string | null>(null);
 
   /* ── Preview ── */
   const [isPreviewFullscreen, setIsPreviewFullscreen] = useState(false);
@@ -313,6 +325,43 @@ export function useGeneration() {
     });
   }, [status, notifyOptedIn, tNotify]);
 
+  // Auto-resume after the user unlocks an encrypted BYOK key. If they
+  // delete the key instead (status → "none"), drop the stash without
+  // firing — running on the platform key after an explicit destructive
+  // action would be presumptuous. The microtask gap lets React flush
+  // the new `byok.activeKey` value before doSubmit reads headers.
+  //
+  // We close the modal here so the user lands cleanly in the editor with
+  // their generation kicking off. Manual-unlock cases (user opened the
+  // modal themselves to unlock, no pending submit) leave the modal open
+  // so they can tweak model/reasoning — that's gated by `pending`.
+  useEffect(() => {
+    const pending = pendingSubmitTextRef.current;
+    if (!pending) return;
+    if (byok.status === "encrypted-unlocked") {
+      pendingSubmitTextRef.current = null;
+      byok.closeModal();
+      queueMicrotask(() => {
+        void doSubmitRef.current(pending);
+      });
+    } else if (byok.status === "none") {
+      pendingSubmitTextRef.current = null;
+    }
+  }, [byok.status, byok]);
+
+  // Clear the stash when the user closes the modal without unlocking
+  // (cancel / Esc / backdrop click). Keeps the typed prompt in the
+  // input so they can recover their place.
+  useEffect(() => {
+    if (
+      !byok.isModalOpen &&
+      byok.status === "encrypted-locked" &&
+      pendingSubmitTextRef.current !== null
+    ) {
+      pendingSubmitTextRef.current = null;
+    }
+  }, [byok.isModalOpen, byok.status]);
+
   // Track native fullscreen changes
   useEffect(() => {
     const handler = () => setIsPreviewFullscreen(!!document.fullscreenElement);
@@ -469,6 +518,33 @@ export function useGeneration() {
       byokHeaders["x-byok-key"] = byok.activeKey;
       const model = byok.modelByProvider[byok.storedProvider];
       if (model) byokHeaders["x-byok-model"] = model;
+
+      // Reasoning controls. Value shape is provider-specific:
+      //   - OpenAI:    "none" | "low" | "medium" | "high" | "xhigh"
+      //   - Anthropic: "on" when the thinking toggle is enabled
+      //   - OpenRouter: never set; we don't try to manage cross-provider
+      //     reasoning hints through the gateway.
+      //
+      // Gate by capability — only send when the UI would render the
+      // control. A stale dial value shouldn't silently apply after the
+      // user switches to a model that doesn't surface it (e.g. set
+      // "high" on gpt-5.5 then switch to gpt-5.4-mini).
+      const wireModelId = resolveModelId(
+        byok.storedProvider,
+        model || null,
+      );
+      if (
+        byok.storedProvider === "openai" &&
+        isOpenAIReasoningModel(wireModelId)
+      ) {
+        byokHeaders["x-byok-reasoning"] = byok.openaiReasoning;
+      } else if (
+        byok.storedProvider === "anthropic" &&
+        byok.anthropicThinking &&
+        isAnthropicThinkingCapable(wireModelId)
+      ) {
+        byokHeaders["x-byok-reasoning"] = "on";
+      }
     }
 
     try {
@@ -562,10 +638,12 @@ export function useGeneration() {
     }
   }, [projectId]);
 
-  async function handleSubmit() {
-    const text = inputValue.trim();
-    if (!canSubmit) return;
-
+  /**
+   * Submit body, separated from handleSubmit so the locked-key path
+   * can defer it. Reads fresh closure values when invoked from the
+   * auto-resume effect after unlock.
+   */
+  async function doSubmit(text: string) {
     const isFirstPrompt = phase === "landing";
     const isRefinement = projectId !== null;
 
@@ -622,6 +700,29 @@ export function useGeneration() {
       : { prompt: text };
 
     await executeGeneration(params);
+  }
+
+  // Stable ref to the latest doSubmit so the auto-resume effect can
+  // invoke it without depending on every closed-over hook state.
+  const doSubmitRef = useRef(doSubmit);
+  doSubmitRef.current = doSubmit;
+
+  async function handleSubmit() {
+    const text = inputValue.trim();
+    if (!canSubmit) return;
+
+    // Locked-key gate: don't fall through to the platform key silently.
+    // Stash the prompt text and open the unlock modal — the user must
+    // either unlock (auto-resumes via the effect below) or delete the
+    // key (clears the stash, no auto-fire). Their typed prompt stays in
+    // the input so they can recover it if they cancel.
+    if (byok.status === "encrypted-locked") {
+      pendingSubmitTextRef.current = text;
+      byok.openModal();
+      return;
+    }
+
+    await doSubmit(text);
   }
 
   async function handleRetry() {

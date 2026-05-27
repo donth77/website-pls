@@ -13,6 +13,7 @@ import {
   DEFAULT_PROVIDER,
   resolveModelId,
   type Provider,
+  type ReasoningEffort,
 } from "@/lib/byok/providers";
 
 const log = createLogger("orchestrator");
@@ -680,6 +681,10 @@ export async function runGenerationPipeline(input: {
   apiKey?: string;
   /** BYOK: caller-supplied model (alias or full ID); falls back to ANTHROPIC_MODEL env. */
   model?: string;
+  /** BYOK-only: OpenAI reasoning_effort dial (no-op for other providers). */
+  reasoningEffort?: ReasoningEffort;
+  /** BYOK-only: enable Anthropic extended thinking (no-op for other providers). */
+  thinking?: boolean;
   onProgress?: ProgressCallback;
 }): Promise<{ html: string; commentary: string | null }> {
   const progress = input.onProgress ?? (() => {});
@@ -789,6 +794,11 @@ export async function runGenerationPipeline(input: {
           }
         : undefined;
 
+    // Pass reasoning intent through as flat flags; structured.ts decides
+    // the per-model request shape (Opus 4.7 needs adaptive thinking +
+    // output_config.effort; older Anthropic models use the legacy
+    // budget_tokens shape; OpenAI uses reasoning_effort; OpenRouter
+    // wraps it in a `reasoning` object).
     const { parsed, stopReason } = await generateStructured({
       provider,
       apiKey,
@@ -806,6 +816,8 @@ export async function runGenerationPipeline(input: {
       schemaName: "generation_result",
       maxTokens: provider === "anthropic" ? 32768 : 16384,
       temperature: 0.7,
+      reasoningEffort: input.reasoningEffort,
+      anthropicThinking: provider === "anthropic" && input.thinking === true,
       onAnthropicPartialJson: handlePartialJson,
       onStreamError: (err) => {
         log.warn("Stream error during generation", { error: String(err) });
@@ -881,10 +893,15 @@ export async function runGenerationPipeline(input: {
 
   progress(isRefinement ? "applying" : "generating", 20);
 
+  // Opus 4.7 rejects non-default `temperature` (see structured.ts). Same
+  // gate here for parity, even though this fallback path is unreachable for
+  // Opus 4.7 in practice (it supports structured output and never falls
+  // through). Cheap insurance against a future model id slipping through.
+  const fallbackAllowsTemperature = !model.startsWith("claude-opus-4-7");
   const response = await anthropic.messages.create({
     model,
     max_tokens: 16384,
-    temperature: 0.7,
+    ...(fallbackAllowsTemperature ? { temperature: 0.7 } : {}),
     system: [
       {
         type: "text" as const,
