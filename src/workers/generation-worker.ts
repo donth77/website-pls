@@ -369,9 +369,13 @@ const worker = new Worker(
         }
       }
 
-      // Scrub the BYOK key on failure too — removeOnFail keeps the last 50
-      // failed jobs for debugging, and we don't want the key sitting there.
-      if (userApiKey) {
+      // Scrub the BYOK key ONLY on the final attempt. Intermediate
+      // failures used to scrub too, which broke retries: attempt 2 read
+      // the job data, saw userProvider="openai" but no key, and the
+      // orchestrator threw "requires a per-request API key". On the
+      // final attempt the job is done (no more retries), so wiping
+      // the key from removeOnFail-preserved data is safe.
+      if (isFinalAttempt && userApiKey) {
         try {
           await job.updateData({ ...data, userApiKey: undefined });
         } catch {

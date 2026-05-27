@@ -493,9 +493,6 @@ function ModelPicker({
             emptyHint={t("noMatches")}
           />
         </div>
-        <p className="mt-2 text-[11px] text-zinc-500 dark:text-zinc-400">
-          {t("openaiModelHint")}
-        </p>
       </div>
     );
   }
@@ -523,9 +520,6 @@ function ModelPicker({
           </button>
         ))}
       </div>
-      <p className="mt-2 text-[11px] text-zinc-500 dark:text-zinc-400">
-        {t("anthropicModelHint")}
-      </p>
     </div>
   );
 }
@@ -585,9 +579,6 @@ function OpenRouterModelPicker({
               emptyHint={t("noMatches")}
             />
           </div>
-          <p className="mt-2 text-[11px] text-zinc-500 dark:text-zinc-400">
-            {t("openrouterModelHint", { count: models.length })}
-          </p>
         </>
       )}
     </div>
