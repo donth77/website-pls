@@ -1,4 +1,43 @@
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { useTranslations } from "next-intl";
+import { routing } from "@/i18n/routing";
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://websitepls.com";
+
+function urlFor(locale: string): string {
+  const prefix = locale === routing.defaultLocale ? "" : `/${locale}`;
+  return `${BASE_URL}${prefix}/terms`;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Terms" });
+  const canonical = urlFor(locale);
+
+  return {
+    title: t("heading"),
+    openGraph: {
+      title: t("heading"),
+      url: canonical,
+      type: "article",
+    },
+    twitter: {
+      title: t("heading"),
+    },
+    alternates: {
+      canonical,
+      languages: {
+        ...Object.fromEntries(routing.locales.map((l) => [l, urlFor(l)])),
+        "x-default": urlFor(routing.defaultLocale),
+      },
+    },
+  };
+}
 
 export default function TermsPage() {
   const t = useTranslations("Terms");

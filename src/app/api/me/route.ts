@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { resolveOwner } from "@/lib/auth/resolveOwner";
 import { prisma } from "@/lib/db/prisma";
 import { GUEST_MAX_GENERATIONS } from "@/lib/auth/guestSession";
-import { uploadFile, deleteFiles } from "@/lib/storage/r2";
+import { uploadFile, deleteFiles, listFiles } from "@/lib/storage/r2";
+import { getGenerationQueue } from "@/lib/queue/generationQueue";
 import { createLogger } from "@/lib/logger";
 
 const log = createLogger("api:me");
@@ -117,4 +118,121 @@ export async function PATCH(req: NextRequest) {
   });
 
   return NextResponse.json(user);
+}
+
+/**
+ * Hard-delete the authenticated user's account and all associated data.
+ *
+ * Order of operations is deliberate:
+ *   1. Collect resource identifiers BEFORE deletion — once the User row
+ *      is gone the cascade also removes Projects, so we can't enumerate
+ *      version IDs / published slugs after the fact.
+ *   2. Best-effort BullMQ job cancellation. Worker handles missing
+ *      projects gracefully, but pre-cancelling stops the job from doing
+ *      pointless Anthropic spend during/after deletion.
+ *   3. Best-effort R2 object cleanup. Postgres `onDelete: Cascade`
+ *      doesn't touch object storage. Failures here are logged but don't
+ *      abort the delete — the existing orphaned-storage cleanup job is
+ *      the safety net.
+ *   4. `prisma.user.delete` — cascades Account, Session, Project →
+ *      Version / ReferenceDocument / PublishedSite / KnowledgeChunk.
+ *
+ * Client is responsible for calling next-auth/react `signOut()` after
+ * a 204 to clear the local JWT cookie and redirect.
+ */
+export async function DELETE() {
+  const owner = await resolveOwner();
+  if (owner.type !== "user") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const userId = owner.userId;
+
+  // 1. Collect everything we need to clean up before the cascade fires.
+  const projects = await prisma.project.findMany({
+    where: { userId },
+    select: {
+      id: true,
+      versions: {
+        where: { storageKey: null }, // only in-flight versions to cancel
+        select: { id: true },
+      },
+      publishedSites: {
+        select: { subdomain: true, storageKey: true },
+      },
+    },
+  });
+  const projectIds = projects.map((p) => p.id);
+  const pendingVersionIds = projects.flatMap((p) =>
+    p.versions.map((v) => v.id),
+  );
+  const publishedKeys = projects.flatMap((p) =>
+    p.publishedSites
+      .map((s) => s.storageKey)
+      .filter((k): k is string => typeof k === "string" && k.length > 0),
+  );
+
+  // 2. Best-effort BullMQ cancellation. job.id === versionId per the
+  //    enqueue contract in /api/generate.
+  let cancelledJobs = 0;
+  try {
+    const queue = getGenerationQueue();
+    const results = await Promise.allSettled(
+      pendingVersionIds.map(async (versionId) => {
+        const job = await queue.getJob(versionId);
+        if (job) {
+          await job.remove();
+          return true;
+        }
+        return false;
+      }),
+    );
+    cancelledJobs = results.filter(
+      (r) => r.status === "fulfilled" && r.value === true,
+    ).length;
+  } catch (err) {
+    log.warn("BullMQ cancel-on-delete failed (continuing)", {
+      userId,
+      error: String(err),
+    });
+  }
+
+  // 3. R2 cleanup. Three prefix patterns + the four possible avatar
+  //    extensions. allSettled so a single failure doesn't abort.
+  const r2DeletePromises: Promise<unknown>[] = [];
+  // Avatars (any extension — we don't know which one the user uploaded).
+  r2DeletePromises.push(
+    deleteFiles(
+      ["jpg", "png", "webp", "gif"].map((e) => `avatars/${userId}.${e}`),
+    ),
+  );
+  // Project data: references + version HTML, all under projects/{id}/
+  for (const pid of projectIds) {
+    r2DeletePromises.push(
+      (async () => {
+        const keys = await listFiles(`projects/${pid}/`);
+        if (keys.length > 0) await deleteFiles(keys);
+      })(),
+    );
+  }
+  // Published HTML (separate prefix structure).
+  if (publishedKeys.length > 0) {
+    r2DeletePromises.push(deleteFiles(publishedKeys));
+  }
+  const r2Results = await Promise.allSettled(r2DeletePromises);
+  const r2Failures = r2Results.filter((r) => r.status === "rejected").length;
+
+  // 4. The actual hard delete — cascades clean up everything else.
+  await prisma.user.delete({ where: { id: userId } });
+
+  log.info("Account deleted", {
+    event: "account.deleted",
+    userId,
+    projects: projectIds.length,
+    publishedSites: publishedKeys.length,
+    cancelledJobs,
+    r2Failures,
+  });
+
+  // Client is expected to call signOut() to clear the local cookie.
+  return new NextResponse(null, { status: 204 });
 }

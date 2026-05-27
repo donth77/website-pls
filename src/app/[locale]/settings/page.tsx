@@ -5,13 +5,15 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Button } from "@ariakit/react";
-import { Bell, Camera, Key, User } from "lucide-react";
+import { AlertTriangle, Bell, Camera, Key, User } from "lucide-react";
 import { toast } from "sonner";
+import { signOut } from "next-auth/react";
 import { useRouter } from "@/i18n/navigation";
 import { BackButton } from "@/components/back-button";
 import { ByokProvider } from "@/lib/byok/context";
 import { ByokPanel } from "@/components/byok/byok-panel";
 import { NotificationSettings } from "@/components/notifications/notification-settings";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 
 export default function SettingsPage() {
   const t = useTranslations("Settings");
@@ -23,6 +25,36 @@ export default function SettingsPage() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  async function handleDeleteAccount() {
+    setIsDeleting(true);
+    try {
+      const res = await fetch("/api/me", { method: "DELETE" });
+      if (!res.ok && res.status !== 204) {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error ?? t("deleteAccountError"));
+        setIsDeleting(false);
+        setDeleteOpen(false);
+        return;
+      }
+      // Server cleared the row + cascades + R2. Now clear the local JWT
+      // and land on the landing page — `redirect: false` so we control
+      // navigation cleanly through next-intl's router.
+      await signOut({ redirect: false });
+      toast.success(t("deleteAccountSuccess"));
+      // Don't reset isDeleting here — we want the modal's spinner to keep
+      // showing right through the navigation so the user doesn't see a
+      // blink-of-clickable-button before the page swap.
+      setDeleteOpen(false);
+      router.replace("/");
+    } catch {
+      toast.error(t("deleteAccountError"));
+      setIsDeleting(false);
+      setDeleteOpen(false);
+    }
+  }
 
   // Initial session fetch only: `update()` also sets status to "loading" while
   // refetching; session still holds the previous value, so don’t unmount the page.
@@ -248,6 +280,40 @@ export default function SettingsPage() {
           </p>
           <NotificationSettings />
         </section>
+
+        {/* Danger zone — destructive actions live here so they're visually
+            separated and unambiguous. The red border + AlertTriangle icon
+            reinforce that this isn't an everyday setting. */}
+        <section className="mt-12 rounded-xl border border-red-200 bg-red-50/40 p-5 dark:border-red-900/40 dark:bg-red-950/20">
+          <div className="mb-3 flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
+            <h2 className="text-base font-semibold text-red-900 dark:text-red-200">
+              {t("deleteAccountHeading")}
+            </h2>
+          </div>
+          <p className="mb-4 text-xs text-red-800/80 dark:text-red-300/80">
+            {t("deleteAccountDescription")}
+          </p>
+          <button
+            type="button"
+            onClick={() => setDeleteOpen(true)}
+            disabled={isDeleting}
+            className="rounded-lg border border-red-300 bg-white px-3 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-50 disabled:opacity-50 dark:border-red-900/60 dark:bg-zinc-900 dark:text-red-300 dark:hover:bg-red-950/40"
+          >
+            {t("deleteAccountButton")}
+          </button>
+        </section>
+
+        <ConfirmModal
+          isOpen={deleteOpen}
+          onClose={() => setDeleteOpen(false)}
+          onConfirm={handleDeleteAccount}
+          title={t("deleteAccountConfirmTitle")}
+          message={t("deleteAccountConfirmMessage")}
+          confirmLabel={t("deleteAccountConfirmButton")}
+          cancelLabel={t("cancel")}
+          isConfirming={isDeleting}
+        />
       </div>
     </div>
   );

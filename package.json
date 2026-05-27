@@ -33,7 +33,7 @@
     "ioredis": "^5.10.1",
     "js-tiktoken": "^1.0.21",
     "lucide-react": "^0.563.0",
-    "next": "16.2.1",
+    "next": "16.2.6",
     "next-auth": "5.0.0-beta.30",
     "next-intl": "^4.9.0",
     "openai": "^6.39.0",
@@ -43,7 +43,7 @@
     "resend": "^6.10.0",
     "server-only": "^0.0.1",
     "sonner": "^2.0.7",
-    "unpdf": "^1.4.0",
+    "unpdf": "1.4.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -53,7 +53,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.1",
+    "eslint-config-next": "16.2.6",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "prisma": "^7.5.0",

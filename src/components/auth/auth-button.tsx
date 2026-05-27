@@ -5,7 +5,8 @@ import Image from "next/image";
 import { LogIn, LogOut, User, FolderOpen, Coins, Settings } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { Link, usePathname } from "@/i18n/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { SESSION_KEY } from "@/hooks/use-generation";
 import {
   Button,
   MenuProvider,
@@ -20,9 +21,24 @@ const monetizationEnabled =
 export function AuthButton() {
   const t = useTranslations("Auth");
   const pathname = usePathname();
+  const router = useRouter();
   const { data: session } = useSession();
   const [credits, setCredits] = useState<number | null>(null);
   const [creditsLoaded, setCreditsLoaded] = useState(false);
+
+  async function handleSignOut() {
+    // Clear the cached editor state — without this the editor would
+    // restore the just-signed-out user's project from sessionStorage on
+    // the next mount, leaving them looking at their old content with a
+    // "Sign in" button bolted on top of it.
+    try {
+      sessionStorage.removeItem(SESSION_KEY);
+    } catch {
+      /* ignore */
+    }
+    await signOut({ redirect: false });
+    router.replace("/");
+  }
 
   // Fetch credits as soon as we have a session (only when monetization is enabled).
   useEffect(() => {
@@ -141,7 +157,7 @@ export function AuthButton() {
 
         <MenuItem
           className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-base text-zinc-700 transition hover:bg-zinc-50 active:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:active:bg-zinc-800"
-          onClick={() => signOut()}
+          onClick={handleSignOut}
         >
           <LogOut className="h-4 w-4" />
           {t("signOut")}

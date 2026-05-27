@@ -30,6 +30,16 @@ import { isAllowedOpenRouterModel } from "@/lib/byok/openrouter-models";
 
 const baseLog = createLogger("api:generate");
 
+// Thrown inside the refinement transaction when ownership or not-deleted
+// state changed between the pre-transaction findFirst and the in-transaction
+// updateMany. Caught a few lines below and mapped to a 404 response.
+class RefinementRaceError extends Error {
+  constructor() {
+    super("refinement-race");
+    this.name = "RefinementRaceError";
+  }
+}
+
 const RATE_LIMIT_GUEST = parseInt(
   process.env.RATE_LIMIT_GUEST_PER_HR ?? "10",
   10,
@@ -375,7 +385,9 @@ export async function POST(req: NextRequest) {
     // Per-session/user rate limiting (sliding window).
     // Guests: 10/hr (capped at 3 total anyway). Logged-in: 20/hr.
     // BYOK: 60/hr — their own key, safety net only against runaway loops.
-    let rateLimitBypassed = false;
+    // `rateLimitBypassed` is always false now (the catch fails closed) — it
+    // remains in the cascade-log payload below for schema stability.
+    const rateLimitBypassed = false;
     try {
       const baseId =
         owner.type === "guest" ? owner.guestSessionId : owner.userId;
@@ -426,18 +438,31 @@ export async function POST(req: NextRequest) {
         );
       }
     } catch (err) {
-      // If Redis is down, allow the request through (fail-open).
-      log.warn("generate rate limit check failed, allowing", {
-        event: "rate_limit.failed_open",
+      // Redis is the budget guardrail for /api/generate — Anthropic spend
+      // sits behind this check. Fail closed: a brief Redis outage shows
+      // 503s, which is preferable to an unbounded cost-amplification window
+      // if the limiter is silently disabled.
+      log.error("generate rate limit check failed, rejecting", {
+        event: "rate_limit.failed_closed",
         endpoint: "POST /api/generate",
         ownerType: owner.type,
         ...(owner.type === "user"
           ? { userId: owner.userId }
           : { guestSessionId: owner.guestSessionId }),
         error: String(err),
+        status: 503,
       });
-      rateLimitBypassed = true;
-      securityBypasses++;
+      void recordEvent("rate_limit.failed_closed", {
+        endpoint: "POST /api/generate",
+        ownerType: owner.type,
+      }).catch(() => {});
+      return NextResponse.json(
+        {
+          error: "Service temporarily unavailable. Please try again shortly.",
+          code: ErrorCode.RATE_LIMIT,
+        },
+        { status: 503, headers: { "Retry-After": "30" } },
+      );
     }
 
     // Enforce generation limits (atomic operations).
@@ -623,23 +648,58 @@ export async function POST(req: NextRequest) {
       versionNumber = (latestVersion?.versionNumber ?? 0) + 1;
 
       // Atomic: update project status + create version in one transaction.
-      const [, version] = await prisma.$transaction(
-        async (tx) => {
-          const updatedProject = await tx.project.update({
-            where: { id: existing.id },
-            data: { status: ProjectStatus.GENERATING },
+      //
+      // The `updateMany` here re-asserts ownership and not-deleted inside
+      // the transaction so a concurrent soft-delete or any future ownership
+      // change between the findFirst above and this transaction can't slip
+      // through. If zero rows match (raced), throw to abort the txn — the
+      // outer catch maps that back to 404.
+      let version: { id: string };
+      try {
+        const result = await prisma.$transaction(
+          async (tx) => {
+            const ownershipFilter =
+              owner.type === "guest"
+                ? { guestSessionId: owner.guestSessionId }
+                : { userId: owner.userId };
+            const updateResult = await tx.project.updateMany({
+              where: {
+                id: existing.id,
+                deletedAt: null,
+                ...ownershipFilter,
+              },
+              data: { status: ProjectStatus.GENERATING },
+            });
+            if (updateResult.count !== 1) {
+              throw new RefinementRaceError();
+            }
+            const newVersion = await tx.version.create({
+              data: {
+                projectId: existing.id,
+                versionNumber,
+                promptDelta: refinementPrompt,
+              },
+            });
+            return newVersion;
+          },
+          { timeout: 10000 },
+        );
+        version = result;
+      } catch (err) {
+        if (err instanceof RefinementRaceError) {
+          log.warn("refinement project disappeared mid-transaction", {
+            event: "refinement.race",
+            endpoint: "POST /api/generate",
+            projectId: existing.id,
+            ownerType: owner.type,
           });
-          const newVersion = await tx.version.create({
-            data: {
-              projectId: existing.id,
-              versionNumber,
-              promptDelta: refinementPrompt,
-            },
-          });
-          return [updatedProject, newVersion] as const;
-        },
-        { timeout: 10000 },
-      );
+          return NextResponse.json(
+            { error: "Project not found.", code: ErrorCode.VALIDATION },
+            { status: 404 },
+          );
+        }
+        throw err;
+      }
 
       projectId = existing.id;
       projectName = existing.name;

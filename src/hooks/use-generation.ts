@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useSession } from "next-auth/react";
 import type { ChatMessage, GenerationStatus } from "@/lib/types";
 import { ErrorCode } from "@/lib/types";
 import { MAX_USER_PROMPT_CHARS } from "@/lib/ai/promptSafety";
@@ -35,6 +36,11 @@ export interface PersistedState {
   generationStartTime: number | null;
   /** Cached so remounts don't flash the empty paperclip before the fetch resolves. */
   currentReferenceDocument: ReferenceDocumentInfo | null;
+  /** Owner identifier at save time. On restore, if this doesn't match the
+   *  current session we discard the state — prevents one account's
+   *  editor content from leaking into another account after a sign-out
+   *  → sign-in switch. `null` means "saved while signed out / as guest". */
+  ownerId: string | null;
 }
 
 function loadSession(): PersistedState | null {
@@ -67,6 +73,10 @@ export function useGeneration() {
   const tMsg = useTranslations("Message");
   const tErr = useTranslations("ErrorCode");
   const tNotify = useTranslations("Notify");
+  const { data: session, status: sessionStatus } = useSession();
+  // Owner identifier used to tag persisted state, so we can detect a
+  // restore that belongs to a different account after a sign-in switch.
+  const currentOwnerId: string | null = session?.user?.id ?? null;
   // Tiny wrapper: localized errorCodeToMessage. Falls back to DEFAULT
   // for unknown codes so the UI never shows a raw key path.
   const localizedErrorMessage = useCallback(
@@ -224,6 +234,7 @@ export function useGeneration() {
       messages,
       generationStartTime,
       currentReferenceDocument,
+      ownerId: currentOwnerId,
     });
   }, [
     phase,
@@ -236,7 +247,32 @@ export function useGeneration() {
     messages,
     generationStartTime,
     currentReferenceDocument,
+    currentOwnerId,
   ]);
+
+  /* ── Account-switch detection ──
+     If the persisted state belongs to a different owner (sign-out then
+     sign-in to a different account, or guest → user), discard it and
+     reset to a fresh landing-page state. Skip while the session is
+     still loading so we don't false-positive on initial hydration. */
+  const accountSwitchHandledRef = useRef(false);
+  useEffect(() => {
+    if (sessionStatus === "loading") return;
+    if (accountSwitchHandledRef.current) return;
+    if (!init) {
+      accountSwitchHandledRef.current = true;
+      return;
+    }
+    if (init.ownerId !== currentOwnerId) {
+      accountSwitchHandledRef.current = true;
+      handleNewProject();
+    } else {
+      accountSwitchHandledRef.current = true;
+    }
+    // handleNewProject is defined later in this hook; it's stable for the
+    // lifetime of the hook so it's safe to call from a setup-time effect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionStatus, currentOwnerId]);
 
   /* ── Update assistant message ── */
   const updateAssistantMessage = useCallback(
