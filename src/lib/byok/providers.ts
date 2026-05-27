@@ -60,11 +60,18 @@ export const ANTHROPIC_MODELS = {
   opus: "claude-opus-4-7",
 } as const;
 
+// OpenAI catalog — kept aligned with developers.openai.com/api/docs/models.
+// Latest first, then the previous-generation 4-family kept around because
+// some users still prefer them for cost/latency. Ordering here also drives
+// the combobox display order.
 export const OPENAI_MODELS = {
-  // Structured Outputs supported by all three of these:
-  "gpt-4o-mini": "gpt-4o-mini",
-  "gpt-4o": "gpt-4o",
+  "gpt-5.5": "gpt-5.5",
+  "gpt-5.4": "gpt-5.4",
+  "gpt-5.4-mini": "gpt-5.4-mini",
+  "gpt-5.4-nano": "gpt-5.4-nano",
   "gpt-4.1": "gpt-4.1",
+  "gpt-4o": "gpt-4o",
+  "gpt-4o-mini": "gpt-4o-mini",
 } as const;
 
 export type AnthropicModelAlias = keyof typeof ANTHROPIC_MODELS;
@@ -73,7 +80,9 @@ export type OpenAIModelAlias = keyof typeof OPENAI_MODELS;
 /** Default model per provider. */
 export const DEFAULT_MODEL: Record<Provider, string> = {
   anthropic: ANTHROPIC_MODELS.sonnet,
-  openai: OPENAI_MODELS["gpt-4o"],
+  // gpt-5.4 sits in the same "balanced mid-tier" spot Sonnet does for
+  // Anthropic — sensible default when the user doesn't pick explicitly.
+  openai: OPENAI_MODELS["gpt-5.4"],
   openrouter: "anthropic/claude-sonnet-4",
 };
 
@@ -89,9 +98,13 @@ const MODEL_LABELS: Record<Provider, Record<string, string>> = {
     opus: "Opus",
   },
   openai: {
-    "gpt-4o-mini": "gpt-4o-mini",
-    "gpt-4o": "gpt-4o",
-    "gpt-4.1": "gpt-4.1",
+    "gpt-5.5": "GPT-5.5",
+    "gpt-5.4": "GPT-5.4",
+    "gpt-5.4-mini": "GPT-5.4 mini",
+    "gpt-5.4-nano": "GPT-5.4 nano",
+    "gpt-4.1": "GPT-4.1",
+    "gpt-4o": "GPT-4o",
+    "gpt-4o-mini": "GPT-4o mini",
   },
   openrouter: {},
 };

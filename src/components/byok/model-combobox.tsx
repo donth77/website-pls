@@ -27,14 +27,14 @@ interface ModelComboboxProps {
 }
 
 /**
- * Searchable model picker built on Ariakit's Combobox primitive. Used for
- * OpenAI (small fixed list) and OpenRouter (100+ dynamic entries) so both
- * have the same affordance: type to filter, click to pick.
+ * Searchable model picker built on Ariakit's Combobox primitive. The input
+ * doubles as the display — it shows the selected item's label when the
+ * user isn't actively searching.
  *
- * The input doubles as the display:
- *   - empty value (no selection) → shows the default row label as a placeholder
- *   - non-empty value            → shows the selected item's label
- *   - user is typing             → shows their query and a filtered popover
+ * Filtering: anything typed that doesn't exactly equal the selected
+ * label is treated as a search query. This lets the popover show the
+ * full list when first opened (input already holds the selected label,
+ * "matches itself") but narrows as the user types.
  */
 export function ModelCombobox({
   items,
@@ -44,28 +44,25 @@ export function ModelCombobox({
   defaultRow,
   emptyHint,
 }: ModelComboboxProps) {
-  // Display value in the input. We sync this to `value` whenever the
-  // external selection changes (e.g. on first hydration), but also let
-  // the user freely type to filter — `isTyping` distinguishes the two.
-  const [text, setText] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-
   const selectedLabel = useMemo(() => {
-    if (!value) return "";
+    if (!value) return defaultRow?.label ?? "";
     return items.find((i) => i.id === value)?.label ?? "";
-  }, [items, value]);
+  }, [items, value, defaultRow]);
 
-  // Sync display text from external value when the user isn't actively
-  // typing. Keeps the input showing the selected label after the user
-  // closes the popover, and reflects external selection changes
-  // (e.g. provider switch). This is a legitimate "external state → React
-  // state" sync, not cascading, so we silence the lint rule.
+  // Controlled value for the input. We sync it from `selectedLabel`
+  // whenever the external selection changes, but let the user type
+  // freely in between.
+  const [text, setText] = useState(selectedLabel);
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (!isTyping) setText(selectedLabel);
-  }, [selectedLabel, isTyping]);
+    setText(selectedLabel);
+  }, [selectedLabel]);
 
-  const query = isTyping ? text.toLowerCase() : "";
+  // Filter only when the user has typed something other than the
+  // selected label. On first open the input holds the selected label,
+  // so the popover shows the full list rather than a single self-match.
+  const query = text === selectedLabel ? "" : text.toLowerCase().trim();
   const filtered = useMemo(
     () =>
       !query
@@ -78,25 +75,19 @@ export function ModelCombobox({
     [items, query],
   );
 
+  function commit(id: string, label: string) {
+    setText(label);
+    onChange(id);
+  }
+
   return (
-    <ComboboxProvider
-      resetValueOnHide
-      setValue={(v) => {
-        setText(v);
-        setIsTyping(true);
-      }}
-    >
+    <ComboboxProvider value={text} setValue={setText}>
       <div className="relative">
         <Combobox
           placeholder={placeholder}
-          value={text}
           autoSelect
           className="block w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 pr-8 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:focus:border-zinc-500"
-          onBlur={() => {
-            // Drop transient typing state so the next render snaps the
-            // input back to the canonical selected label.
-            setIsTyping(false);
-          }}
+          onFocus={(e) => e.currentTarget.select()}
         />
         <ChevronDown
           className="pointer-events-none absolute top-1/2 right-2 h-4 w-4 -translate-y-1/2 text-zinc-400 dark:text-zinc-500"
@@ -111,10 +102,7 @@ export function ModelCombobox({
         {defaultRow && (
           <ComboboxItem
             value={defaultRow.label}
-            onClick={() => {
-              setIsTyping(false);
-              onChange("");
-            }}
+            onClick={() => commit("", defaultRow.label)}
             className={`flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-sm data-[active-item]:bg-zinc-100 dark:data-[active-item]:bg-zinc-800 ${
               !value ? "font-medium" : ""
             }`}
@@ -136,10 +124,7 @@ export function ModelCombobox({
           <ComboboxItem
             key={item.id}
             value={item.label}
-            onClick={() => {
-              setIsTyping(false);
-              onChange(item.id);
-            }}
+            onClick={() => commit(item.id, item.label)}
             className={`flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-sm data-[active-item]:bg-zinc-100 dark:data-[active-item]:bg-zinc-800 ${
               value === item.id ? "font-medium" : ""
             }`}

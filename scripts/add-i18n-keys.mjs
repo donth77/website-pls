@@ -71,7 +71,7 @@ const additions = {
     anthropicModelHint:
       "Haiku is fastest and cheapest. Opus is highest quality. Sonnet is the balanced default.",
     openaiModelHint:
-      "GPT-4o-mini is the cheapest. GPT-4.1 is the latest. GPT-4o is the balanced default.",
+      "GPT-5.5 is the latest. GPT-5.4 is the balanced default. Nano/mini variants are cheaper; GPT-4 models are still available for compatibility.",
     openrouterModelHint:
       "{count} structured-output-capable models. Switching changes which model handles your generations.",
     openrouterModelsFailed:
