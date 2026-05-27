@@ -19,6 +19,7 @@ export async function GET(
         select: {
           name: true,
           status: true,
+          errorMessage: true,
           guestSessionId: true,
           userId: true,
         },
@@ -101,5 +102,10 @@ export async function GET(
     percent,
     commentary,
     errorCode,
+    // Raw Anthropic/worker message for ERROR states. The hook prefers this
+    // over the generic errorCodeToMessage when present so users see what
+    // actually went wrong (e.g. "credit balance is too low").
+    errorMessage:
+      projectStatus === "ERROR" ? (version.project?.errorMessage ?? null) : null,
   });
 }

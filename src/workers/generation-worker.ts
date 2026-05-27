@@ -262,13 +262,28 @@ const worker = new Worker(
         err instanceof Error ? err.message : String(err)
       ).slice(0, 1000);
 
-      // Anthropic 429 on a platform-key run = we're out of credits/rate.
-      // BYOK 429 is the user's own quota, surface as a normal failure.
-      // Either way, retrying in 5s won't help — discard so BullMQ doesn't
-      // burn another slot.
+      // Classify Anthropic SDK errors so the chat UI can show actionable
+      // copy instead of the generic "Something went wrong." Platform-key
+      // 429 still becomes PLATFORM_BUDGET_LOW (drives the BYOK banner);
+      // BYOK runs map to BYOK_* codes that point at the user's account.
       const status = (err as { status?: number })?.status;
-      const isPlatformBudgetLow = status === 429 && !userApiKey;
+      let errorCode: string | null = null;
       if (status === 429) {
+        errorCode = userApiKey
+          ? ErrorCode.BYOK_RATE_LIMIT
+          : ErrorCode.PLATFORM_BUDGET_LOW;
+      } else if (userApiKey && status === 401) {
+        errorCode = ErrorCode.BYOK_AUTH_FAILED;
+      } else if (userApiKey && status === 400) {
+        errorCode = ErrorCode.BYOK_BAD_REQUEST;
+      }
+
+      // 429 (any) and BYOK auth failures won't fix themselves in 5s —
+      // discard so BullMQ doesn't burn another slot. BYOK_BAD_REQUEST
+      // might be transient (model load), so let the normal retry apply.
+      const shouldDiscard =
+        status === 429 || errorCode === ErrorCode.BYOK_AUTH_FAILED;
+      if (shouldDiscard) {
         try {
           await job.discard();
         } catch {
@@ -277,7 +292,7 @@ const worker = new Worker(
       }
 
       const isFinalAttempt =
-        status === 429 ||
+        shouldDiscard ||
         job.attemptsMade >= (job.opts?.attempts ?? 1) - 1;
 
       log.error("Job failed", {
@@ -286,16 +301,18 @@ const worker = new Worker(
         maxAttempts: job.opts?.attempts ?? 1,
         isFinalAttempt,
         anthropicStatus: status,
-        platformBudgetLow: isPlatformBudgetLow,
+        errorCode,
+        byok: !!userApiKey,
       });
 
-      // Make the error code observable to the poll endpoint.
-      if (isPlatformBudgetLow) {
+      // Make the classified code observable to the poll endpoint so the
+      // hook can route to the right copy / banner trigger.
+      if (errorCode) {
         try {
           await job.updateProgress({
             step: "error",
             percent: 100,
-            errorCode: ErrorCode.PLATFORM_BUDGET_LOW,
+            errorCode,
           });
         } catch {
           /* best-effort */

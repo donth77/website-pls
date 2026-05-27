@@ -26,14 +26,23 @@ export type ByokStatus =
   | "encrypted-locked"
   | "encrypted-unlocked";
 
+/**
+ * Why the BYOK banner is showing. Each reason gets its own copy so the
+ * user understands whether to wait, sign up, or add a key.
+ */
+export type ByokPromptReason =
+  | "platform-budget-low" // Anthropic 429 on the platform key
+  | "user-cap" // GENERATION_LIMIT (guest cap or user credits exhausted)
+  | "rate-limit"; // RATE_LIMIT (per-hour throttle hit)
+
 export interface ByokContextValue {
   status: ByokStatus;
   /** Plaintext key if status is plain or encrypted-unlocked. */
   activeKey: string | null;
   model: ByokModelAlias;
   isModalOpen: boolean;
-  /** Set when the server reports PLATFORM_BUDGET_LOW. */
-  budgetLow: boolean;
+  /** Why the banner is showing, or null if it shouldn't be. */
+  promptReason: ByokPromptReason | null;
 
   openModal: () => void;
   closeModal: () => void;
@@ -42,8 +51,7 @@ export interface ByokContextValue {
   unlock: (passphrase: string) => Promise<void>;
   remove: () => void;
   setModel: (m: ByokModelAlias) => void;
-  markBudgetLow: () => void;
-  clearBudgetLow: () => void;
+  setPromptReason: (reason: ByokPromptReason | null) => void;
 }
 
 const ByokContext = createContext<ByokContextValue | null>(null);
@@ -63,7 +71,8 @@ export function ByokProvider({ children }: { children: React.ReactNode }) {
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [model, setModelState] = useState<ByokModelAlias>(DEFAULT_BYOK_MODEL);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [budgetLow, setBudgetLow] = useState(false);
+  const [promptReason, setPromptReasonState] =
+    useState<ByokPromptReason | null>(null);
 
   // Hydrate from localStorage on mount. SSR returns the defaults; the
   // effect runs once after the client takes over and pulls in the user's
@@ -92,7 +101,7 @@ export function ByokProvider({ children }: { children: React.ReactNode }) {
     savePlainKey(key);
     setActiveKey(key);
     setStatus("plain");
-    setBudgetLow(false);
+    setPromptReasonState(null);
   }, []);
 
   const saveEncrypted = useCallback(
@@ -100,7 +109,7 @@ export function ByokProvider({ children }: { children: React.ReactNode }) {
       await saveEncryptedKey(key, passphrase);
       setActiveKey(key);
       setStatus("encrypted-unlocked");
-      setBudgetLow(false);
+      setPromptReasonState(null);
     },
     [],
   );
@@ -109,7 +118,7 @@ export function ByokProvider({ children }: { children: React.ReactNode }) {
     const k = await unlockEncryptedKey(passphrase);
     setActiveKey(k);
     setStatus("encrypted-unlocked");
-    setBudgetLow(false);
+    setPromptReasonState(null);
   }, []);
 
   const remove = useCallback(() => {
@@ -127,8 +136,10 @@ export function ByokProvider({ children }: { children: React.ReactNode }) {
     setModelState(m);
   }, []);
 
-  const markBudgetLow = useCallback(() => setBudgetLow(true), []);
-  const clearBudgetLow = useCallback(() => setBudgetLow(false), []);
+  const setPromptReason = useCallback(
+    (reason: ByokPromptReason | null) => setPromptReasonState(reason),
+    [],
+  );
 
   const value = useMemo<ByokContextValue>(
     () => ({
@@ -136,7 +147,7 @@ export function ByokProvider({ children }: { children: React.ReactNode }) {
       activeKey,
       model,
       isModalOpen,
-      budgetLow,
+      promptReason,
       openModal,
       closeModal,
       savePlain,
@@ -144,15 +155,14 @@ export function ByokProvider({ children }: { children: React.ReactNode }) {
       unlock,
       remove,
       setModel,
-      markBudgetLow,
-      clearBudgetLow,
+      setPromptReason,
     }),
     [
       status,
       activeKey,
       model,
       isModalOpen,
-      budgetLow,
+      promptReason,
       openModal,
       closeModal,
       savePlain,
@@ -160,8 +170,7 @@ export function ByokProvider({ children }: { children: React.ReactNode }) {
       unlock,
       remove,
       setModel,
-      markBudgetLow,
-      clearBudgetLow,
+      setPromptReason,
     ],
   );
 

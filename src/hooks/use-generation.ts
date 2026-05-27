@@ -52,8 +52,8 @@ export function useGeneration() {
   const tMsg = useTranslations("Message");
   const byok = useByok();
   // Destructure the stable callbacks so effects can depend on them
-  // without re-firing when other byok state (e.g. budgetLow) toggles.
-  const { markBudgetLow } = byok;
+  // without re-firing when other byok state toggles.
+  const { setPromptReason } = byok;
 
   /* ── Restore from sessionStorage on mount ── */
   const restored = useRef(loadSession());
@@ -309,13 +309,23 @@ export function useGeneration() {
           });
           setMobileView("preview");
         } else if (nextStatus === "ERROR") {
+          // PLATFORM_BUDGET_LOW is the only error the worker raises that
+          // should drive a banner — RATE_LIMIT and GENERATION_LIMIT can't
+          // reach worker code (they reject at the API route).
           if (json.errorCode === ErrorCode.PLATFORM_BUDGET_LOW) {
-            markBudgetLow();
+            setPromptReason("platform-budget-low");
           }
+          // Prefer the persisted Anthropic/worker error string when present:
+          // "credit balance is too low" beats "Something went wrong" any day.
+          // Fall back to the generic code-to-copy table otherwise.
+          const content =
+            typeof json.errorMessage === "string" && json.errorMessage
+              ? json.errorMessage
+              : errorCodeToMessage(json.errorCode ?? null);
           updateAssistantMessage({
-            content: errorCodeToMessage(json.errorCode ?? null),
+            content,
             status: "ERROR",
-            error: json.error,
+            error: json.errorMessage ?? json.error,
             errorCode: json.errorCode,
           });
         } else {
@@ -337,7 +347,7 @@ export function useGeneration() {
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [versionId, status, updateAssistantMessage, tMsg, markBudgetLow]);
+  }, [versionId, status, updateAssistantMessage, tMsg, setPromptReason]);
 
   /* ═══════════════════════ Handlers ═══════════════════════ */
 
@@ -395,20 +405,27 @@ export function useGeneration() {
 
       const json = await res.json();
       if (!res.ok) {
-        // Surface BYOK-shaped errors to the context so the modal/banner UI
-        // can react. PLATFORM_BUDGET_LOW prompts the user for a key;
-        // BYOK_INVALID re-opens the modal so they can fix the bad key.
-        if (json?.code === ErrorCode.PLATFORM_BUDGET_LOW) {
-          byok.markBudgetLow();
-        } else if (json?.code === ErrorCode.BYOK_INVALID) {
+        // Map API error codes to the appropriate BYOK affordance.
+        // BYOK_INVALID re-opens the modal so the user can fix the key.
+        // PLATFORM_BUDGET_LOW / RATE_LIMIT / GENERATION_LIMIT all surface
+        // the banner with copy tailored to the reason — but only when the
+        // user isn't already on the BYOK path (banner self-suppresses).
+        const code = json?.code;
+        if (code === ErrorCode.BYOK_INVALID) {
           byok.openModal();
+        } else if (code === ErrorCode.PLATFORM_BUDGET_LOW) {
+          setPromptReason("platform-budget-low");
+        } else if (code === ErrorCode.GENERATION_LIMIT) {
+          setPromptReason("user-cap");
+        } else if (code === ErrorCode.RATE_LIMIT) {
+          setPromptReason("rate-limit");
         }
         setStatus("ERROR");
         updateAssistantMessage({
-          content: json?.error ?? errorCodeToMessage(json?.code),
+          content: json?.error ?? errorCodeToMessage(code),
           status: "ERROR",
           error: json?.error,
-          errorCode: typeof json?.code === "string" ? json.code : undefined,
+          errorCode: typeof code === "string" ? code : undefined,
         });
         return;
       }
