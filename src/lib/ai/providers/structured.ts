@@ -69,10 +69,15 @@ export async function generateStructured<Schema extends z.ZodType>(
 
   if (provider === "anthropic") {
     const anthropic = new Anthropic({ apiKey });
+    // Opus 4.7 returns 400 if `temperature`/`top_p`/`top_k` is set to any
+    // non-default value. Per Anthropic's migration guide, the safe fix is
+    // to omit the parameter entirely on affected models.
+    // https://platform.claude.com/docs/en/about-claude/models/migration-guide
+    const allowsTemperature = !model.startsWith("claude-opus-4-7");
     const stream = anthropic.messages.stream({
       model,
       max_tokens: maxTokens,
-      temperature,
+      ...(allowsTemperature ? { temperature } : {}),
       system: systemBlocks,
       messages: [{ role: "user", content: userContent }],
       output_config: { format: zodOutputFormat(schema) },
@@ -106,9 +111,13 @@ export async function generateStructured<Schema extends z.ZodType>(
   // with double-newlines preserves block boundaries for the model.
   const systemContent = systemBlocks.map((b) => b.text).join("\n\n");
 
+  // OpenAI's reasoning-tier models (GPT-5.x, o-series) reject `max_tokens`
+  // with "Use 'max_completion_tokens' instead." The newer field works on
+  // older chat models too, so we always use it. OpenRouter accepts both
+  // and forwards to whichever the upstream model expects.
   const completion = await client.chat.completions.parse({
     model,
-    max_tokens: maxTokens,
+    max_completion_tokens: maxTokens,
     temperature,
     messages: [
       { role: "system", content: systemContent },
