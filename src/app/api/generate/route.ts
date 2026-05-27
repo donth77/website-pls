@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { screenUserPromptWithLakera } from "@/lib/ai/lakera";
 import { validateUserPrompt } from "@/lib/ai/promptSafety";
 import { verifyTurnstileToken } from "@/lib/turnstile";
-import { checkRateLimit } from "@/lib/rateLimit";
+import { checkRateLimit, consumeByteQuota } from "@/lib/rateLimit";
 import { createLogger } from "@/lib/logger";
 import { prisma } from "@/lib/db/prisma";
 import { ProjectStatus } from "@/generated/prisma/enums";
@@ -15,6 +15,8 @@ import { ErrorCode } from "@/lib/types";
 import { resolveClientIp } from "@/lib/clientIp";
 import { validateCsrf } from "@/lib/csrf";
 import { recordEvent, recordRateLimitHit } from "@/lib/admin/metrics";
+import { uploadFile } from "@/lib/storage/r2";
+import { MAX_FILE_SIZE_BYTES, SUPPORTED_MIME_TYPES } from "@/lib/rag/extract";
 
 const baseLog = createLogger("api:generate");
 
@@ -35,6 +37,25 @@ const MONETIZATION_ENABLED = process.env.ENABLE_MONETIZATION === "true";
 /** Will the worker generate an LLM title? */
 const TITLE_GENERATION_AVAILABLE = !!process.env.OPENROUTER_API_KEY;
 
+/**
+ * Max chars for the placeholder project name derived from the user prompt.
+ * Worker replaces this with an LLM-generated title when TITLE_GENERATION_AVAILABLE,
+ * but this still bounds the row width if that step fails.
+ */
+const MAX_PROJECT_NAME_LEN = 100;
+
+/** Per-user reference-upload byte quota per hour (default 100 MB). */
+const RAG_UPLOAD_BYTES_PER_HR = parseInt(
+  process.env.RAG_UPLOAD_BYTES_PER_HR ?? `${100 * 1024 * 1024}`,
+  10,
+);
+
+function derivePlaceholderName(prompt: string): string {
+  const collapsed = prompt.replace(/\s+/g, " ").trim();
+  if (collapsed.length <= MAX_PROJECT_NAME_LEN) return collapsed;
+  return `${collapsed.slice(0, MAX_PROJECT_NAME_LEN - 1).trimEnd()}…`;
+}
+
 export async function POST(req: NextRequest) {
   const csrfError = validateCsrf(req, "POST /api/generate");
   if (csrfError) return csrfError;
@@ -43,14 +64,84 @@ export async function POST(req: NextRequest) {
   const log = baseLog.child({ requestId });
 
   try {
-    const body = await req.json();
-    const prompt = String(body?.prompt ?? "").trim();
-    const existingProjectId = body?.projectId as string | undefined;
-    const refinementPrompt = body?.refinementPrompt
-      ? String(body.refinementPrompt).trim()
-      : undefined;
-    const turnstileToken = body?.turnstileToken as string | undefined;
+    const contentType = req.headers.get("content-type") ?? "";
+    const isMultipart = contentType.startsWith("multipart/form-data");
+
+    // Size gate for multipart bodies before reading the request body — a
+    // request that's already over the cap shouldn't read its own file.
+    if (isMultipart) {
+      const contentLengthHeader = req.headers.get("content-length");
+      const contentLength = contentLengthHeader
+        ? parseInt(contentLengthHeader, 10)
+        : 0;
+      // 10 MB file + ~1 MB headroom for multipart framing / other fields.
+      if (contentLength > MAX_FILE_SIZE_BYTES + 1024 * 1024) {
+        return NextResponse.json(
+          {
+            error: "Request body too large (max 10 MB).",
+            code: ErrorCode.VALIDATION,
+          },
+          { status: 413 },
+        );
+      }
+    }
+
+    let prompt: string;
+    let existingProjectId: string | undefined;
+    let refinementPrompt: string | undefined;
+    let turnstileToken: string | undefined;
+    let uploadedFile: File | undefined;
+
+    if (isMultipart) {
+      const form = await req.formData();
+      prompt = String(form.get("prompt") ?? "").trim();
+      const projectIdField = form.get("projectId");
+      existingProjectId = projectIdField ? String(projectIdField) : undefined;
+      const refField = form.get("refinementPrompt");
+      refinementPrompt = refField ? String(refField).trim() : undefined;
+      const tokenField = form.get("turnstileToken");
+      turnstileToken = tokenField ? String(tokenField) : undefined;
+      const fileField = form.get("file");
+      if (fileField instanceof File && fileField.size > 0) {
+        uploadedFile = fileField;
+      }
+    } else {
+      const body = await req.json();
+      prompt = String(body?.prompt ?? "").trim();
+      existingProjectId = body?.projectId as string | undefined;
+      refinementPrompt = body?.refinementPrompt
+        ? String(body.refinementPrompt).trim()
+        : undefined;
+      turnstileToken = body?.turnstileToken as string | undefined;
+    }
+
     const isRefinement = !!(existingProjectId && refinementPrompt);
+
+    // Defense in depth: validate file constraints immediately, before any
+    // rate-limit / Lakera / R2 round-trip. A bad file fails fast.
+    if (uploadedFile) {
+      if (uploadedFile.size > MAX_FILE_SIZE_BYTES) {
+        return NextResponse.json(
+          {
+            error: "Reference file too large (max 10 MB).",
+            code: ErrorCode.VALIDATION,
+          },
+          { status: 413 },
+        );
+      }
+      if (
+        !(SUPPORTED_MIME_TYPES as readonly string[]).includes(uploadedFile.type)
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "Unsupported reference file type. Allowed: PDF, plain text, Markdown.",
+            code: ErrorCode.VALIDATION,
+          },
+          { status: 415 },
+        );
+      }
+    }
 
     // Validate the relevant prompt text.
     const textToValidate = isRefinement ? refinementPrompt! : prompt;
@@ -90,6 +181,77 @@ export async function POST(req: NextRequest) {
       );
     }
     const owner = sessionResult.owner;
+
+    // Phase 1 RAG is authenticated users only. Guests trying to attach
+    // reference material are rejected here — the UI renders a disabled
+    // control with "Sign in to attach reference material" copy, but the
+    // server enforces it regardless.
+    if (uploadedFile && owner.type !== "user") {
+      log.warn("guest attempted reference upload", {
+        event: "rag.upload.guest_rejected",
+        endpoint: "POST /api/generate",
+        guestSessionId: owner.guestSessionId,
+        fileName: uploadedFile.name,
+        fileSize: uploadedFile.size,
+        status: 401,
+      });
+      void recordEvent("rag.upload.guest_rejected", {
+        endpoint: "POST /api/generate",
+        guestSessionId: owner.guestSessionId,
+      }).catch(() => {});
+      return NextResponse.json(
+        {
+          error: "Sign in to attach reference material.",
+          code: ErrorCode.FORBIDDEN,
+        },
+        { status: 401 },
+      );
+    }
+
+    // Per-user hourly byte quota on reference uploads. Each file is only
+    // 10 MB, but rate-limited generations could still chew through embedding
+    // quota and R2 storage in bulk. Uses a fixed window, best-effort — if
+    // Redis is down we fail open (the per-file size cap and generation rate
+    // limit still apply).
+    if (uploadedFile && owner.type === "user") {
+      try {
+        const quota = await consumeByteQuota({
+          key: `rag-upload:user:${owner.userId}`,
+          limit: RAG_UPLOAD_BYTES_PER_HR,
+          windowSeconds: 3600,
+          bytes: uploadedFile.size,
+        });
+        if (!quota.allowed) {
+          log.warn("reference upload byte quota exceeded", {
+            event: "rag.upload.quota_exceeded",
+            endpoint: "POST /api/generate",
+            userId: owner.userId,
+            bytesUsed: quota.used,
+            bytesLimit: RAG_UPLOAD_BYTES_PER_HR,
+            status: 429,
+          });
+          void recordEvent("rag.upload.quota_exceeded", {
+            endpoint: "POST /api/generate",
+            userId: owner.userId,
+            bytesUsed: quota.used,
+          }).catch(() => {});
+          return NextResponse.json(
+            {
+              error:
+                "You've uploaded too much reference material in the past hour. Try again later.",
+              code: ErrorCode.RATE_LIMIT,
+            },
+            { status: 429 },
+          );
+        }
+      } catch (err) {
+        log.warn("byte quota check failed, allowing", {
+          event: "rag.upload.quota_failed_open",
+          userId: owner.userId,
+          error: String(err),
+        });
+      }
+    }
 
     // Block unverified email users from generating.
     if (owner.type === "user") {
@@ -200,10 +362,11 @@ export async function POST(req: NextRequest) {
     } else if (owner.type === "user" && MONETIZATION_ENABLED) {
       // Atomic credit decrement: only succeeds if credits > 0.
       // Skipped when monetization is disabled — users only hit the rate limit.
-      const result = await prisma.$queryRawUnsafe<{ credits: number }[]>(
-        `UPDATE users SET credits = credits - 1 WHERE id = $1 AND credits > 0 RETURNING credits`,
-        owner.userId,
-      );
+      const result = await prisma.$queryRaw<{ credits: number }[]>`
+        UPDATE users SET credits = credits - 1
+        WHERE id = ${owner.userId} AND credits > 0
+        RETURNING credits
+      `;
       if (result.length === 0) {
         log.warn("user credits exhausted", {
           event: "generation_limit.hit",
@@ -354,7 +517,7 @@ export async function POST(req: NextRequest) {
           const newProject = await tx.project.create({
             data: {
               id: newProjectId,
-              name: prompt,
+              name: derivePlaceholderName(prompt),
               prompt,
               status: ProjectStatus.GENERATING,
               ...(owner.type === "guest"
@@ -380,6 +543,58 @@ export async function POST(req: NextRequest) {
       versionNumber = 1;
     }
 
+    // Upload reference material to R2 if present. Fail-open: an upload
+    // failure logs + emits a metric but doesn't block the generation (the
+    // user still gets a site, just without the RAG lift).
+    let referenceFileStorageKey: string | undefined;
+    let referenceFileName: string | undefined;
+    let referenceContentType: string | undefined;
+    let referenceFileSize: number | undefined;
+
+    if (uploadedFile) {
+      try {
+        const origName = uploadedFile.name || "reference";
+        const lastDot = origName.lastIndexOf(".");
+        const ext =
+          lastDot > 0 ? origName.slice(lastDot + 1).toLowerCase() : "bin";
+        const safeExt = /^[a-z0-9]{1,8}$/.test(ext) ? ext : "bin";
+        const safeName = `${crypto.randomUUID()}.${safeExt}`;
+        const key = `projects/${projectId}/references/${safeName}`;
+
+        const arrayBuffer = await uploadedFile.arrayBuffer();
+        await uploadFile(key, Buffer.from(arrayBuffer), uploadedFile.type);
+
+        referenceFileStorageKey = key;
+        referenceFileName = origName.slice(0, 200);
+        referenceContentType = uploadedFile.type;
+        referenceFileSize = uploadedFile.size;
+
+        log.info("Reference file uploaded to R2", {
+          event: "rag.upload.accepted",
+          projectId,
+          storageKey: key,
+          fileSize: uploadedFile.size,
+        });
+        void recordEvent("rag.upload.accepted", {
+          endpoint: "POST /api/generate",
+          projectId,
+          fileSize: uploadedFile.size,
+          contentType: uploadedFile.type,
+        }).catch(() => {});
+      } catch (uploadErr) {
+        log.warn("Reference file R2 upload failed, proceeding without RAG", {
+          event: "rag.upload.rejected",
+          projectId,
+          error: String(uploadErr),
+        });
+        void recordEvent("rag.upload.rejected", {
+          endpoint: "POST /api/generate",
+          projectId,
+          reason: "r2_upload_failed",
+        }).catch(() => {});
+      }
+    }
+
     const queue = getGenerationQueue();
     await queue.add(
       "generate-html",
@@ -389,6 +604,10 @@ export async function POST(req: NextRequest) {
         userPrompt: prompt,
         refinementPrompt: isRefinement ? refinementPrompt : undefined,
         requestId,
+        referenceFileStorageKey,
+        referenceFileName,
+        referenceContentType,
+        referenceFileSize,
       },
       {
         jobId: versionId,

@@ -3,7 +3,7 @@
     "back": "返回"
   },
   "Landing": {
-    "heading": "你想创建什么？",
+    "heading": "你想<accent>创建</accent>什么？",
     "description": "描述你的网站，我们将在几秒内生成它。",
     "placeholder": "例如「一个摄影师作品集网站，深色主题，带有图片画廊」",
     "generate": "生成网站",
@@ -313,5 +313,20 @@
   },
   "A11y": {
     "skipToContent": "跳转到主要内容"
+  },
+  "ReferenceMaterial": {
+    "label": "参考资料",
+    "guestDisabled": "请登录以附加参考资料",
+    "emptyCta": "添加参考资料",
+    "emptyHint": "可选",
+    "pendingHint": "{size} · 准备上传",
+    "statusReady": "就绪",
+    "statusFailed": "失败",
+    "statusPending": "处理中…",
+    "remove": "移除",
+    "removeDisabledWhileGenerating": "生成过程中无法移除",
+    "clearPending": "清除",
+    "errorTooLarge": "文件过大（最大 10 MB）",
+    "errorWrongType": "不支持的文件类型（PDF、TXT 或 MD）"
   }
 }

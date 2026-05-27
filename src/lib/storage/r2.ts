@@ -1,5 +1,13 @@
 // Note: no `import "server-only"` here — this module is shared with the
 // standalone BullMQ worker (tsx), which doesn't use the Next.js bundler.
+// Keep this file out of Client Component imports; storage keys and credentials
+// must never reach the browser bundle.
+//
+// Security invariant: the R2 bucket is assumed to be PRIVATE. All objects are
+// served through authenticated app routes (preview, publish proxy). Storage
+// keys embed project/version UUIDs and are not considered secret on their own,
+// but leaking them is a defence-in-depth concern if the bucket ever gets
+// reconfigured — keep access control at the route layer, not via URL secrecy.
 import {
   S3Client,
   PutObjectCommand,

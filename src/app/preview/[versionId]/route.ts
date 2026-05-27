@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db/prisma";
 import { downloadFile } from "@/lib/storage/r2";
 import { resolveOwner } from "@/lib/auth/resolveOwner";
 import { buildGeneratedHtmlHeaders } from "@/lib/security/htmlResponseHeaders";
+import { scrubRedirectMetaTags } from "@/lib/publish/scrub";
 import { createLogger } from "@/lib/logger";
 
 const log = createLogger("preview");
@@ -63,7 +64,10 @@ export async function GET(
     );
   }
 
-  const html = bytes.toString("utf-8");
+  // Strip meta-refresh/location tags so a prompt-injected site can't redirect
+  // the author (or anyone a preview is shared with) off to an attacker URL.
+  // CSP doesn't cover meta navigation directives.
+  const html = scrubRedirectMetaTags(bytes.toString("utf-8"));
 
   return new NextResponse(html, {
     headers: buildGeneratedHtmlHeaders(),

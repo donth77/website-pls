@@ -30,6 +30,24 @@ function getAccessKey(): string | null {
 }
 
 /**
+ * Max characters sent to Unsplash. Orchestrator prompts are short (a few
+ * words per image), so long queries indicate LLM misuse or prompt-injected
+ * data leaking into the search string.
+ */
+const MAX_QUERY_LEN = 80;
+
+function sanitizeQuery(query: string): string | null {
+  const cleaned = query
+    // Strip control chars (including null bytes).
+    .replace(/[\u0000-\u001f\u007f]/g, " ")
+    // Collapse whitespace.
+    .replace(/\s+/g, " ")
+    .trim();
+  if (cleaned.length === 0) return null;
+  return cleaned.slice(0, MAX_QUERY_LEN);
+}
+
+/**
  * Search Unsplash for a photo matching `query`. Returns the first result
  * sized to `w`x`h` via Unsplash's dynamic resizing, or null if nothing found
  * or the API key is missing.
@@ -43,8 +61,11 @@ export async function searchPhoto(
   const accessKey = getAccessKey();
   if (!accessKey) return null;
 
+  const safeQuery = sanitizeQuery(query);
+  if (!safeQuery) return null;
+
   const params = new URLSearchParams({
-    query,
+    query: safeQuery,
     per_page: "1",
     orientation,
   });

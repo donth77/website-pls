@@ -12,16 +12,20 @@ const log = createLogger("lakera");
 const DEFAULT_BASE = "https://api.lakera.ai";
 const TIMEOUT_MS = 15_000;
 
-// In production, missing Lakera key is a startup error — screening must not be silently skipped.
-// In development, warn and allow requests through without screening.
+// Screening is required unless NODE_ENV is explicitly "development" or "test".
+// Anything else (including unset or misconfigured NODE_ENV) is treated as
+// production — failing closed avoids accidentally shipping a build that
+// bypasses screening because NODE_ENV wasn't set to what we expected.
 if (!process.env.LAKERA_API_KEY?.trim()) {
-  if (process.env.NODE_ENV === "production") {
+  const nodeEnv = process.env.NODE_ENV;
+  const isDevOrTest = nodeEnv === "development" || nodeEnv === "test";
+  if (!isDevOrTest) {
     throw new Error(
-      "LAKERA_API_KEY is not set. Prompt screening cannot be disabled in production.",
+      `LAKERA_API_KEY is not set. Prompt screening cannot be disabled outside development/test (NODE_ENV=${nodeEnv ?? "unset"}).`,
     );
   }
   log.warn(
-    "LAKERA_API_KEY is not set — prompt screening is DISABLED. Set it in .env before deploying to production.",
+    "LAKERA_API_KEY is not set — prompt screening is DISABLED. Set it in .env before deploying.",
   );
 }
 

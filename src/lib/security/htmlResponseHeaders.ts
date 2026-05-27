@@ -70,6 +70,14 @@ const iframeWhitelist = readFileSync(
   .flatMap(expandCspSource)
   .join(" ");
 
+// `style-src 'unsafe-inline'` is required by the Tailwind CDN JIT runtime and
+// cannot be tightened without precompiling Tailwind (a separate workstream).
+// Everything else is locked down as far as practical:
+//   - `object-src 'none'`       — no <object>/<embed>/<applet>
+//   - `base-uri 'none'`         — prevents a prompt-injected <base> from
+//                                 rewriting all relative URLs on the page
+//   - `form-action 'none'`      — blocks prompt-injected forms from POSTing
+//                                 credentials to an attacker origin
 const CSP = [
   "default-src 'none'",
   "script-src https://cdn.tailwindcss.com",
@@ -79,6 +87,9 @@ const CSP = [
   `frame-src ${iframeWhitelist}`,
   "connect-src 'none'",
   "frame-ancestors 'self'",
+  "object-src 'none'",
+  "base-uri 'none'",
+  "form-action 'none'",
 ].join("; ");
 
 export interface GeneratedHtmlHeaderOptions {

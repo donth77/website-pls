@@ -3,7 +3,7 @@
     "back": "رجوع"
   },
   "Landing": {
-    "heading": "ماذا تريد أن تبني؟",
+    "heading": "ماذا تريد أن <accent>تبني</accent>؟",
     "description": "صِف موقعك الإلكتروني وسنقوم بإنشائه في ثوانٍ.",
     "placeholder": "مثال: «موقع معرض أعمال لمصوّر بتصميم داكن ومعرض صور»",
     "generate": "إنشاء الموقع",
@@ -313,5 +313,20 @@
   },
   "A11y": {
     "skipToContent": "تخطّي إلى المحتوى الرئيسي"
+  },
+  "ReferenceMaterial": {
+    "label": "المواد المرجعية",
+    "guestDisabled": "سجّل الدخول لإرفاق مواد مرجعية",
+    "emptyCta": "إضافة مواد مرجعية",
+    "emptyHint": "اختياري",
+    "pendingHint": "{size} · جاهز للرفع",
+    "statusReady": "جاهز",
+    "statusFailed": "فشل",
+    "statusPending": "جارٍ المعالجة…",
+    "remove": "إزالة",
+    "removeDisabledWhileGenerating": "لا يمكن الإزالة أثناء التوليد",
+    "clearPending": "مسح",
+    "errorTooLarge": "الملف كبير جدًا (الحد الأقصى 10 ميجابايت)",
+    "errorWrongType": "نوع الملف غير مدعوم (PDF أو TXT أو MD)"
   }
 }

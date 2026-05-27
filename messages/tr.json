@@ -3,7 +3,7 @@
     "back": "Geri"
   },
   "Landing": {
-    "heading": "Ne oluşturmak istersiniz?",
+    "heading": "Ne <accent>oluşturmak</accent> istersiniz?",
     "description": "Web sitenizi tanımlayın, birkaç saniye içinde oluşturalım.",
     "placeholder": "ör. \"Koyu temalı ve resim galerisi olan bir fotoğrafçı portföy sitesi\"",
     "generate": "Web sitesi oluştur",
@@ -313,5 +313,20 @@
   },
   "A11y": {
     "skipToContent": "Ana içeriğe geç"
+  },
+  "ReferenceMaterial": {
+    "label": "Referans materyali",
+    "guestDisabled": "Referans materyali eklemek için oturum açın",
+    "emptyCta": "Referans materyali ekle",
+    "emptyHint": "isteğe bağlı",
+    "pendingHint": "{size} · yüklemeye hazır",
+    "statusReady": "Hazır",
+    "statusFailed": "Başarısız",
+    "statusPending": "İşleniyor…",
+    "remove": "Kaldır",
+    "removeDisabledWhileGenerating": "Oluşturma sırasında kaldırılamaz",
+    "clearPending": "Temizle",
+    "errorTooLarge": "Dosya çok büyük (maks. 10 MB)",
+    "errorWrongType": "Desteklenmeyen dosya türü (PDF, TXT veya MD)"
   }
 }

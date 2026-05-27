@@ -3,7 +3,7 @@
     "back": "Quay lại"
   },
   "Landing": {
-    "heading": "Bạn muốn xây dựng gì?",
+    "heading": "Bạn muốn <accent>xây dựng</accent> gì?",
     "description": "Mô tả trang web của bạn và chúng tôi sẽ tạo nó trong vài giây.",
     "placeholder": "ví dụ: \"Trang portfolio cho nhiếp ảnh gia với giao diện tối và thư viện ảnh\"",
     "generate": "Tạo trang web",
@@ -313,5 +313,20 @@
   },
   "A11y": {
     "skipToContent": "Chuyển đến nội dung chính"
+  },
+  "ReferenceMaterial": {
+    "label": "Tài liệu tham khảo",
+    "guestDisabled": "Đăng nhập để đính kèm tài liệu tham khảo",
+    "emptyCta": "Thêm tài liệu tham khảo",
+    "emptyHint": "tùy chọn",
+    "pendingHint": "{size} · sẵn sàng tải lên",
+    "statusReady": "Sẵn sàng",
+    "statusFailed": "Thất bại",
+    "statusPending": "Đang xử lý…",
+    "remove": "Xóa",
+    "removeDisabledWhileGenerating": "Không thể xóa trong khi đang tạo",
+    "clearPending": "Xóa bỏ",
+    "errorTooLarge": "Tệp quá lớn (tối đa 10 MB)",
+    "errorWrongType": "Loại tệp không được hỗ trợ (PDF, TXT hoặc MD)"
   }
 }

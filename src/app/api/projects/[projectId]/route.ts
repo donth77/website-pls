@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db/prisma";
 import { resolveOwner } from "@/lib/auth/resolveOwner";
 import { createLogger } from "@/lib/logger";
 import { validateCsrf } from "@/lib/csrf";
+import { resolvePublicOrigin } from "@/lib/http/publicUrl";
 
 const log = createLogger("api:projects");
 
@@ -50,6 +51,20 @@ export async function GET(
         },
         take: 1,
       },
+      referenceDocuments: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: {
+          id: true,
+          fileName: true,
+          fileSize: true,
+          contentType: true,
+          status: true,
+          tokenCount: true,
+          embeddingProvider: true,
+          createdAt: true,
+        },
+      },
     },
   });
 
@@ -68,10 +83,9 @@ export async function GET(
   }
 
   const published = project.publishedSites[0];
-  const host = _req.headers.get("host");
-  const proto =
-    _req.headers.get("x-forwarded-proto") ??
-    (_req.nextUrl.protocol.replace(":", "") || "https");
+  const origin = resolvePublicOrigin(_req.headers);
+
+  const referenceDoc = project.referenceDocuments[0] ?? null;
 
   return NextResponse.json({
     id: project.id,
@@ -81,10 +95,21 @@ export async function GET(
       published?.subdomain && published.version
         ? {
             slug: published.subdomain,
-            publishedUrl: `${proto}://${host}/p/${published.subdomain}`,
+            publishedUrl: `${origin}/p/${published.subdomain}`,
             publishedVersionNumber: published.version.versionNumber,
           }
         : null,
+    referenceDocument: referenceDoc
+      ? {
+          id: referenceDoc.id,
+          fileName: referenceDoc.fileName,
+          fileSize: referenceDoc.fileSize,
+          contentType: referenceDoc.contentType,
+          status: referenceDoc.status,
+          tokenCount: referenceDoc.tokenCount,
+          embeddingProvider: referenceDoc.embeddingProvider,
+        }
+      : null,
   });
 }
 
@@ -116,36 +141,30 @@ export async function PATCH(
     );
   }
 
-  const project = await prisma.project.findFirst({
-    where: { id: projectId, deletedAt: null },
-    select: { id: true, userId: true, guestSessionId: true },
+  const updated = await prisma.project.updateMany({
+    where: {
+      id: projectId,
+      deletedAt: null,
+      ...(owner.type === "user"
+        ? { userId: owner.userId }
+        : { guestSessionId: owner.guestSessionId }),
+    },
+    data: { name },
   });
 
-  if (!project) {
-    return NextResponse.json({ error: "Project not found." }, { status: 404 });
-  }
-
-  const ownsProject =
-    (owner.type === "user" && project.userId === owner.userId) ||
-    (owner.type === "guest" && project.guestSessionId === owner.guestSessionId);
-
-  if (!ownsProject) {
+  if (updated.count === 0) {
     log.warn("projects ownership rejected", {
       event: "auth.ownership_rejected",
+      endpoint: "PATCH /api/projects/[projectId]",
       ...(owner.type === "user"
         ? { userId: owner.userId }
         : { guestSessionId: owner.guestSessionId }),
       resourceType: "project",
       resourceId: projectId,
-      status: 403,
+      status: 404,
     });
-    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    return NextResponse.json({ error: "Not found." }, { status: 404 });
   }
-
-  await prisma.project.update({
-    where: { id: projectId },
-    data: { name },
-  });
 
   log.info("Project renamed", { projectId, name });
 
@@ -167,35 +186,28 @@ export async function DELETE(
   }
 
   const project = await prisma.project.findFirst({
-    where: { id: projectId, deletedAt: null },
-    select: {
-      id: true,
-      userId: true,
-      guestSessionId: true,
-      status: true,
+    where: {
+      id: projectId,
+      deletedAt: null,
+      ...(owner.type === "user"
+        ? { userId: owner.userId }
+        : { guestSessionId: owner.guestSessionId }),
     },
+    select: { id: true, status: true },
   });
 
   if (!project) {
-    return NextResponse.json({ error: "Project not found." }, { status: 404 });
-  }
-
-  // Verify ownership
-  const ownsProject =
-    (owner.type === "user" && project.userId === owner.userId) ||
-    (owner.type === "guest" && project.guestSessionId === owner.guestSessionId);
-
-  if (!ownsProject) {
     log.warn("projects ownership rejected", {
       event: "auth.ownership_rejected",
+      endpoint: "DELETE /api/projects/[projectId]",
       ...(owner.type === "user"
         ? { userId: owner.userId }
         : { guestSessionId: owner.guestSessionId }),
       resourceType: "project",
       resourceId: projectId,
-      status: 403,
+      status: 404,
     });
-    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    return NextResponse.json({ error: "Not found." }, { status: 404 });
   }
 
   if (project.status === "GENERATING") {

@@ -3,7 +3,7 @@
     "back": "वापस"
   },
   "Landing": {
-    "heading": "आप क्या बनाना चाहते हैं?",
+    "heading": "आप क्या <accent>बनाना</accent> चाहते हैं?",
     "description": "अपनी वेबसाइट का वर्णन करें और हम इसे कुछ ही सेकंड में बना देंगे।",
     "placeholder": "जैसे: \"एक फ़ोटोग्राफ़र के लिए डार्क थीम और इमेज गैलरी वाली पोर्टफ़ोलियो साइट\"",
     "generate": "वेबसाइट बनाएं",
@@ -313,5 +313,20 @@
   },
   "A11y": {
     "skipToContent": "मुख्य सामग्री पर जाएं"
+  },
+  "ReferenceMaterial": {
+    "label": "संदर्भ सामग्री",
+    "guestDisabled": "संदर्भ सामग्री संलग्न करने के लिए साइन इन करें",
+    "emptyCta": "संदर्भ सामग्री जोड़ें",
+    "emptyHint": "वैकल्पिक",
+    "pendingHint": "{size} · अपलोड के लिए तैयार",
+    "statusReady": "तैयार",
+    "statusFailed": "विफल",
+    "statusPending": "प्रसंस्करण…",
+    "remove": "हटाएं",
+    "removeDisabledWhileGenerating": "जनरेशन के दौरान हटाया नहीं जा सकता",
+    "clearPending": "साफ़ करें",
+    "errorTooLarge": "फ़ाइल बहुत बड़ी है (अधिकतम 10 एमबी)",
+    "errorWrongType": "असमर्थित फ़ाइल प्रकार (PDF, TXT, या MD)"
   }
 }

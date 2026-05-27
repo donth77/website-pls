@@ -1,6 +1,11 @@
-import { ArrowUp, CircleHelp, Plus } from "lucide-react";
+import { ArrowUp, CircleHelp, Paperclip, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Button } from "@ariakit/react";
+import {
+  Button,
+  PopoverProvider,
+  PopoverDisclosure,
+  Popover,
+} from "@ariakit/react";
 import { ChatMessageBubble } from "./chat-message";
 import type { ChatMessage, GenerationStatus } from "@/lib/types";
 import { MAX_USER_PROMPT_CHARS } from "@/lib/ai/promptSafety";
@@ -29,6 +34,17 @@ export interface ChatSidebarProps {
    * inline box only when a suspicious request triggers interaction.
    */
   turnstile?: React.ReactNode;
+  /**
+   * Reference material popover content — rendered inside a Popover
+   * anchored to the header's paperclip button. Popover pattern keeps
+   * the control in the project-level header zone (not the chat input)
+   * so it reads as project-scoped, not per-message.
+   */
+  referenceMaterial?: React.ReactNode;
+  /** Whether the project has a reference document attached or a file staged. */
+  hasReferenceDocument?: boolean;
+  /** Whether the project metadata fetch has resolved. Controls the loading state of the trigger. */
+  referenceStateLoaded?: boolean;
 }
 
 export function ChatSidebar({
@@ -50,8 +66,12 @@ export function ChatSidebar({
   messagesEndRef,
   sidebarInputRef,
   turnstile,
+  referenceMaterial,
+  hasReferenceDocument,
+  referenceStateLoaded = false,
 }: ChatSidebarProps) {
   const t = useTranslations("Chat");
+  const tRef = useTranslations("ReferenceMaterial");
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -64,6 +84,10 @@ export function ChatSidebar({
       onSubmit();
     }
   }
+
+  // Always use Paperclip for the trigger — it represents the "attach"
+  // action. The green dot signals "has document." Swapping to FileText
+  // caused a visible icon morph during the fetch window.
 
   return (
     <div className="flex h-full flex-col">
@@ -82,13 +106,41 @@ export function ChatSidebar({
           )}
         </div>
         <div className="flex items-center gap-1">
-          {/* <Button
-            className="rounded-lg p-2 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-600 dark:text-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
-            onClick={onInfoOpen}
-            aria-label={t("about")}
-          >
-            <CircleHelp className="h-4 w-4" />
-          </Button> */}
+          {/* Reference material popover trigger — project-scoped control.
+              Three visual states via color only:
+                loading  → zinc-300 / zinc-600 (very faint, non-interactive)
+                no doc   → zinc-400 / zinc-500 (dimmed, clickable)
+                has doc  → zinc-700 / zinc-200 (full contrast, clickable) */}
+          {!referenceStateLoaded ? (
+            <span
+              className="rounded-lg p-2 text-zinc-300 dark:text-zinc-600"
+              aria-hidden="true"
+            >
+              <Paperclip className="h-4 w-4" />
+            </span>
+          ) : (
+            referenceMaterial && (
+              <PopoverProvider placement="bottom-end">
+                <PopoverDisclosure
+                  className={`rounded-lg p-2 transition hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200 ${
+                    hasReferenceDocument
+                      ? "text-zinc-700 dark:text-zinc-200"
+                      : "text-zinc-400 dark:text-zinc-500"
+                  }`}
+                  aria-label={tRef("label")}
+                  title={tRef("label")}
+                >
+                  <Paperclip className="h-4 w-4" aria-hidden="true" />
+                </PopoverDisclosure>
+                <Popover
+                  className="z-50 w-80 rounded-xl border border-zinc-200 bg-white p-3 shadow-lg dark:border-zinc-700 dark:bg-zinc-900"
+                  gutter={8}
+                >
+                  {referenceMaterial}
+                </Popover>
+              </PopoverProvider>
+            )
+          )}
           <Button
             className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
             onClick={onNewProject}

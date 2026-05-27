@@ -18,16 +18,20 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.52",
+    "@ai-sdk/provider": "^3.0.8",
     "@anthropic-ai/sdk": "^0.80.0",
     "@ariakit/react": "^0.4.24",
     "@auth/prisma-adapter": "^2.11.1",
     "@aws-sdk/client-s3": "^3.1024.0",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
+    "ai": "^6.0.158",
     "bcryptjs": "^3.0.3",
     "bullmq": "^5.71.1",
     "dotenv": "^17.3.1",
     "ioredis": "^5.10.1",
+    "js-tiktoken": "^1.0.21",
     "lucide-react": "^0.563.0",
     "next": "16.2.1",
     "next-auth": "5.0.0-beta.30",
@@ -38,6 +42,7 @@
     "resend": "^6.10.0",
     "server-only": "^0.0.1",
     "sonner": "^2.0.7",
+    "unpdf": "^1.4.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {

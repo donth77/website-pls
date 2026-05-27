@@ -3,7 +3,7 @@
     "back": "Wstecz"
   },
   "Landing": {
-    "heading": "Co chcesz zbudować?",
+    "heading": "Co chcesz <accent>zbudować</accent>?",
     "description": "Opisz swoją stronę, a wygenerujemy ją w kilka sekund.",
     "placeholder": "np. \"Strona portfolio dla fotografa z ciemnym motywem i galerią zdjęć\"",
     "generate": "Wygeneruj stronę",
@@ -313,5 +313,20 @@
   },
   "A11y": {
     "skipToContent": "Przejdź do głównej treści"
+  },
+  "ReferenceMaterial": {
+    "label": "Materiały referencyjne",
+    "guestDisabled": "Zaloguj się, aby dołączyć materiały referencyjne",
+    "emptyCta": "Dodaj materiały referencyjne",
+    "emptyHint": "opcjonalne",
+    "pendingHint": "{size} · gotowe do przesłania",
+    "statusReady": "Gotowe",
+    "statusFailed": "Błąd",
+    "statusPending": "Przetwarzanie…",
+    "remove": "Usuń",
+    "removeDisabledWhileGenerating": "Nie można usunąć podczas generowania",
+    "clearPending": "Wyczyść",
+    "errorTooLarge": "Plik jest za duży (maks. 10 MB)",
+    "errorWrongType": "Nieobsługiwany typ pliku (PDF, TXT lub MD)"
   }
 }

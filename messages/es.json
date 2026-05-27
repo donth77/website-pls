@@ -3,7 +3,7 @@
     "back": "Volver"
   },
   "Landing": {
-    "heading": "¿Qué te gustaría crear?",
+    "heading": "¿Qué te gustaría <accent>crear</accent>?",
     "description": "Describe tu sitio web y lo generaremos en segundos.",
     "placeholder": "ej. «Un portafolio para un fotógrafo con tema oscuro y galería de imágenes»",
     "generate": "Generar sitio web",
@@ -313,5 +313,20 @@
   },
   "A11y": {
     "skipToContent": "Saltar al contenido principal"
+  },
+  "ReferenceMaterial": {
+    "label": "Material de referencia",
+    "guestDisabled": "Inicia sesión para adjuntar material de referencia",
+    "emptyCta": "Añadir material de referencia",
+    "emptyHint": "opcional",
+    "pendingHint": "{size} · listo para subir",
+    "statusReady": "Listo",
+    "statusFailed": "Error",
+    "statusPending": "Procesando…",
+    "remove": "Quitar",
+    "removeDisabledWhileGenerating": "No se puede quitar durante la generación",
+    "clearPending": "Limpiar",
+    "errorTooLarge": "Archivo demasiado grande (máx. 10 MB)",
+    "errorWrongType": "Tipo de archivo no admitido (PDF, TXT o MD)"
   }
 }

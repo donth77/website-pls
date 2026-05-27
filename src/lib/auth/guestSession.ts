@@ -146,14 +146,12 @@ export async function consumeGuestGeneration(
   guestSessionId: string,
 ): Promise<{ allowed: boolean; generationsUsed: number }> {
   // Atomic: only increments if current count is below the cap.
-  const result = await prisma.$queryRawUnsafe<{ generations_used: number }[]>(
-    `UPDATE guest_sessions
-     SET generations_used = generations_used + 1
-     WHERE id = $1 AND generations_used < $2
-     RETURNING generations_used`,
-    guestSessionId,
-    GUEST_MAX_GENERATIONS,
-  );
+  const result = await prisma.$queryRaw<{ generations_used: number }[]>`
+    UPDATE guest_sessions
+    SET generations_used = generations_used + 1
+    WHERE id = ${guestSessionId} AND generations_used < ${GUEST_MAX_GENERATIONS}
+    RETURNING generations_used
+  `;
 
   if (result.length === 0) {
     return { allowed: false, generationsUsed: GUEST_MAX_GENERATIONS };

@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import type { ChatMessage, GenerationStatus } from "@/lib/types";
 import { errorCodeToMessage } from "@/lib/types";
 import { MAX_USER_PROMPT_CHARS } from "@/lib/ai/promptSafety";
+import type { ReferenceDocumentInfo } from "@/components/generator/project-reference-material";
 
 export const SESSION_KEY = "websitepls:generation";
 
@@ -16,6 +17,8 @@ export interface PersistedState {
   originalPrompt: string;
   messages: ChatMessage[];
   generationStartTime: number | null;
+  /** Cached so remounts don't flash the empty paperclip before the fetch resolves. */
+  currentReferenceDocument: ReferenceDocumentInfo | null;
 }
 
 function loadSession(): PersistedState | null {
@@ -94,6 +97,18 @@ export function useGeneration() {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const turnstileResetRef = useRef<(() => void) | null>(null);
 
+  /* ── Reference material (Phase 1 RAG) ── */
+  // `selectedFile` is the client-staged file that ships with the next
+  // POST /api/generate (as multipart form-data). Cleared on submit.
+  // `currentReferenceDocument` mirrors the server-side ReferenceDocument
+  // row for the active project; hydrated from GET /api/projects/[id] and
+  // cleared on new project / remove.
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [currentReferenceDocument, setCurrentReferenceDocument] =
+    useState<ReferenceDocumentInfo | null>(
+      init?.currentReferenceDocument ?? null,
+    );
+
   /* ── Misc UI ── */
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isMac, setIsMac] = useState(true);
@@ -142,6 +157,7 @@ export function useGeneration() {
       originalPrompt,
       messages,
       generationStartTime,
+      currentReferenceDocument,
     });
   }, [
     phase,
@@ -153,6 +169,7 @@ export function useGeneration() {
     originalPrompt,
     messages,
     generationStartTime,
+    currentReferenceDocument,
   ]);
 
   /* ── Update assistant message ── */
@@ -330,12 +347,33 @@ export function useGeneration() {
     setVersionId(null);
     setStatus("GENERATING");
 
+    // Capture selectedFile locally so clearing it after the fetch doesn't
+    // race with React state updates.
+    const fileForThisRequest = selectedFile;
+
     try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ ...params, turnstileToken }),
-      });
+      let res: Response;
+      if (fileForThisRequest) {
+        // Multipart path — used when the user staged a reference document.
+        const form = new FormData();
+        form.append("prompt", params.prompt);
+        if (params.projectId) form.append("projectId", params.projectId);
+        if (params.refinementPrompt)
+          form.append("refinementPrompt", params.refinementPrompt);
+        if (turnstileToken) form.append("turnstileToken", turnstileToken);
+        form.append("file", fileForThisRequest);
+        // Do NOT set content-type; browser sets multipart/form-data with boundary.
+        res = await fetch("/api/generate", {
+          method: "POST",
+          body: form,
+        });
+      } else {
+        res = await fetch("/api/generate", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ ...params, turnstileToken }),
+        });
+      }
 
       const json = await res.json();
       if (!res.ok) {
@@ -354,6 +392,10 @@ export function useGeneration() {
       setVersionId(json.versionId);
       setVersionNumber(json.versionNumber ?? 1);
       setStatus(json.status as GenerationStatus);
+
+      // Clear the staged file only on successful enqueue — if the request
+      // failed, keep the file so the user can retry without re-picking.
+      setSelectedFile(null);
     } catch {
       setStatus("ERROR");
       updateAssistantMessage({
@@ -368,6 +410,21 @@ export function useGeneration() {
       turnstileResetRef.current?.();
     }
   }
+
+  const removeReferenceDocument = useCallback(async () => {
+    if (!projectId) return;
+    try {
+      const res = await fetch(`/api/projects/${projectId}/references/current`, {
+        method: "DELETE",
+        credentials: "same-origin",
+      });
+      if (res.ok) {
+        setCurrentReferenceDocument(null);
+      }
+    } catch {
+      // best-effort — leave the UI state as-is and let the user retry
+    }
+  }, [projectId]);
 
   async function handleSubmit() {
     const text = inputValue.trim();
@@ -400,6 +457,20 @@ export function useGeneration() {
     currentAssistantMsgId.current = assistantMsg.id;
     setMessages((prev) => [...prev, userMsg, assistantMsg]);
     setInputValue("");
+
+    // Optimistically show a pending chip so the builder UI reflects the
+    // attached file immediately. The server-side ReferenceDocument row is
+    // created by the worker's ingestDocument step, so a bare projectId
+    // fetch right after enqueue would otherwise return null and leave the
+    // chip empty. Real server state replaces this once ingestion lands.
+    if (selectedFile) {
+      setCurrentReferenceDocument({
+        id: `optimistic-${crypto.randomUUID()}`,
+        fileName: selectedFile.name,
+        fileSize: selectedFile.size,
+        status: "pending",
+      });
+    }
 
     if (isFirstPrompt) {
       setPhase("builder");
@@ -456,6 +527,9 @@ export function useGeneration() {
     setElapsedSeconds(0);
     setTurnstileToken(null);
     turnstileResetRef.current?.();
+    // Reference material is per-project, so a new project starts fresh.
+    setSelectedFile(null);
+    setCurrentReferenceDocument(null);
     // Focus the landing textarea after the phase transition animation starts
     setTimeout(() => landingInputRef.current?.focus(), 400);
   }
@@ -524,6 +598,12 @@ export function useGeneration() {
     // Turnstile
     setTurnstileToken,
     turnstileResetRef,
+    // Reference material (Phase 1 RAG)
+    selectedFile,
+    setSelectedFile,
+    currentReferenceDocument,
+    setCurrentReferenceDocument,
+    removeReferenceDocument,
     // UI
     isInfoOpen,
     setIsInfoOpen,
