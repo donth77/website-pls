@@ -17,6 +17,8 @@ import { validateCsrf } from "@/lib/csrf";
 import { recordEvent, recordRateLimitHit } from "@/lib/admin/metrics";
 import { uploadFile } from "@/lib/storage/r2";
 import { MAX_FILE_SIZE_BYTES, SUPPORTED_MIME_TYPES } from "@/lib/rag/extract";
+import { validateApiKeyFormat, testApiKey } from "@/lib/byok/key";
+import { resolveByokModel } from "@/lib/byok/models";
 
 const baseLog = createLogger("api:generate");
 
@@ -153,6 +155,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // BYOK: caller may pass their own Anthropic key via X-Anthropic-Key.
+    // Format-check now, live-test below (after Turnstile, before DB writes).
+    // Never log the raw value — only `byok: true/false`.
+    const byokHeader = req.headers.get("x-anthropic-key");
+    let byokKey: string | null = null;
+    if (byokHeader && byokHeader.length > 0) {
+      const fmt = validateApiKeyFormat(byokHeader);
+      if (!fmt.ok) {
+        return NextResponse.json(
+          { error: fmt.reason!, code: ErrorCode.BYOK_INVALID },
+          { status: 400 },
+        );
+      }
+      byokKey = byokHeader.trim();
+    }
+    const isByok = byokKey !== null;
+
+    // BYOK-only: optional X-Anthropic-Model header. Ignored without a key
+    // (platform key runs are locked to the env-configured model). Unknown
+    // aliases fall through to the orchestrator default rather than failing.
+    let byokModel: string | null = null;
+    if (isByok) {
+      byokModel = resolveByokModel(req.headers.get("x-anthropic-model"));
+    }
+
     // Resolve client IP from trusted proxy headers (cf-connecting-ip > x-real-ip > x-forwarded-for rightmost).
     const clientIp = resolveClientIp(req);
 
@@ -272,15 +299,18 @@ export async function POST(req: NextRequest) {
 
     // Per-session/user rate limiting (sliding window).
     // Guests: 10/hr (capped at 3 total anyway). Logged-in: 20/hr.
-    // BYOK (future): 60/hr — their own key, safety net only.
+    // BYOK: 60/hr — their own key, safety net only against runaway loops.
     let rateLimitBypassed = false;
     try {
-      const rateLimitKey =
-        owner.type === "guest"
-          ? `generate:guest:${owner.guestSessionId}`
-          : `generate:user:${owner.userId}`;
-      const rateLimitMax =
-        owner.type === "guest" ? RATE_LIMIT_GUEST : RATE_LIMIT_USER;
+      const baseId =
+        owner.type === "guest" ? owner.guestSessionId : owner.userId;
+      const bucketPrefix = isByok ? "generate:byok" : "generate";
+      const rateLimitKey = `${bucketPrefix}:${owner.type}:${baseId}`;
+      const rateLimitMax = isByok
+        ? RATE_LIMIT_BYOK
+        : owner.type === "guest"
+          ? RATE_LIMIT_GUEST
+          : RATE_LIMIT_USER;
       const rl = await checkRateLimit({
         key: rateLimitKey,
         limit: rateLimitMax,
@@ -336,7 +366,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Enforce generation limits (atomic operations).
-    if (owner.type === "guest") {
+    // BYOK pays its own way: skip the guest cap and the user credit decrement.
+    // The BYOK rate limit above is the only safety net.
+    if (isByok) {
+      // no-op: caller is funding the Anthropic call themselves.
+    } else if (owner.type === "guest") {
       const gen = await consumeGuestGeneration(owner.guestSessionId);
       if (!gen.allowed) {
         log.warn("guest generation cap reached", {
@@ -441,6 +475,31 @@ export async function POST(req: NextRequest) {
         { error: "Service temporarily unavailable. Please try again shortly." },
         { status: 503 },
       );
+    }
+
+    // Confirm the BYOK key actually works before we persist anything or
+    // burn the queue slot. Cheap auth check via models.list — no token spend.
+    if (byokKey) {
+      const test = await testApiKey(byokKey);
+      if (!test.ok) {
+        log.warn("byok key rejected by Anthropic", {
+          event: "byok.test_failed",
+          endpoint: "POST /api/generate",
+          ownerType: owner.type,
+          ...(owner.type === "user"
+            ? { userId: owner.userId }
+            : { guestSessionId: owner.guestSessionId }),
+          anthropicStatus: test.status,
+          status: 401,
+        });
+        return NextResponse.json(
+          {
+            error: "Anthropic rejected that API key.",
+            code: ErrorCode.BYOK_INVALID,
+          },
+          { status: test.status === 401 ? 401 : 400 },
+        );
+      }
     }
 
     let projectId: string;
@@ -608,6 +667,11 @@ export async function POST(req: NextRequest) {
         referenceFileName,
         referenceContentType,
         referenceFileSize,
+        // BYOK: forwarded to the worker so the orchestrator can call
+        // Anthropic with the user's key. Worker scrubs this after the job
+        // completes so it doesn't linger in Redis beyond the run.
+        userApiKey: byokKey ?? undefined,
+        userModel: byokModel ?? undefined,
       },
       {
         jobId: versionId,
@@ -623,6 +687,7 @@ export async function POST(req: NextRequest) {
       versionId,
       versionNumber,
       isRefinement,
+      byok: isByok,
     });
 
     return NextResponse.json({

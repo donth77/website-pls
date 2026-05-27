@@ -19,6 +19,7 @@ export async function GET(
         select: {
           name: true,
           status: true,
+          errorMessage: true,
           guestSessionId: true,
           userId: true,
         },
@@ -57,19 +58,31 @@ export async function GET(
   let step: string | null = null;
   let percent: number | null = null;
   let commentary: string | null = null;
+  let errorCode: string | null = null;
 
-  // Read job data for both GENERATING (progress) and READY (commentary).
-  if (projectStatus === "GENERATING" || projectStatus === "READY") {
+  // Read job data for GENERATING (progress), READY (commentary), and ERROR
+  // (errorCode set by the worker on terminal failures like PLATFORM_BUDGET_LOW).
+  if (
+    projectStatus === "GENERATING" ||
+    projectStatus === "READY" ||
+    projectStatus === "ERROR"
+  ) {
     try {
       const queue = getGenerationQueue();
       const job = await queue.getJob(versionId);
       const prog = job?.progress as
-        | { step?: string; percent?: number; commentary?: string }
+        | {
+            step?: string;
+            percent?: number;
+            commentary?: string;
+            errorCode?: string;
+          }
         | undefined;
       if (prog) {
         step = prog.step ?? null;
         percent = prog.percent ?? null;
         commentary = prog.commentary ?? null;
+        errorCode = prog.errorCode ?? null;
       }
       // Fallback: check job return value for completed jobs
       if (!commentary && job?.returnvalue?.commentary) {
@@ -88,5 +101,11 @@ export async function GET(
     step,
     percent,
     commentary,
+    errorCode,
+    // Raw Anthropic/worker message for ERROR states. The hook prefers this
+    // over the generic errorCodeToMessage when present so users see what
+    // actually went wrong (e.g. "credit balance is too low").
+    errorMessage:
+      projectStatus === "ERROR" ? (version.project?.errorMessage ?? null) : null,
   });
 }
