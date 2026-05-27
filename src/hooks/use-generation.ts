@@ -459,13 +459,16 @@ export function useGeneration() {
     // race with React state updates.
     const fileForThisRequest = selectedFile;
 
-    // BYOK headers — only when an unlocked key is in the vault. Sent on
-    // both multipart and JSON requests. The server ignores X-Anthropic-Model
-    // when no key is supplied.
+    // BYOK headers — only when an unlocked key is in the vault. The server
+    // ignores model/provider when no key is supplied. Model is per-provider:
+    // if the user hasn't picked one explicitly, omit the header and let
+    // the server pick its provider-specific default.
     const byokHeaders: Record<string, string> = {};
-    if (byok.activeKey) {
-      byokHeaders["x-anthropic-key"] = byok.activeKey;
-      byokHeaders["x-anthropic-model"] = byok.model;
+    if (byok.activeKey && byok.storedProvider) {
+      byokHeaders["x-byok-provider"] = byok.storedProvider;
+      byokHeaders["x-byok-key"] = byok.activeKey;
+      const model = byok.modelByProvider[byok.storedProvider];
+      if (model) byokHeaders["x-byok-model"] = model;
     }
 
     try {

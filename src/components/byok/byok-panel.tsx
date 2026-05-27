@@ -1,15 +1,18 @@
 "use client";
 
 import { Lock, Trash2, ExternalLink, Check } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@ariakit/react";
 import { useTranslations } from "next-intl";
 import { useByok } from "@/lib/byok/context";
-import { BYOK_MODELS, type ByokModelAlias } from "@/lib/byok/models";
+import {
+  PROVIDERS,
+  PROVIDER_META,
+  listFixedModels,
+  type Provider,
+} from "@/lib/byok/providers";
 import { validateApiKeyFormat } from "@/lib/byok/key";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
-
-const ANTHROPIC_CONSOLE_URL = "https://console.anthropic.com/settings/keys";
 
 type SaveMode = "plain" | "encrypted";
 
@@ -22,9 +25,9 @@ interface ByokPanelProps {
 
 /**
  * The BYOK form body. Routed by `status` to one of three sub-views:
- *   - no key saved        → NewKeyForm
+ *   - no key saved        → NewKeyForm     (with provider dropdown)
  *   - encrypted + locked  → UnlockForm
- *   - active              → ActiveKeyView
+ *   - active              → ActiveKeyView  (with model picker per provider)
  *
  * Has no Dialog chrome of its own — wrap in `<ByokModal>` for in-app use
  * or render directly inside a settings page.
@@ -32,8 +35,11 @@ interface ByokPanelProps {
 export function ByokPanel({ onAfterMutation, onCancel }: ByokPanelProps) {
   const {
     status,
-    model,
-    setModel,
+    storedProvider,
+    selectedProvider,
+    setSelectedProvider,
+    modelByProvider,
+    setModelForProvider,
     savePlain,
     saveEncrypted,
     unlock,
@@ -43,6 +49,7 @@ export function ByokPanel({ onAfterMutation, onCancel }: ByokPanelProps) {
   if (status === "encrypted-locked") {
     return (
       <UnlockForm
+        provider={storedProvider ?? "anthropic"}
         onUnlock={async (p) => {
           await unlock(p);
           onAfterMutation?.();
@@ -59,12 +66,14 @@ export function ByokPanel({ onAfterMutation, onCancel }: ByokPanelProps) {
   if (status === "none") {
     return (
       <NewKeyForm
+        provider={selectedProvider}
+        onProviderChange={setSelectedProvider}
         onSave={(k) => {
-          savePlain(k);
+          savePlain(selectedProvider, k);
           onAfterMutation?.();
         }}
         onSaveEncrypted={async (k, p) => {
-          await saveEncrypted(k, p);
+          await saveEncrypted(selectedProvider, k, p);
           onAfterMutation?.();
         }}
         onCancel={onCancel}
@@ -72,11 +81,16 @@ export function ByokPanel({ onAfterMutation, onCancel }: ByokPanelProps) {
     );
   }
 
+  // Active key — show status + model picker for the stored provider.
+  // We pin the picker to storedProvider (not selectedProvider) because
+  // the active key only works with its own provider.
+  const activeProvider: Provider = storedProvider ?? "anthropic";
   return (
     <ActiveKeyView
       status={status}
-      model={model}
-      onModelChange={setModel}
+      provider={activeProvider}
+      model={modelByProvider[activeProvider]}
+      onModelChange={(m) => setModelForProvider(activeProvider, m)}
       onRemove={() => {
         remove();
         onAfterMutation?.();
@@ -85,26 +99,58 @@ export function ByokPanel({ onAfterMutation, onCancel }: ByokPanelProps) {
   );
 }
 
-function ConsoleLink() {
+function ConsoleLink({ provider }: { provider: Provider }) {
   const t = useTranslations("Byok");
   return (
     <a
-      href={ANTHROPIC_CONSOLE_URL}
+      href={PROVIDER_META[provider].consoleUrl}
       target="_blank"
       rel="noopener noreferrer"
       className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:underline dark:text-indigo-400"
     >
-      {t("consoleLink")}
+      {t("consoleLink", { provider: PROVIDER_META[provider].label })}
       <ExternalLink className="h-3 w-3" aria-hidden="true" />
     </a>
   );
 }
 
+function ProviderSelector({
+  value,
+  onChange,
+}: {
+  value: Provider;
+  onChange: (p: Provider) => void;
+}) {
+  const t = useTranslations("Byok");
+  return (
+    <div>
+      <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
+        {t("providerLabel")}
+      </label>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value as Provider)}
+        className="mt-1 block w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:focus:border-zinc-500"
+      >
+        {PROVIDERS.map((p) => (
+          <option key={p} value={p}>
+            {PROVIDER_META[p].label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 function NewKeyForm({
+  provider,
+  onProviderChange,
   onSave,
   onSaveEncrypted,
   onCancel,
 }: {
+  provider: Provider;
+  onProviderChange: (p: Provider) => void;
   onSave: (k: string) => void;
   onSaveEncrypted: (k: string, p: string) => Promise<void>;
   onCancel?: () => void;
@@ -117,12 +163,19 @@ function NewKeyForm({
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
+  // Switching providers clears the in-progress key + error: a key valid
+  // for one provider won't be valid for another and the prefix hint
+  // changes.
+  function handleProviderChange(p: Provider) {
+    setKey("");
+    setError(null);
+    onProviderChange(p);
+  }
+
   async function handleSave() {
     setError(null);
-    const fmt = validateApiKeyFormat(key);
+    const fmt = validateApiKeyFormat(key, provider);
     if (!fmt.ok) {
-      // fmt.reason comes from the validator (server-shared, English-only).
-      // Fall back to the localized generic message if absent.
       setError(fmt.reason ?? t("invalidKey"));
       return;
     }
@@ -155,6 +208,10 @@ function NewKeyForm({
       </p>
 
       <div className="mt-4">
+        <ProviderSelector value={provider} onChange={handleProviderChange} />
+      </div>
+
+      <div className="mt-4">
         <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
           {t("apiKeyLabel")}
         </label>
@@ -164,11 +221,11 @@ function NewKeyForm({
           spellCheck={false}
           value={key}
           onChange={(e) => setKey(e.target.value)}
-          placeholder={t("apiKeyPlaceholder")}
+          placeholder={PROVIDER_META[provider].keyPlaceholder}
           className="mt-1 block w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 font-mono text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:focus:border-zinc-500"
         />
         <div className="mt-1.5">
-          <ConsoleLink />
+          <ConsoleLink provider={provider} />
         </div>
       </div>
 
@@ -236,10 +293,12 @@ function NewKeyForm({
 }
 
 function UnlockForm({
+  provider,
   onUnlock,
   onRemove,
   onCancel,
 }: {
+  provider: Provider;
   onUnlock: (p: string) => Promise<void>;
   onRemove: () => void;
   onCancel?: () => void;
@@ -266,7 +325,9 @@ function UnlockForm({
   return (
     <>
       <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-        {t("unlockDescription")}
+        {t("unlockDescriptionWithProvider", {
+          provider: PROVIDER_META[provider].label,
+        })}
       </p>
 
       <div className="mt-4">
@@ -332,13 +393,15 @@ function UnlockForm({
 
 function ActiveKeyView({
   status,
+  provider,
   model,
   onModelChange,
   onRemove,
 }: {
   status: "plain" | "encrypted-unlocked";
-  model: ByokModelAlias;
-  onModelChange: (m: ByokModelAlias) => void;
+  provider: Provider;
+  model: string;
+  onModelChange: (m: string) => void;
   onRemove: () => void;
 }) {
   const t = useTranslations("Byok");
@@ -358,7 +421,9 @@ function ActiveKeyView({
       <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm dark:border-emerald-900/40 dark:bg-emerald-950/30">
         <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
         <span className="text-emerald-800 dark:text-emerald-300">
-          {t("activeStatus")}
+          {t("activeStatusWithProvider", {
+            provider: PROVIDER_META[provider].label,
+          })}
           {status === "encrypted-unlocked" && (
             <span className="ml-1 inline-flex items-center gap-0.5 text-xs text-emerald-700 dark:text-emerald-400">
               <Lock className="h-3 w-3" aria-hidden="true" />
@@ -368,33 +433,14 @@ function ActiveKeyView({
         </span>
       </div>
 
-      <div className="mt-4">
-        <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
-          {t("modelLabel")}
-        </label>
-        <div className="mt-2 grid grid-cols-3 gap-2">
-          {(Object.keys(BYOK_MODELS) as ByokModelAlias[]).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => onModelChange(m)}
-              className={`rounded-lg border px-3 py-2 text-xs font-medium capitalize transition ${
-                model === m
-                  ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
-                  : "border-zinc-200 text-zinc-700 hover:border-zinc-300 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-600"
-              }`}
-            >
-              {m}
-            </button>
-          ))}
-        </div>
-        <p className="mt-2 text-[11px] text-zinc-500 dark:text-zinc-400">
-          {t("modelHint")}
-        </p>
-      </div>
+      <ModelPicker
+        provider={provider}
+        model={model}
+        onChange={onModelChange}
+      />
 
       <div className="mt-5 flex items-center justify-between">
-        <ConsoleLink />
+        <ConsoleLink provider={provider} />
         <button
           type="button"
           onClick={() => setRemoveOpen(true)}
@@ -405,5 +451,121 @@ function ActiveKeyView({
         </button>
       </div>
     </>
+  );
+}
+
+/**
+ * Per-provider model picker:
+ *   - Anthropic / OpenAI: 3 fixed-tier chips
+ *   - OpenRouter:         dropdown populated from the server-cached
+ *                         structured-output allowlist
+ */
+function ModelPicker({
+  provider,
+  model,
+  onChange,
+}: {
+  provider: Provider;
+  model: string;
+  onChange: (m: string) => void;
+}) {
+  const t = useTranslations("Byok");
+
+  if (provider === "openrouter") {
+    return <OpenRouterModelPicker model={model} onChange={onChange} />;
+  }
+
+  const fixed = listFixedModels(provider);
+  return (
+    <div className="mt-4">
+      <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
+        {t("modelLabel")}
+      </label>
+      <div className="mt-2 grid grid-cols-3 gap-2">
+        {fixed.map((m) => (
+          <button
+            key={m.alias}
+            type="button"
+            onClick={() => onChange(m.alias)}
+            className={`rounded-lg border px-3 py-2 text-xs font-medium transition ${
+              model === m.alias || (!model && m.alias === fixed[1]?.alias)
+                ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
+                : "border-zinc-200 text-zinc-700 hover:border-zinc-300 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-600"
+            }`}
+          >
+            {m.alias}
+          </button>
+        ))}
+      </div>
+      <p className="mt-2 text-[11px] text-zinc-500 dark:text-zinc-400">
+        {t(provider === "anthropic" ? "anthropicModelHint" : "openaiModelHint")}
+      </p>
+    </div>
+  );
+}
+
+function OpenRouterModelPicker({
+  model,
+  onChange,
+}: {
+  model: string;
+  onChange: (m: string) => void;
+}) {
+  const t = useTranslations("Byok");
+  const [models, setModels] = useState<{ id: string; name: string }[] | null>(
+    null,
+  );
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/byok/openrouter-models")
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("fetch"))))
+      .then((data: { models: { id: string; name: string }[] }) => {
+        if (cancelled) return;
+        setModels(data.models);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setError(t("openrouterModelsFailed"));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [t]);
+
+  return (
+    <div className="mt-4">
+      <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
+        {t("modelLabel")}
+      </label>
+      {models === null && !error && (
+        <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+          {t("loadingModels")}
+        </p>
+      )}
+      {error && (
+        <p className="mt-2 text-xs text-red-600 dark:text-red-400">{error}</p>
+      )}
+      {models && (
+        <>
+          <select
+            value={model}
+            onChange={(e) => onChange(e.target.value)}
+            className="mt-1 block w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:focus:border-zinc-500"
+          >
+            <option value="">{t("openrouterDefault")}</option>
+            {models.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
+              </option>
+            ))}
+          </select>
+          <p className="mt-2 text-[11px] text-zinc-500 dark:text-zinc-400">
+            {t("openrouterModelHint", { count: models.length })}
+          </p>
+        </>
+      )}
+    </div>
   );
 }

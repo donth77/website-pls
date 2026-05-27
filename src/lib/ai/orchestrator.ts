@@ -1,6 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
-import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { searchPhotos, type ImageAttribution } from "@/lib/images/search";
 import {
   validateUserPrompt,
@@ -9,6 +8,12 @@ import {
 } from "@/lib/ai/promptSafety";
 import { buildContextForAgent } from "@/lib/ai/context";
 import { createLogger } from "@/lib/logger";
+import { generateStructured } from "@/lib/ai/providers/structured";
+import {
+  DEFAULT_PROVIDER,
+  resolveModelId,
+  type Provider,
+} from "@/lib/byok/providers";
 
 const log = createLogger("orchestrator");
 
@@ -59,30 +64,44 @@ type GenerationResult = z.infer<typeof GenerationResultSchema>;
 // Model resolution
 // ---------------------------------------------------------------------------
 
+// Source of truth: https://platform.claude.com/docs/en/about-claude/models/overview
+// When Anthropic ships a new generation, add its API ID here and update the
+// BYOK picker (src/lib/byok/{models,providers}.ts) and ANTHROPIC_MODEL default.
 const STRUCTURED_OUTPUT_MODELS = new Set([
-  "claude-sonnet-4-5-20250514",
-  "claude-haiku-4-5-20250514",
-  "claude-opus-4-5-20250514",
-  "claude-sonnet-4-6-20250819",
-  "claude-opus-4-6-20250918",
+  // Latest generation
+  "claude-opus-4-7",
+  "claude-sonnet-4-6",
+  "claude-haiku-4-5-20251001",
+  // Still-available legacy snapshots
+  "claude-opus-4-6",
+  "claude-sonnet-4-5-20250929",
+  "claude-opus-4-5-20251101",
+  "claude-opus-4-1-20250805",
 ]);
 
 function resolveModel(configured: string): {
   model: string;
   supportsStructured: boolean;
 } {
+  // Convenience aliases for older generations (4.5 and earlier still expose
+  // dateless aliases at the Anthropic API). 4.6+ ship as pinned snapshots
+  // with no separate alias, so they need no entry here.
   const aliases: Record<string, string> = {
     "claude-3-5-sonnet-latest": "claude-3-5-sonnet-20241022",
-    "claude-sonnet-4-5": "claude-sonnet-4-5-20250514",
-    "claude-haiku-4-5": "claude-haiku-4-5-20250514",
+    "claude-haiku-4-5": "claude-haiku-4-5-20251001",
+    "claude-sonnet-4-5": "claude-sonnet-4-5-20250929",
+    "claude-opus-4-5": "claude-opus-4-5-20251101",
+    "claude-opus-4-1": "claude-opus-4-1-20250805",
   };
   const model = aliases[configured] ?? configured;
   const supportsStructured =
     STRUCTURED_OUTPUT_MODELS.has(model) ||
-    model.startsWith("claude-sonnet-4-5") ||
+    model.startsWith("claude-opus-4-7") ||
     model.startsWith("claude-sonnet-4-6") ||
-    model.startsWith("claude-opus-4-5") ||
     model.startsWith("claude-opus-4-6") ||
+    model.startsWith("claude-sonnet-4-5") ||
+    model.startsWith("claude-opus-4-5") ||
+    model.startsWith("claude-opus-4-1") ||
     model.startsWith("claude-haiku-4-5");
   return { model, supportsStructured };
 }
@@ -655,9 +674,11 @@ export async function runGenerationPipeline(input: {
   refinementPrompt?: string;
   /** Correlation ID for structured logging. */
   requestId?: string;
-  /** BYOK: caller-supplied Anthropic key; falls back to ANTHROPIC_API_KEY env. */
+  /** BYOK: caller-supplied provider; falls back to "anthropic". */
+  provider?: Provider;
+  /** BYOK: caller-supplied API key; falls back to ANTHROPIC_API_KEY env. */
   apiKey?: string;
-  /** BYOK: caller-supplied full Anthropic model ID; falls back to ANTHROPIC_MODEL env. */
+  /** BYOK: caller-supplied model (alias or full ID); falls back to ANTHROPIC_MODEL env. */
   model?: string;
   onProgress?: ProgressCallback;
 }): Promise<{ html: string; commentary: string | null }> {
@@ -695,11 +716,40 @@ export async function runGenerationPipeline(input: {
     throw new Error(promptError);
   }
 
-  const apiKey = input.apiKey ?? getRequiredEnv("ANTHROPIC_API_KEY");
-  const configured =
-    input.model ?? process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5-20250514";
-  const { model, supportsStructured } = resolveModel(configured);
-  const anthropic = new Anthropic({ apiKey });
+  // Resolve provider + key + model. For BYOK, all three come from input.
+  // For platform-key generations (no BYOK), use Anthropic + env defaults.
+  const provider: Provider = input.provider ?? DEFAULT_PROVIDER;
+  const apiKey =
+    input.apiKey ??
+    (provider === "anthropic" ? getRequiredEnv("ANTHROPIC_API_KEY") : "");
+  if (!apiKey) {
+    throw new Error(
+      `BYOK provider '${provider}' requires a per-request API key.`,
+    );
+  }
+
+  // Model resolution depends on provider:
+  //   - Anthropic: legacy resolveModel() handles aliases + supportsStructured
+  //   - Others: resolveModelId() maps the alias to a full ID; we trust the
+  //     allowlist/fixed-models filter to ensure structured output works.
+  let model: string;
+  let supportsStructured: boolean;
+  if (provider === "anthropic") {
+    const configured =
+      input.model ?? process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
+    const resolved = resolveModel(configured);
+    model = resolved.model;
+    supportsStructured = resolved.supportsStructured;
+  } else {
+    model = resolveModelId(provider, input.model);
+    supportsStructured = true;
+  }
+
+  // Anthropic client kept around for downstream image-search retry helpers
+  // (LLM-simplified query). Only constructed when the user is on the
+  // Anthropic path — non-Anthropic providers skip that retry tier.
+  const anthropic =
+    provider === "anthropic" ? new Anthropic({ apiKey }) : null;
 
   const userContent = isRefinement
     ? [
@@ -710,17 +760,40 @@ export async function runGenerationPipeline(input: {
       ].join("")
     : wrapUserPromptForModel(input.userPrompt.trim());
 
-  // ---- Structured output path (Claude 4.5+) ----
-  // High max_tokens implies a long completion; the Anthropic SDK requires streaming
-  // for those (non-streaming is capped at ~10 min). See long-requests in SDK README.
+  // ---- Structured output path ----
+  // Anthropic uses 32k max_tokens with streaming (SDK requires streaming for
+  // long completions). OpenAI/OpenRouter cap at 16k and use the non-streaming
+  // parse helper — partial-JSON progress heuristics are Anthropic-only since
+  // OpenAI's parse() doesn't expose mid-stream JSON chunks.
   if (supportsStructured) {
     progress(isRefinement ? "applying" : "generating", 20);
 
-    const stream = anthropic.messages.stream({
+    // Partial-JSON progress: only meaningful on the Anthropic stream path.
+    let lastHeuristicStep: string | null = null;
+    let lastEmitAt = 0;
+    const handlePartialJson =
+      provider === "anthropic"
+        ? (partialJson: unknown) => {
+            const now = Date.now();
+            if (now - lastEmitAt < 500) return; // throttle
+            // Anthropic's `inputJson` stream event always carries a string;
+            // the abstraction's signature is `unknown` because OpenAI/
+            // OpenRouter don't expose this hook at all.
+            if (typeof partialJson !== "string") return;
+            const h = heuristicFromPartialJson(partialJson);
+            if (!h) return;
+            if (h.step === lastHeuristicStep) return;
+            lastHeuristicStep = h.step;
+            lastEmitAt = now;
+            progress(h.step, h.percent);
+          }
+        : undefined;
+
+    const { parsed, stopReason } = await generateStructured({
+      provider,
+      apiKey,
       model,
-      max_tokens: 32768,
-      temperature: 0.7,
-      system: [
+      systemBlocks: [
         {
           type: "text" as const,
           text: isRefinement ? SYSTEM_REFINEMENT : SYSTEM_STRUCTURED,
@@ -728,47 +801,29 @@ export async function runGenerationPipeline(input: {
         },
         ...referenceSystemBlock,
       ],
-      messages: [{ role: "user", content: userContent }],
-      output_config: {
-        format: zodOutputFormat(GenerationResultSchema),
+      userContent,
+      schema: GenerationResultSchema,
+      schemaName: "generation_result",
+      maxTokens: provider === "anthropic" ? 32768 : 16384,
+      temperature: 0.7,
+      onAnthropicPartialJson: handlePartialJson,
+      onStreamError: (err) => {
+        log.warn("Stream error during generation", { error: String(err) });
       },
     });
 
-    // Catch stream-level errors so Node doesn't crash from an unhandled
-    // 'error' event before we reach finalMessage().
-    stream.on("error", (err) => {
-      log.warn("Stream error during generation", { error: String(err) });
-    });
-
-    // Stream heuristics (no extra LLM calls): infer sub-steps from partial JSON output.
-    let lastHeuristicStep: string | null = null;
-    let lastEmitAt = 0;
-    stream.on("inputJson", (partialJson) => {
-      const now = Date.now();
-      if (now - lastEmitAt < 500) return; // throttle
-
-      const h = heuristicFromPartialJson(partialJson);
-      if (!h) return;
-      if (h.step === lastHeuristicStep) return;
-
-      lastHeuristicStep = h.step;
-      lastEmitAt = now;
-      progress(h.step, h.percent);
-    });
-
-    const response = await stream.finalMessage();
-
     progress("processing", 60);
 
-    const parsed = response.parsed_output;
     if (!parsed?.html) {
       throw new Error("Model returned no HTML in structured output.");
     }
 
     const images = parsed.images ?? [];
     log.info("Structured output received", {
+      provider,
+      model,
       imageSlots: images.length,
-      stopReason: response.stop_reason,
+      stopReason,
     });
 
     progress("searchingPhotos", 70);
@@ -788,7 +843,11 @@ export async function runGenerationPipeline(input: {
       attributions = attributions.concat(next.attributions);
     }
 
-    if (/__IMG_\d+__/.test(html)) {
+    // LLM-simplified retry uses the Anthropic SDK; on BYOK providers
+    // without an Anthropic client we skip this tier and rely on the
+    // placeholder fallback below. Tradeoff: slightly fewer matched
+    // images for OpenAI/OpenRouter users, no extra platform cost.
+    if (/__IMG_\d+__/.test(html) && anthropic) {
       log.warn("Still unresolved — retrying with LLM-simplified queries");
       const retry = await retryUnresolvedWithSimplifiedQuery(anthropic, html, {
         skipAttribution: true,
@@ -810,7 +869,16 @@ export async function runGenerationPipeline(input: {
     };
   }
 
-  // ---- Fallback path (older models) ----
+  // ---- Fallback path (older Anthropic models, no structured output) ----
+  // Only reachable on the Anthropic path: non-Anthropic providers always
+  // have supportsStructured=true. The guard prevents a null-deref if a
+  // misconfigured caller somehow lands here.
+  if (!anthropic) {
+    throw new Error(
+      `Provider '${provider}' requires a structured-output-capable model.`,
+    );
+  }
+
   progress(isRefinement ? "applying" : "generating", 20);
 
   const response = await anthropic.messages.create({

@@ -19,9 +19,11 @@ type GenerateJobData = {
   referenceFileName?: string;
   referenceContentType?: string;
   referenceFileSize?: number;
-  /** BYOK Anthropic key. Scrubbed from job data on completion. */
+  /** BYOK provider — "anthropic" | "openai" | "openrouter". Defaults to anthropic. */
+  userProvider?: string;
+  /** BYOK API key. Scrubbed from job data on completion. */
   userApiKey?: string;
-  /** BYOK-only model override (full Anthropic ID, already allowlist-resolved). */
+  /** BYOK-only model override (alias or full ID, already allowlist-resolved). */
   userModel?: string;
 };
 
@@ -91,6 +93,7 @@ const worker = new Worker(
       referenceFileName,
       referenceContentType,
       referenceFileSize,
+      userProvider,
       userApiKey,
       userModel,
     } = data;
@@ -105,6 +108,7 @@ const worker = new Worker(
       isRefinement: !!refinementPrompt,
       hasReferenceFile: !!referenceFileStorageKey,
       byok: !!userApiKey,
+      provider: userProvider,
     });
 
     // Hard timeout — rejects if the job exceeds JOB_TIMEOUT_MS.
@@ -200,6 +204,11 @@ const worker = new Worker(
             previousHtml,
             refinementPrompt,
             requestId,
+            provider: userProvider as
+              | "anthropic"
+              | "openai"
+              | "openrouter"
+              | undefined,
             apiKey: userApiKey,
             model: userModel,
             onProgress: (step, percent) => {
