@@ -84,7 +84,9 @@
     "openrouterModelHint": "{count} structured-output-capable models. Switching changes which model handles your generations.",
     "openrouterModelsFailed": "Couldn't load the OpenRouter model list. Try again in a moment.",
     "loadingModels": "Loading models…",
-    "openrouterDefault": "Default (anthropic/claude-sonnet-4)"
+    "openrouterDefault": "Default (anthropic/claude-sonnet-4)",
+    "searchModels": "Search models…",
+    "noMatches": "No matches"
   },
   "Chat": {
     "tab": "Chat",

@@ -78,6 +78,8 @@ const additions = {
       "Couldn't load the OpenRouter model list. Try again in a moment.",
     loadingModels: "Loading models…",
     openrouterDefault: "Default (anthropic/claude-sonnet-4)",
+    searchModels: "Search models…",
+    noMatches: "No matches",
     activeStatus: "Using your Anthropic key",
     encryptedLabel: "encrypted",
     modelLabel: "Model",

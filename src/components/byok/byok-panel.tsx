@@ -13,6 +13,7 @@ import {
 } from "@/lib/byok/providers";
 import { validateApiKeyFormat } from "@/lib/byok/key";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { ModelCombobox } from "./model-combobox";
 
 type SaveMode = "plain" | "encrypted";
 
@@ -456,9 +457,10 @@ function ActiveKeyView({
 
 /**
  * Per-provider model picker:
- *   - Anthropic / OpenAI: 3 fixed-tier chips
- *   - OpenRouter:         dropdown populated from the server-cached
- *                         structured-output allowlist
+ *   - Anthropic:   3 fixed-tier chips (Haiku / Sonnet / Opus)
+ *   - OpenAI:      searchable combobox over the fixed tier list
+ *   - OpenRouter:  searchable combobox over the server-cached
+ *                  structured-output allowlist
  */
 function ModelPicker({
   provider,
@@ -475,6 +477,30 @@ function ModelPicker({
     return <OpenRouterModelPicker model={model} onChange={onChange} />;
   }
 
+  if (provider === "openai") {
+    const fixed = listFixedModels(provider);
+    return (
+      <div className="mt-4">
+        <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
+          {t("modelLabel")}
+        </label>
+        <div className="mt-1">
+          <ModelCombobox
+            items={fixed.map((m) => ({ id: m.alias, label: m.label }))}
+            value={model}
+            onChange={onChange}
+            placeholder={t("searchModels")}
+            emptyHint={t("noMatches")}
+          />
+        </div>
+        <p className="mt-2 text-[11px] text-zinc-500 dark:text-zinc-400">
+          {t("openaiModelHint")}
+        </p>
+      </div>
+    );
+  }
+
+  // Anthropic — chips are clearer for three short tier names than a combobox.
   const fixed = listFixedModels(provider);
   return (
     <div className="mt-4">
@@ -493,12 +519,12 @@ function ModelPicker({
                 : "border-zinc-200 text-zinc-700 hover:border-zinc-300 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-600"
             }`}
           >
-            {m.alias}
+            {m.label}
           </button>
         ))}
       </div>
       <p className="mt-2 text-[11px] text-zinc-500 dark:text-zinc-400">
-        {t(provider === "anthropic" ? "anthropicModelHint" : "openaiModelHint")}
+        {t("anthropicModelHint")}
       </p>
     </div>
   );
@@ -549,18 +575,16 @@ function OpenRouterModelPicker({
       )}
       {models && (
         <>
-          <select
-            value={model}
-            onChange={(e) => onChange(e.target.value)}
-            className="mt-1 block w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:focus:border-zinc-500"
-          >
-            <option value="">{t("openrouterDefault")}</option>
-            {models.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
-          </select>
+          <div className="mt-1">
+            <ModelCombobox
+              items={models.map((m) => ({ id: m.id, label: m.name }))}
+              value={model}
+              onChange={onChange}
+              placeholder={t("searchModels")}
+              defaultRow={{ id: "", label: t("openrouterDefault") }}
+              emptyHint={t("noMatches")}
+            />
+          </div>
           <p className="mt-2 text-[11px] text-zinc-500 dark:text-zinc-400">
             {t("openrouterModelHint", { count: models.length })}
           </p>

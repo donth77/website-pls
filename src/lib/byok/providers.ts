@@ -77,20 +77,41 @@ export const DEFAULT_MODEL: Record<Provider, string> = {
   openrouter: "anthropic/claude-sonnet-4",
 };
 
+/**
+ * Friendly display labels per alias. Anthropic gets title-case tier
+ * names; OpenAI keeps its lowercase API IDs because they're recognizable
+ * and look wrong when capitalized (e.g. "Gpt-4O").
+ */
+const MODEL_LABELS: Record<Provider, Record<string, string>> = {
+  anthropic: {
+    haiku: "Haiku",
+    sonnet: "Sonnet",
+    opus: "Opus",
+  },
+  openai: {
+    "gpt-4o-mini": "gpt-4o-mini",
+    "gpt-4o": "gpt-4o",
+    "gpt-4.1": "gpt-4.1",
+  },
+  openrouter: {},
+};
+
 /** UI-displayable aliases for the fixed providers. OpenRouter is free-form. */
 export function listFixedModels(
   provider: Provider,
-): { alias: string; id: string }[] {
+): { alias: string; id: string; label: string }[] {
   if (provider === "anthropic") {
     return Object.entries(ANTHROPIC_MODELS).map(([alias, id]) => ({
       alias,
       id,
+      label: MODEL_LABELS.anthropic[alias] ?? alias,
     }));
   }
   if (provider === "openai") {
     return Object.entries(OPENAI_MODELS).map(([alias, id]) => ({
       alias,
       id,
+      label: MODEL_LABELS.openai[alias] ?? alias,
     }));
   }
   return [];
