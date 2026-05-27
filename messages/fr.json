@@ -289,7 +289,7 @@
     "errorGeneric": "Une erreur est survenue. Veuillez réessayer.",
     "notificationsHeading": "Notifications",
     "notificationsDescription": "Get a desktop notification when your generation finishes, even when you're working in another tab.",
-    "byokHeading": "Anthropic API key",
+    "byokHeading": "API key",
     "byokDescription": "Bring your own key to skip per-account limits and pick the model. Keys are stored in this browser only — they never reach our server except as a per-request header on your own generations."
   },
   "Terms": {
@@ -334,7 +334,7 @@
     "errorWrongType": "Type de fichier non pris en charge (PDF, TXT ou MD)"
   },
   "Byok": {
-    "modalTitle": "Anthropic API key",
+    "modalTitle": "API key",
     "close": "Close",
     "newKeyDescription": "Your key stays in this browser. It's sent only with your own generation requests and never stored on the server.",
     "apiKeyLabel": "API key",
