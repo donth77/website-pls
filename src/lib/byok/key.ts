@@ -43,6 +43,24 @@ export function validateApiKeyFormat(
 }
 
 /**
+ * Scrub any occurrences of the API key (or 12+ char substrings of it) from
+ * an upstream error message before returning it. Providers don't usually
+ * echo the full key, but defence-in-depth: if a future SDK change starts
+ * including the key in error text, this prevents it leaking via logs or
+ * any callers that surface `reason` back to the client.
+ */
+function scrubApiKey(message: string, apiKey: string): string {
+  if (!message || !apiKey) return message;
+  let out = message.split(apiKey).join("[redacted]");
+  if (apiKey.length >= 16) {
+    for (let i = 0; i + 12 <= apiKey.length; i += 4) {
+      out = out.split(apiKey.slice(i, i + 12)).join("[redacted]");
+    }
+  }
+  return out;
+}
+
+/**
  * Live-test a key against the provider's cheapest authenticated endpoint:
  *   - Anthropic:  models.list({ limit: 1 })   — no token spend
  *   - OpenAI:     models.list()               — no token spend
@@ -81,10 +99,11 @@ export async function testApiKey(
     return { ok: true };
   } catch (err) {
     const e = err as { status?: number; message?: string };
+    const rawReason = e.message ?? "API key validation failed.";
     return {
       ok: false,
       status: e.status,
-      reason: e.message ?? "API key validation failed.",
+      reason: scrubApiKey(rawReason, apiKey),
     };
   }
 }

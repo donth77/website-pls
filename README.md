@@ -27,15 +27,16 @@ An **AI-powered website generator**: describe what you want in plain language, a
 | Database        | PostgreSQL via [Prisma](https://www.prisma.io) 7 + `@prisma/adapter-pg` |
 | Job queue       | [BullMQ](https://docs.bullmq.io) + Redis                                |
 | AI              | [Anthropic SDK](https://docs.anthropic.com) (Claude)                    |
-| Images          | [Unsplash API](https://unsplash.com/developers)                         |
-| Storage         | [Supabase](https://supabase.com) (object storage for generated HTML)    |
+| Images          | [Unsplash](https://unsplash.com/developers), Pexels, Pixabay (cascade)  |
+| Storage         | [Cloudflare R2](https://developers.cloudflare.com/r2/) (S3-compatible)  |
 | Screening       | [Lakera Guard](https://www.lakera.ai) (optional)                        |
 
 ## Prerequisites
 
 - **Node.js 20+** (for Corepack)
-- **PostgreSQL** — local or hosted (e.g. Supabase)
-- **Redis** — local (`redis-server` or Docker) or hosted (e.g. Upstash)
+- **PostgreSQL** — local or hosted (e.g. [Neon](https://neon.tech))
+- **Redis** — local (`redis-server` or Docker) or hosted (e.g. [Upstash](https://upstash.com))
+- **Cloudflare R2 bucket** — [dash.cloudflare.com → R2](https://dash.cloudflare.com)
 - **Anthropic API key** — [console.anthropic.com](https://console.anthropic.com)
 
 ## Setup
@@ -49,7 +50,9 @@ pnpm install
 
 # 3. Configure environment
 cp .env.example .env
-# Edit .env — set DATABASE_URL, REDIS_URL, ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+# Edit .env — set DATABASE_URL, REDIS_URL, ANTHROPIC_API_KEY,
+# R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME,
+# AUTH_SECRET
 
 # 4. Push schema to database
 pnpm db:push
@@ -78,16 +81,19 @@ Open [http://localhost:3000](http://localhost:3000). Health check: [http://local
 
 See [`.env.example`](.env.example) for full documentation. At minimum:
 
-| Variable                    | Required    | Purpose                                                |
-| --------------------------- | ----------- | ------------------------------------------------------ |
-| `DATABASE_URL`              | Yes         | PostgreSQL connection string                           |
-| `REDIS_URL`                 | Yes         | Redis for BullMQ (`redis://` or `rediss://`)           |
-| `ANTHROPIC_API_KEY`         | Yes         | Claude API for generation                              |
-| `SUPABASE_URL`              | Yes         | Supabase project URL                                   |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes         | Supabase admin key (server-only)                       |
-| `UNSPLASH_ACCESS_KEY`       | Recommended | Real stock photos; without it, images are placeholders |
-| `LAKERA_API_KEY`            | Optional    | Prompt screening; skipped if unset (warning logged)    |
-| `ANTHROPIC_MODEL`           | Optional    | Defaults to `claude-sonnet-4-5-20250514`               |
+| Variable                | Required    | Purpose                                                |
+| ----------------------- | ----------- | ------------------------------------------------------ |
+| `DATABASE_URL`          | Yes         | PostgreSQL connection string                           |
+| `REDIS_URL`             | Yes         | Redis for BullMQ (`redis://` or `rediss://`)           |
+| `ANTHROPIC_API_KEY`     | Yes         | Claude API for generation                              |
+| `R2_ACCOUNT_ID`         | Yes         | Cloudflare account ID                                  |
+| `R2_ACCESS_KEY_ID`      | Yes         | R2 API token (Object Read & Write)                     |
+| `R2_SECRET_ACCESS_KEY`  | Yes         | R2 API token secret                                    |
+| `R2_BUCKET_NAME`        | Yes         | R2 bucket name (defaults to `generated-sites`)         |
+| `AUTH_SECRET`           | Yes         | HMAC secret for guest cookies + NextAuth sessions      |
+| `UNSPLASH_ACCESS_KEY`   | Recommended | Real stock photos; without it, images are placeholders |
+| `LAKERA_API_KEY`        | Optional    | Prompt screening; skipped if unset (warning logged)    |
+| `ANTHROPIC_MODEL`       | Optional    | Defaults to `claude-sonnet-4-6`                        |
 
 ## Troubleshooting
 
