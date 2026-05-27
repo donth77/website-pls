@@ -28,6 +28,17 @@ const additions = {
     byokHeading: "API key",
     byokDescription:
       "Bring your own key to skip per-account limits and pick the model. Keys are stored in this browser only — they never reach our server except as a per-request header on your own generations.",
+    cancel: "Cancel",
+    deleteAccountHeading: "Delete account",
+    deleteAccountDescription:
+      "Permanently delete your account, all your projects, uploaded reference documents, generated pages, and any published sites. This cannot be undone.",
+    deleteAccountButton: "Delete account",
+    deleteAccountConfirmTitle: "Delete your account?",
+    deleteAccountConfirmMessage:
+      "Everything tied to this account will be removed immediately: your projects, generations, published sites, reference uploads, and avatar. There is no recovery window.",
+    deleteAccountConfirmButton: "Yes, delete my account",
+    deleteAccountSuccess: "Account deleted.",
+    deleteAccountError: "Couldn't delete your account. Try again in a moment.",
   },
   Byok: {
     modalTitle: "API key",
