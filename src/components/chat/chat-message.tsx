@@ -1,6 +1,11 @@
 import { Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Button } from "@ariakit/react";
+import {
+  Button,
+  Tooltip,
+  TooltipAnchor,
+  TooltipProvider,
+} from "@ariakit/react";
 import type { ChatMessage } from "@/lib/types";
 import { formatElapsed } from "@/lib/types";
 
@@ -16,31 +21,72 @@ export interface ChatMessageProps {
   onRetry: () => void;
 }
 
-function formatTimestamp(ts: number, locale?: string): string {
-  return new Date(ts).toLocaleTimeString(locale, {
+function isSameLocalDay(a: Date, b: Date): boolean {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
+/** Compact label shown above a message. Date is included only if not today. */
+function formatTimestampLabel(ts: number): string {
+  const date = new Date(ts);
+  if (isSameLocalDay(date, new Date())) {
+    return date.toLocaleTimeString(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  }
+  // Older message — include date so context is clear. Year only if not current.
+  const includeYear = date.getFullYear() !== new Date().getFullYear();
+  return date.toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: includeYear ? "numeric" : undefined,
     hour: "numeric",
     minute: "2-digit",
   });
 }
 
-function formatDate(ts: number, locale?: string): string {
-  const now = new Date();
-  const date = new Date(ts);
-  const isToday =
-    date.getDate() === now.getDate() &&
-    date.getMonth() === now.getMonth() &&
-    date.getFullYear() === now.getFullYear();
-
-  if (isToday) {
-    return formatTimestamp(ts, locale);
-  }
-
-  return date.toLocaleDateString(locale, {
-    month: "short",
+/** Full locale-aware datetime for tooltips: weekday, full date, minute-precise time. */
+function formatFullDateTime(ts: number): string {
+  return new Date(ts).toLocaleString(undefined, {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
+    timeZoneName: "short",
   });
+}
+
+const timestampTooltipClass =
+  "z-50 rounded-lg bg-zinc-900 px-2.5 py-1.5 text-xs font-medium text-white shadow-lg dark:bg-zinc-100 dark:text-zinc-900";
+
+function MessageTimestamp({
+  ts,
+  className,
+}: {
+  ts: number;
+  className: string;
+}) {
+  const iso = new Date(ts).toISOString();
+  return (
+    <TooltipProvider>
+      <TooltipAnchor
+        render={
+          <time dateTime={iso} className={className}>
+            {formatTimestampLabel(ts)}
+          </time>
+        }
+      />
+      <Tooltip className={timestampTooltipClass}>
+        {formatFullDateTime(ts)}
+      </Tooltip>
+    </TooltipProvider>
+  );
 }
 
 export function ChatMessageBubble({
@@ -66,9 +112,12 @@ export function ChatMessageBubble({
     return (
       <div>
         {message.timestamp > 0 && !sameMinute && (
-          <p className="mb-1.5 text-center text-[10px] text-zinc-400 dark:text-zinc-500">
-            {formatDate(message.timestamp)}
-          </p>
+          <div className="mb-1.5 flex justify-center">
+            <MessageTimestamp
+              ts={message.timestamp}
+              className="cursor-default text-[10px] text-zinc-400 dark:text-zinc-500"
+            />
+          </div>
         )}
         <div className="flex justify-end">
           <div className="max-w-[85%] rounded-2xl rounded-br-md bg-zinc-900 px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap text-white dark:bg-zinc-100 dark:text-zinc-900">

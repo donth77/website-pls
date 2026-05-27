@@ -31,6 +31,7 @@ export default async function ProjectsPage() {
           versionNumber: true,
           promptDelta: true,
           commentary: true,
+          createdAt: true,
         },
       },
       publishedSites: {

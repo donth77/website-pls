@@ -52,7 +52,6 @@ export default function PrivacyPage() {
       </p>
 
       <div className="mt-8 space-y-6 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
-        <p>{t("placeholder")}</p>
       </div>
     </div>
   );
