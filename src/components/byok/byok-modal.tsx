@@ -7,6 +7,7 @@ import {
   DialogHeading,
   useDialogStore,
 } from "@ariakit/react";
+import { useTranslations } from "next-intl";
 import { useByok } from "@/lib/byok/context";
 import { ByokPanel } from "./byok-panel";
 
@@ -16,6 +17,7 @@ import { ByokPanel } from "./byok-panel";
  * a Dialog around it.
  */
 export function ByokModal() {
+  const t = useTranslations("Byok");
   const { isModalOpen, closeModal } = useByok();
 
   const dialog = useDialogStore({
@@ -37,12 +39,12 @@ export function ByokModal() {
         <div className="flex items-center gap-2">
           <Key className="h-4 w-4 text-zinc-500 dark:text-zinc-400" />
           <DialogHeading className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
-            Anthropic API key
+            {t("modalTitle")}
           </DialogHeading>
         </div>
         <DialogDismiss
           className="rounded-lg p-2 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-600 dark:text-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
-          aria-label="Close"
+          aria-label={t("close")}
         >
           <X className="h-4 w-4" />
         </DialogDismiss>

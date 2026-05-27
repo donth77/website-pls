@@ -11,6 +11,7 @@ import type { ChatMessage, GenerationStatus } from "@/lib/types";
 import { MAX_USER_PROMPT_CHARS } from "@/lib/ai/promptSafety";
 import { ByokTrigger } from "../byok/byok-trigger";
 import { ByokBanner } from "../byok/byok-banner";
+import { NotifyToast } from "../notifications/notify-toast";
 
 export interface ChatSidebarProps {
   messages: ChatMessage[];
@@ -47,6 +48,10 @@ export interface ChatSidebarProps {
   hasReferenceDocument?: boolean;
   /** Whether the project metadata fetch has resolved. Controls the loading state of the trigger. */
   referenceStateLoaded?: boolean;
+  /** Show the desktop-notification opt-in toast (set by useGeneration after ~30s). */
+  showNotifyPrompt?: boolean;
+  onEnableNotifications?: () => Promise<{ ok: boolean; reason?: string }>;
+  onDismissNotifyPrompt?: () => void;
 }
 
 export function ChatSidebar({
@@ -71,6 +76,9 @@ export function ChatSidebar({
   referenceMaterial,
   hasReferenceDocument,
   referenceStateLoaded = false,
+  showNotifyPrompt = false,
+  onEnableNotifications,
+  onDismissNotifyPrompt,
 }: ChatSidebarProps) {
   const t = useTranslations("Chat");
   const tRef = useTranslations("ReferenceMaterial");
@@ -208,6 +216,15 @@ export function ChatSidebar({
 
       {/* Input */}
       <div className="order-3 shrink-0 border-t border-zinc-200 p-3 md:order-none dark:border-zinc-800">
+        {/* Notify-when-done prompt — shown by useGeneration after ~30s
+            of GENERATING. Self-suppresses once the user enables or
+            dismisses; settings toggle also hides it. */}
+        {showNotifyPrompt && onEnableNotifications && onDismissNotifyPrompt && (
+          <NotifyToast
+            onEnable={onEnableNotifications}
+            onDismiss={onDismissNotifyPrompt}
+          />
+        )}
         <div className="relative rounded-xl border border-zinc-200 bg-zinc-50 transition-colors focus-within:border-zinc-300 focus-within:bg-white dark:border-zinc-700 dark:bg-zinc-800/50 dark:focus-within:border-zinc-600 dark:focus-within:bg-zinc-800">
           <textarea
             ref={sidebarInputRef}

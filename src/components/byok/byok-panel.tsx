@@ -1,11 +1,13 @@
 "use client";
 
 import { Lock, Trash2, ExternalLink, Check } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@ariakit/react";
+import { useTranslations } from "next-intl";
 import { useByok } from "@/lib/byok/context";
 import { BYOK_MODELS, type ByokModelAlias } from "@/lib/byok/models";
 import { validateApiKeyFormat } from "@/lib/byok/key";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 
 const ANTHROPIC_CONSOLE_URL = "https://console.anthropic.com/settings/keys";
 
@@ -84,6 +86,7 @@ export function ByokPanel({ onAfterMutation, onCancel }: ByokPanelProps) {
 }
 
 function ConsoleLink() {
+  const t = useTranslations("Byok");
   return (
     <a
       href={ANTHROPIC_CONSOLE_URL}
@@ -91,7 +94,7 @@ function ConsoleLink() {
       rel="noopener noreferrer"
       className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:underline dark:text-indigo-400"
     >
-      Get a key from the Anthropic console
+      {t("consoleLink")}
       <ExternalLink className="h-3 w-3" aria-hidden="true" />
     </a>
   );
@@ -106,6 +109,7 @@ function NewKeyForm({
   onSaveEncrypted: (k: string, p: string) => Promise<void>;
   onCancel?: () => void;
 }) {
+  const t = useTranslations("Byok");
   const [key, setKey] = useState("");
   const [mode, setMode] = useState<SaveMode>("plain");
   const [passphrase, setPassphrase] = useState("");
@@ -117,23 +121,25 @@ function NewKeyForm({
     setError(null);
     const fmt = validateApiKeyFormat(key);
     if (!fmt.ok) {
-      setError(fmt.reason ?? "Invalid API key.");
+      // fmt.reason comes from the validator (server-shared, English-only).
+      // Fall back to the localized generic message if absent.
+      setError(fmt.reason ?? t("invalidKey"));
       return;
     }
     if (mode === "encrypted") {
       if (passphrase.length < 4) {
-        setError("Passphrase must be at least 4 characters.");
+        setError(t("passphraseShort"));
         return;
       }
       if (passphrase !== confirm) {
-        setError("Passphrases don't match.");
+        setError(t("passphraseMismatch"));
         return;
       }
       setBusy(true);
       try {
         await onSaveEncrypted(key.trim(), passphrase);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to encrypt key.");
+        setError(e instanceof Error ? e.message : t("saveFailed"));
       } finally {
         setBusy(false);
       }
@@ -145,13 +151,12 @@ function NewKeyForm({
   return (
     <>
       <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-        Your key stays in this browser. It&apos;s sent only with your own
-        generation requests and never stored on the server.
+        {t("newKeyDescription")}
       </p>
 
       <div className="mt-4">
         <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
-          API key
+          {t("apiKeyLabel")}
         </label>
         <input
           type="password"
@@ -159,7 +164,7 @@ function NewKeyForm({
           spellCheck={false}
           value={key}
           onChange={(e) => setKey(e.target.value)}
-          placeholder="sk-ant-…"
+          placeholder={t("apiKeyPlaceholder")}
           className="mt-1 block w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 font-mono text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:focus:border-zinc-500"
         />
         <div className="mt-1.5">
@@ -176,10 +181,9 @@ function NewKeyForm({
             onChange={(e) => setMode(e.target.checked ? "encrypted" : "plain")}
           />
           <span className="text-xs text-zinc-700 dark:text-zinc-300">
-            <span className="font-medium">Encrypt with a passphrase</span>
+            <span className="font-medium">{t("encryptToggle")}</span>
             <span className="block text-zinc-500 dark:text-zinc-400">
-              You&apos;ll re-enter the passphrase once per session. Without one,
-              the key is stored unencrypted in this browser.
+              {t("encryptHint")}
             </span>
           </span>
         </label>
@@ -188,7 +192,7 @@ function NewKeyForm({
             <input
               type="password"
               autoComplete="new-password"
-              placeholder="Passphrase"
+              placeholder={t("passphraseLabel")}
               value={passphrase}
               onChange={(e) => setPassphrase(e.target.value)}
               className="block w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:focus:border-zinc-500"
@@ -196,7 +200,7 @@ function NewKeyForm({
             <input
               type="password"
               autoComplete="new-password"
-              placeholder="Confirm passphrase"
+              placeholder={t("passphraseConfirmLabel")}
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               className="block w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:focus:border-zinc-500"
@@ -216,7 +220,7 @@ function NewKeyForm({
             onClick={onCancel}
             className="rounded-xl px-4 py-2 text-sm text-zinc-600 transition hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
           >
-            Cancel
+            {t("cancel")}
           </button>
         )}
         <Button
@@ -224,7 +228,7 @@ function NewKeyForm({
           disabled={busy || key.length === 0}
           className="rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-800 aria-disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
         >
-          {busy ? "Saving…" : "Save to this browser"}
+          {busy ? t("saving") : t("save")}
         </Button>
       </div>
     </>
@@ -240,9 +244,11 @@ function UnlockForm({
   onRemove: () => void;
   onCancel?: () => void;
 }) {
+  const t = useTranslations("Byok");
   const [passphrase, setPassphrase] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [forgetOpen, setForgetOpen] = useState(false);
 
   async function handleUnlock() {
     setError(null);
@@ -251,7 +257,7 @@ function UnlockForm({
     try {
       await onUnlock(passphrase);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Unlock failed.");
+      setError(e instanceof Error ? e.message : t("unlockFailed"));
     } finally {
       setBusy(false);
     }
@@ -260,13 +266,12 @@ function UnlockForm({
   return (
     <>
       <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-        Your key is encrypted in this browser. Enter your passphrase to unlock
-        it for this session.
+        {t("unlockDescription")}
       </p>
 
       <div className="mt-4">
         <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
-          Passphrase
+          {t("passphraseLabel")}
         </label>
         <input
           type="password"
@@ -284,21 +289,23 @@ function UnlockForm({
         <p className="mt-3 text-xs text-red-600 dark:text-red-400">{error}</p>
       )}
 
+      <ConfirmModal
+        isOpen={forgetOpen}
+        onClose={() => setForgetOpen(false)}
+        onConfirm={onRemove}
+        title={t("forgotPassphraseTitle")}
+        message={t("forgotPassphraseConfirm")}
+        confirmLabel={t("confirmRemoveButton")}
+        cancelLabel={t("cancel")}
+      />
+
       <div className="mt-5 flex items-center justify-between">
         <button
           type="button"
-          onClick={() => {
-            if (
-              confirm(
-                "This deletes the encrypted key in this browser. You'll need to paste your API key again.",
-              )
-            ) {
-              onRemove();
-            }
-          }}
+          onClick={() => setForgetOpen(true)}
           className="text-xs text-zinc-500 underline hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
         >
-          Forgot passphrase?
+          {t("forgotPassphrase")}
         </button>
         <div className="flex gap-2">
           {onCancel && (
@@ -307,7 +314,7 @@ function UnlockForm({
               onClick={onCancel}
               className="rounded-xl px-4 py-2 text-sm text-zinc-600 transition hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
             >
-              Cancel
+              {t("cancel")}
             </button>
           )}
           <Button
@@ -315,7 +322,7 @@ function UnlockForm({
             disabled={busy || !passphrase}
             className="rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-800 aria-disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
           >
-            {busy ? "Unlocking…" : "Unlock"}
+            {busy ? t("unlocking") : t("unlock")}
           </Button>
         </div>
       </div>
@@ -334,21 +341,28 @@ function ActiveKeyView({
   onModelChange: (m: ByokModelAlias) => void;
   onRemove: () => void;
 }) {
-  const [confirmingRemove, setConfirmingRemove] = useState(false);
-  useEffect(() => {
-    return () => setConfirmingRemove(false);
-  }, []);
+  const t = useTranslations("Byok");
+  const [removeOpen, setRemoveOpen] = useState(false);
 
   return (
     <>
+      <ConfirmModal
+        isOpen={removeOpen}
+        onClose={() => setRemoveOpen(false)}
+        onConfirm={onRemove}
+        title={t("confirmRemoveTitle")}
+        message={t("confirmRemoveMessage")}
+        confirmLabel={t("confirmRemoveButton")}
+        cancelLabel={t("cancel")}
+      />
       <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm dark:border-emerald-900/40 dark:bg-emerald-950/30">
         <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
         <span className="text-emerald-800 dark:text-emerald-300">
-          Using your Anthropic key
+          {t("activeStatus")}
           {status === "encrypted-unlocked" && (
             <span className="ml-1 inline-flex items-center gap-0.5 text-xs text-emerald-700 dark:text-emerald-400">
               <Lock className="h-3 w-3" aria-hidden="true" />
-              encrypted
+              {t("encryptedLabel")}
             </span>
           )}
         </span>
@@ -356,7 +370,7 @@ function ActiveKeyView({
 
       <div className="mt-4">
         <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">
-          Model
+          {t("modelLabel")}
         </label>
         <div className="mt-2 grid grid-cols-3 gap-2">
           {(Object.keys(BYOK_MODELS) as ByokModelAlias[]).map((m) => (
@@ -375,44 +389,20 @@ function ActiveKeyView({
           ))}
         </div>
         <p className="mt-2 text-[11px] text-zinc-500 dark:text-zinc-400">
-          Haiku is fastest and cheapest. Opus is highest quality. Sonnet is the
-          balanced default.
+          {t("modelHint")}
         </p>
       </div>
 
       <div className="mt-5 flex items-center justify-between">
         <ConsoleLink />
-        {confirmingRemove ? (
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setConfirmingRemove(false)}
-              className="text-xs text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                onRemove();
-                setConfirmingRemove(false);
-              }}
-              className="inline-flex items-center gap-1 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700"
-            >
-              <Trash2 className="h-3 w-3" />
-              Confirm remove
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setConfirmingRemove(true)}
-            className="inline-flex items-center gap-1 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
-          >
-            <Trash2 className="h-3 w-3" />
-            Remove key
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => setRemoveOpen(true)}
+          className="inline-flex items-center gap-1 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+        >
+          <Trash2 className="h-3 w-3" />
+          {t("removeKey")}
+        </button>
       </div>
     </>
   );

@@ -2,6 +2,7 @@
 
 import { Key, Lock } from "lucide-react";
 import { Button } from "@ariakit/react";
+import { useTranslations } from "next-intl";
 import { useByok } from "@/lib/byok/context";
 
 /**
@@ -9,16 +10,17 @@ import { useByok } from "@/lib/byok/context";
  * coloured dot shows whether a key is active, locked, or absent.
  */
 export function ByokTrigger() {
+  const t = useTranslations("Byok");
   const { status, openModal } = useByok();
 
   const isActive = status === "plain" || status === "encrypted-unlocked";
   const isLocked = status === "encrypted-locked";
 
   const label = isActive
-    ? "Using your Anthropic key"
+    ? t("triggerActive")
     : isLocked
-      ? "Unlock your Anthropic key"
-      : "Use your own Anthropic key";
+      ? t("triggerLocked")
+      : t("triggerInactive");
 
   return (
     <Button

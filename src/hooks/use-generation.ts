@@ -1,10 +1,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { ChatMessage, GenerationStatus } from "@/lib/types";
-import { ErrorCode, errorCodeToMessage } from "@/lib/types";
+import { ErrorCode } from "@/lib/types";
 import { MAX_USER_PROMPT_CHARS } from "@/lib/ai/promptSafety";
 import type { ReferenceDocumentInfo } from "@/components/generator/project-reference-material";
 import { useByok } from "@/lib/byok/context";
+import {
+  fire as fireDesktopNotification,
+  getPermission as getNotificationPermission,
+  isSupported as notificationsSupported,
+  requestPermission as requestNotificationPermission,
+} from "@/lib/notifications/desktop";
+import {
+  loadOptIn as loadNotifyOptIn,
+  saveOptIn as saveNotifyOptIn,
+} from "@/lib/notifications/preference";
 
 export const SESSION_KEY = "websitepls:generation";
 
@@ -50,6 +60,21 @@ function clearSession() {
 
 export function useGeneration() {
   const tMsg = useTranslations("Message");
+  const tErr = useTranslations("ErrorCode");
+  const tNotify = useTranslations("Notify");
+  // Tiny wrapper: localized errorCodeToMessage. Falls back to DEFAULT
+  // for unknown codes so the UI never shows a raw key path.
+  const localizedErrorMessage = useCallback(
+    (code: string | null | undefined): string => {
+      if (!code) return tErr("DEFAULT");
+      try {
+        return tErr(code);
+      } catch {
+        return tErr("DEFAULT");
+      }
+    },
+    [tErr],
+  );
   const byok = useByok();
   // Destructure the stable callbacks so effects can depend on them
   // without re-firing when other byok state toggles.
@@ -94,6 +119,18 @@ export function useGeneration() {
   );
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
+  /* ── Desktop notifications ── */
+  // Persisted opt-in (the user clicked "Notify me when done" or toggled it
+  // in settings). Hydrated from localStorage after mount to avoid SSR/CSR
+  // divergence. Browser-permission state is checked separately at fire time.
+  const [notifyOptedIn, setNotifyOptedIn] = useState(false);
+  // Per-generation: true if the user dismissed the 30s prompt for this run.
+  // Reset on every new generation so each run gets one chance to opt in.
+  const notifyDismissedRef = useRef(false);
+  // True once the current run has fired its terminal notification — guards
+  // against the polling effect re-firing on subsequent ticks.
+  const notifiedThisRunRef = useRef(false);
+
   /* ── Preview ── */
   const [isPreviewFullscreen, setIsPreviewFullscreen] = useState(false);
   const previewWrapRef = useRef<HTMLDivElement>(null);
@@ -137,6 +174,18 @@ export function useGeneration() {
   } | null>(null);
 
   /* ── Derived ── */
+  // 30s threshold matches Claude: short generations don't need a prompt.
+  // The toast appears only when notifications are supported, the user
+  // hasn't denied permission outright, hasn't already opted in, and
+  // hasn't dismissed it for this run.
+  const showNotifyPrompt =
+    status === "GENERATING" &&
+    elapsedSeconds >= 30 &&
+    notificationsSupported() &&
+    getNotificationPermission() !== "denied" &&
+    !notifyOptedIn &&
+    !notifyDismissedRef.current;
+
   const turnstileRequired = !!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
   const canSubmit = useMemo(() => {
     const trimmed = inputValue.trim();
@@ -235,6 +284,35 @@ export function useGeneration() {
     setIsMac(navigator.platform.toUpperCase().includes("MAC"));
   }, []);
 
+  // Hydrate the notify-opt-in preference from localStorage on mount.
+  // SSR-safe: server renders with `false` and the effect adjusts client-side.
+  useEffect(() => {
+    if (loadNotifyOptIn()) setNotifyOptedIn(true);
+  }, []);
+
+  // Fire a desktop notification on terminal status transitions when the
+  // user is opted in. Guarded by `notifiedThisRunRef` so we don't double-
+  // fire (the effect re-runs on every status change, and on session
+  // restore the initial render may already be READY). The fire helper
+  // itself short-circuits when the tab is focused.
+  useEffect(() => {
+    if (!notifyOptedIn) return;
+    if (status !== "READY" && status !== "ERROR") return;
+    if (notifiedThisRunRef.current) return;
+    notifiedThisRunRef.current = true;
+    fireDesktopNotification({
+      title:
+        status === "READY"
+          ? tNotify("completedTitle")
+          : tNotify("errorTitle"),
+      body:
+        status === "READY"
+          ? tNotify("completedBody")
+          : tNotify("errorBody"),
+      tag: "websitepls-generation",
+    });
+  }, [status, notifyOptedIn, tNotify]);
+
   // Track native fullscreen changes
   useEffect(() => {
     const handler = () => setIsPreviewFullscreen(!!document.fullscreenElement);
@@ -321,7 +399,7 @@ export function useGeneration() {
           const content =
             typeof json.errorMessage === "string" && json.errorMessage
               ? json.errorMessage
-              : errorCodeToMessage(json.errorCode ?? null);
+              : localizedErrorMessage(json.errorCode ?? null);
           updateAssistantMessage({
             content,
             status: "ERROR",
@@ -347,7 +425,14 @@ export function useGeneration() {
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [versionId, status, updateAssistantMessage, tMsg, setPromptReason]);
+  }, [
+    versionId,
+    status,
+    updateAssistantMessage,
+    tMsg,
+    setPromptReason,
+    localizedErrorMessage,
+  ]);
 
   /* ═══════════════════════ Handlers ═══════════════════════ */
 
@@ -360,6 +445,11 @@ export function useGeneration() {
     setIsSubmitting(true);
     setGenerationStartTime(Date.now());
     setElapsedSeconds(0);
+    // Each new run gets its own chance to opt into notifications and one
+    // terminal fire. Reset the flags so the toast re-appears (if applicable)
+    // and the completion effect can fire once for this run.
+    notifyDismissedRef.current = false;
+    notifiedThisRunRef.current = false;
     // Clear versionId before GENERATING so the polling effect doesn't
     // re-activate with the old (READY) versionId while we wait for the API.
     setVersionId(null);
@@ -422,7 +512,7 @@ export function useGeneration() {
         }
         setStatus("ERROR");
         updateAssistantMessage({
-          content: json?.error ?? errorCodeToMessage(code),
+          content: json?.error ?? localizedErrorMessage(code),
           status: "ERROR",
           error: json?.error,
           errorCode: typeof code === "string" ? code : undefined,
@@ -610,6 +700,39 @@ export function useGeneration() {
     document.body.removeChild(a);
   }
 
+  /** User clicked "Notify me when done" in the toast (or the settings
+   *  toggle). Triggers the permission prompt if needed, persists the
+   *  opt-in, and hides the toast for this run. */
+  async function enableNotifications(): Promise<{
+    ok: boolean;
+    reason?: string;
+  }> {
+    const result = await requestNotificationPermission();
+    if (result === "granted") {
+      saveNotifyOptIn(true);
+      setNotifyOptedIn(true);
+      return { ok: true };
+    }
+    return {
+      ok: false,
+      reason:
+        result === "denied" ? tNotify("blockedHint") : tNotify("unsupported"),
+    };
+  }
+
+  /** Settings toggle path — turning it off after granting permission. */
+  function disableNotifications() {
+    saveNotifyOptIn(false);
+    setNotifyOptedIn(false);
+  }
+
+  /** User dismissed the 30s toast — don't show it again for this run. */
+  function dismissNotifyPrompt() {
+    notifyDismissedRef.current = true;
+    // Force re-render so showNotifyPrompt flips false immediately.
+    setElapsedSeconds((s) => s);
+  }
+
   return {
     // Phase
     phase,
@@ -651,6 +774,12 @@ export function useGeneration() {
     isInfoOpen,
     setIsInfoOpen,
     isMac,
+    // Notifications
+    notifyOptedIn,
+    showNotifyPrompt,
+    enableNotifications,
+    disableNotifications,
+    dismissNotifyPrompt,
     // Refs
     messagesEndRef,
     sidebarInputRef,

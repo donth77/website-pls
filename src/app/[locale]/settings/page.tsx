@@ -5,12 +5,13 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Button } from "@ariakit/react";
-import { Camera, Key, User } from "lucide-react";
+import { Bell, Camera, Key, User } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "@/i18n/navigation";
 import { BackButton } from "@/components/back-button";
 import { ByokProvider } from "@/lib/byok/context";
 import { ByokPanel } from "@/components/byok/byok-panel";
+import { NotificationSettings } from "@/components/notifications/notification-settings";
 
 export default function SettingsPage() {
   const t = useTranslations("Settings");
@@ -221,17 +222,31 @@ export default function SettingsPage() {
           <div className="mb-4 flex items-center gap-2">
             <Key className="h-4 w-4 text-zinc-500 dark:text-zinc-400" />
             <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
-              Anthropic API key
+              {t("byokHeading")}
             </h2>
           </div>
           <p className="mb-5 text-xs text-zinc-500 dark:text-zinc-400">
-            Bring your own key to skip per-account limits and pick the model.
-            Keys are stored in this browser only — they never reach our server
-            except as a per-request header on your own generations.
+            {t("byokDescription")}
           </p>
           <ByokProvider>
             <ByokPanel />
           </ByokProvider>
+        </section>
+
+        {/* Desktop notifications — opt in here or via the 30s in-app prompt.
+            Same localStorage preference as use-generation, so toggling here
+            takes effect on the next generator visit. */}
+        <section className="mt-12 border-t border-zinc-200 pt-8 dark:border-zinc-800">
+          <div className="mb-4 flex items-center gap-2">
+            <Bell className="h-4 w-4 text-zinc-500 dark:text-zinc-400" />
+            <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
+              {t("notificationsHeading")}
+            </h2>
+          </div>
+          <p className="mb-5 text-xs text-zinc-500 dark:text-zinc-400">
+            {t("notificationsDescription")}
+          </p>
+          <NotificationSettings />
         </section>
       </div>
     </div>

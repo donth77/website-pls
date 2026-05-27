@@ -115,6 +115,9 @@ function GeneratorAppInner() {
     isInfoOpen,
     setIsInfoOpen,
     isMac,
+    showNotifyPrompt,
+    enableNotifications,
+    dismissNotifyPrompt,
     messagesEndRef,
     sidebarInputRef,
     landingInputRef,
@@ -563,6 +566,9 @@ function GeneratorAppInner() {
                   !!currentReferenceDocument || !!selectedFile
                 }
                 referenceStateLoaded={projectMetaLoaded}
+                showNotifyPrompt={showNotifyPrompt}
+                onEnableNotifications={enableNotifications}
+                onDismissNotifyPrompt={dismissNotifyPrompt}
                 referenceMaterial={
                   projectMetaLoaded ? (
                     <ProjectReferenceMaterial
