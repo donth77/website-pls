@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { NextIntlClientProvider, useTranslations } from "next-intl";
@@ -19,6 +19,36 @@ import { Toaster } from "sonner";
 import "../globals.css";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://websitepls.com";
+
+// Maps next-intl locale codes to OpenGraph BCP-47-style locales. Used for
+// og:locale and og:locale:alternate so social platforms render previews in the
+// right language/region.
+const OG_LOCALES: Record<string, string> = {
+  en: "en_US",
+  zh: "zh_CN",
+  es: "es_ES",
+  ar: "ar_AR",
+  pt: "pt_BR",
+  fr: "fr_FR",
+  de: "de_DE",
+  ja: "ja_JP",
+  ru: "ru_RU",
+  ko: "ko_KR",
+  hi: "hi_IN",
+  it: "it_IT",
+  tr: "tr_TR",
+  nl: "nl_NL",
+  pl: "pl_PL",
+  vi: "vi_VN",
+  th: "th_TH",
+  id: "id_ID",
+  uk: "uk_UA",
+  sv: "sv_SE",
+};
+
+function canonicalFor(locale: string): string {
+  return locale === routing.defaultLocale ? BASE_URL : `${BASE_URL}/${locale}`;
+}
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,6 +78,13 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#18181b" },
+  ],
+};
+
 export async function generateMetadata({
   params,
 }: {
@@ -56,7 +93,13 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Metadata" });
 
+  const ogLocale = OG_LOCALES[locale] ?? "en_US";
+  const alternateLocales = routing.locales
+    .filter((l) => l !== locale)
+    .map((l) => OG_LOCALES[l] ?? "en_US");
+
   return {
+    metadataBase: new URL(BASE_URL),
     title: {
       default: t("title"),
       template: `%s | ${t("siteName")}`,
@@ -67,19 +110,33 @@ export async function generateMetadata({
       description: t("description"),
       siteName: t("siteName"),
       type: "website",
+      url: canonicalFor(locale),
+      locale: ogLocale,
+      alternateLocale: alternateLocales,
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 625,
+          alt: t("title"),
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: t("title"),
       description: t("description"),
+      images: ["/og-image.png"],
     },
     alternates: {
-      languages: Object.fromEntries(
-        routing.locales.map((l) => [
-          l,
-          l === routing.defaultLocale ? "/" : `/${l}`,
-        ]),
-      ),
+      canonical: canonicalFor(locale),
+      languages: {
+        ...Object.fromEntries(
+          routing.locales.map((l) => [l, canonicalFor(l)]),
+        ),
+        // x-default: which URL Google should surface when no locale matches.
+        "x-default": canonicalFor(routing.defaultLocale),
+      },
     },
   };
 }
@@ -128,17 +185,18 @@ export default async function LocaleLayout({
               "@context": "https://schema.org",
               "@type": "WebApplication",
               name: "WebsitePls",
-              url: `${BASE_URL}/${locale}`,
+              url: canonicalFor(locale),
               description:
                 "AI-powered website generator. Describe a website in plain language and get a fully built, responsive web page in seconds.",
               applicationCategory: "DesignApplication",
               operatingSystem: "Web",
+              image: `${BASE_URL}/og-image.png`,
               offers: {
                 "@type": "Offer",
                 price: "0",
                 priceCurrency: "USD",
               },
-              inLanguage: routing.locales,
+              inLanguage: locale,
             }),
           }}
         />
