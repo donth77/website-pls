@@ -26,6 +26,7 @@ import {
   DialogHeading,
   useDialogStore,
 } from "@ariakit/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "@/i18n/navigation";
 import { SESSION_KEY, type PersistedState } from "@/hooks/use-generation";
 import type { ChatMessage, GenerationStatus } from "@/lib/types";
@@ -43,6 +44,7 @@ interface ProjectSummary {
     versionNumber: number;
     promptDelta: string | null;
     commentary: string | null;
+    createdAt: Date;
   }[];
   publishedSites: { subdomain: string | null }[];
 }
@@ -75,11 +77,16 @@ function formatDate(date: Date) {
 function buildSessionState(
   project: ProjectSummary,
   labels: { websiteReady: string; generationFailed: string },
+  viewerId: string | null,
 ): PersistedState {
   const messages: ChatMessage[] = [];
   let msgId = 0;
 
   for (const version of project.versions) {
+    // Versions have one timestamp (createdAt). Use it for both the user prompt
+    // and the assistant reply; they are seconds apart in reality, and we don't
+    // store the assistant completion time separately.
+    const versionTs = new Date(version.createdAt).getTime();
     const userText =
       version.versionNumber === 1
         ? (project.prompt ?? "")
@@ -90,7 +97,7 @@ function buildSessionState(
         id: String(msgId++),
         role: "user",
         content: userText,
-        timestamp: Date.now(),
+        timestamp: versionTs,
       });
     }
 
@@ -100,12 +107,15 @@ function buildSessionState(
         role: "assistant",
         content: version.commentary || labels.websiteReady,
         status: "READY",
-        timestamp: Date.now(),
+        timestamp: versionTs,
       });
     }
   }
 
   const latestVersion = project.versions[project.versions.length - 1];
+  const latestVersionTs = latestVersion
+    ? new Date(latestVersion.createdAt).getTime()
+    : Date.now();
   const status = project.status as GenerationStatus;
 
   if (status === "READY" && latestVersion) {
@@ -114,7 +124,7 @@ function buildSessionState(
       role: "assistant",
       content: latestVersion.commentary || labels.websiteReady,
       status: "READY",
-      timestamp: Date.now(),
+      timestamp: latestVersionTs,
     });
   } else if (status === "ERROR") {
     messages.push({
@@ -122,7 +132,7 @@ function buildSessionState(
       role: "assistant",
       content: labels.generationFailed,
       status: "ERROR",
-      timestamp: Date.now(),
+      timestamp: latestVersionTs,
     });
   } else if (status === "GENERATING") {
     messages.push({
@@ -131,7 +141,7 @@ function buildSessionState(
       content: "",
       status: "GENERATING",
       progressPercent: 0,
-      timestamp: Date.now(),
+      timestamp: latestVersionTs,
     });
   }
 
@@ -146,6 +156,7 @@ function buildSessionState(
     messages,
     generationStartTime: status === "GENERATING" ? Date.now() : null,
     currentReferenceDocument: null,
+    ownerId: viewerId,
   };
 }
 
@@ -438,6 +449,10 @@ export function ProjectList({ projects }: { projects: ProjectSummary[] }) {
   const t = useTranslations("Projects");
   const tMsg = useTranslations("Message");
   const router = useRouter();
+  const { data: session } = useSession();
+  // Tag persisted state with the current viewer so use-generation can
+  // detect account-switch drift on restore.
+  const viewerId: string | null = session?.user?.id ?? null;
   const [localProjects, setLocalProjects] = useState(projects);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [renamingProject, setRenamingProject] = useState<ProjectSummary | null>(
@@ -445,10 +460,14 @@ export function ProjectList({ projects }: { projects: ProjectSummary[] }) {
   );
 
   function handleEdit(project: ProjectSummary) {
-    const state = buildSessionState(project, {
-      websiteReady: tMsg("websiteReady"),
-      generationFailed: tMsg("generationFailed"),
-    });
+    const state = buildSessionState(
+      project,
+      {
+        websiteReady: tMsg("websiteReady"),
+        generationFailed: tMsg("generationFailed"),
+      },
+      viewerId,
+    );
     try {
       sessionStorage.setItem(SESSION_KEY, JSON.stringify(state));
     } catch {
@@ -469,10 +488,14 @@ export function ProjectList({ projects }: { projects: ProjectSummary[] }) {
    * is a non-issue.
    */
   function handleOpenInNewTab(project: ProjectSummary) {
-    const state = buildSessionState(project, {
-      websiteReady: tMsg("websiteReady"),
-      generationFailed: tMsg("generationFailed"),
-    });
+    const state = buildSessionState(
+      project,
+      {
+        websiteReady: tMsg("websiteReady"),
+        generationFailed: tMsg("generationFailed"),
+      },
+      viewerId,
+    );
     try {
       sessionStorage.setItem(SESSION_KEY, JSON.stringify(state));
     } catch {

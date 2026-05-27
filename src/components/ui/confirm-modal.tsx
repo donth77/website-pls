@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import {
   Dialog,
   DialogDismiss,
@@ -19,6 +19,9 @@ export interface ConfirmModalProps {
   cancelLabel: string;
   /** Visual emphasis for the confirm button. Defaults to "danger" (red). */
   variant?: "danger" | "primary";
+  /** When true: disable buttons, show spinner on confirm, suppress auto-close.
+   *  Parent owns the close timing so the modal stays mounted during async work. */
+  isConfirming?: boolean;
 }
 
 /**
@@ -35,11 +38,22 @@ export function ConfirmModal({
   confirmLabel,
   cancelLabel,
   variant = "danger",
+  isConfirming,
 }: ConfirmModalProps) {
+  // When the parent passes `isConfirming` at all (even as false), it's
+  // signaling that it owns the async close timing — we never auto-close.
+  // This avoids a stale-closure bug where the onClick handler reads
+  // isConfirming === false (still!) right after onConfirm() queues a
+  // setState to true and incorrectly closes the modal.
+  const parentManagesClose = isConfirming !== undefined;
+  const busy = isConfirming === true;
   const dialog = useDialogStore({
     open: isOpen,
     setOpen(open) {
-      if (!open) onClose();
+      // Ignore close attempts (Esc, backdrop click, X) while a confirm
+      // action is in flight — the parent closes it explicitly when the
+      // work resolves so the modal can't disappear mid-request.
+      if (!open && !busy) onClose();
     },
   });
 
@@ -73,16 +87,26 @@ export function ConfirmModal({
       </p>
 
       <div className="mt-5 flex justify-end gap-2">
-        <DialogDismiss className="rounded-xl px-4 py-2 text-sm text-zinc-600 transition hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800">
+        <DialogDismiss
+          disabled={busy}
+          className="rounded-xl px-4 py-2 text-sm text-zinc-600 transition hover:bg-zinc-100 aria-disabled:opacity-50 dark:text-zinc-400 dark:hover:bg-zinc-800"
+        >
           {cancelLabel}
         </DialogDismiss>
         <Button
           onClick={() => {
             onConfirm();
-            onClose();
+            // Auto-close only for synchronous-confirm callers (BYOK
+            // remove-key, etc). Async callers signal "I'll close it
+            // myself" by passing isConfirming as a prop.
+            if (!parentManagesClose) onClose();
           }}
-          className={confirmClass}
+          disabled={busy}
+          className={`inline-flex items-center gap-2 ${confirmClass} aria-disabled:opacity-60`}
         >
+          {busy && (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+          )}
           {confirmLabel}
         </Button>
       </div>

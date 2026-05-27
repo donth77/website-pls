@@ -36,6 +36,7 @@ export default function SettingsPage() {
         const data = await res.json().catch(() => ({}));
         toast.error(data.error ?? t("deleteAccountError"));
         setIsDeleting(false);
+        setDeleteOpen(false);
         return;
       }
       // Server cleared the row + cascades + R2. Now clear the local JWT
@@ -43,10 +44,15 @@ export default function SettingsPage() {
       // navigation cleanly through next-intl's router.
       await signOut({ redirect: false });
       toast.success(t("deleteAccountSuccess"));
+      // Don't reset isDeleting here — we want the modal's spinner to keep
+      // showing right through the navigation so the user doesn't see a
+      // blink-of-clickable-button before the page swap.
+      setDeleteOpen(false);
       router.replace("/");
     } catch {
       toast.error(t("deleteAccountError"));
       setIsDeleting(false);
+      setDeleteOpen(false);
     }
   }
 
@@ -306,6 +312,7 @@ export default function SettingsPage() {
           message={t("deleteAccountConfirmMessage")}
           confirmLabel={t("deleteAccountConfirmButton")}
           cancelLabel={t("cancel")}
+          isConfirming={isDeleting}
         />
       </div>
     </div>
