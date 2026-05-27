@@ -12,9 +12,13 @@ import { createLogger } from "@/lib/logger";
 const log = createLogger("auth");
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  // Derive OAuth redirect URL from the incoming Host (needed for LAN IP /
-  // Turbopack dev; set AUTH_URL to a single origin if you want strict behavior).
-  trustHost: process.env.NODE_ENV !== "production",
+  // Derive OAuth redirect URL from the incoming Host. Trust the host in
+  // dev (LAN IP / Turbopack), and in prod when behind a controlled proxy
+  // (Railway, Vercel, etc.) by setting AUTH_TRUST_HOST=true. AUTH_URL
+  // pins to a single origin when set for stricter behavior.
+  trustHost:
+    process.env.AUTH_TRUST_HOST === "true" ||
+    process.env.NODE_ENV !== "production",
   // Cast: our PrismaClient is generated to src/generated/prisma, not @prisma/client.
   // The adapter only calls methods at runtime — the type mismatch is harmless.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
