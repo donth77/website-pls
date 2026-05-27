@@ -19,6 +19,14 @@ import { uploadFile } from "@/lib/storage/r2";
 import { MAX_FILE_SIZE_BYTES, SUPPORTED_MIME_TYPES } from "@/lib/rag/extract";
 import { validateApiKeyFormat, testApiKey } from "@/lib/byok/key";
 import { resolveByokModel } from "@/lib/byok/models";
+import {
+  PROVIDERS,
+  REASONING_EFFORT_OPTIONS,
+  resolveModelId,
+  type Provider,
+  type ReasoningEffort,
+} from "@/lib/byok/providers";
+import { isAllowedOpenRouterModel } from "@/lib/byok/openrouter-models";
 
 const baseLog = createLogger("api:generate");
 
@@ -155,30 +163,97 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // BYOK: caller may pass their own Anthropic key via X-Anthropic-Key.
-    // Format-check now, live-test below (after Turnstile, before DB writes).
-    // Never log the raw value — only `byok: true/false`.
-    const byokHeader = req.headers.get("x-anthropic-key");
+    // BYOK: provider + key + model come in via headers.
+    //
+    // Modern UI sends X-Byok-Provider / X-Byok-Key / X-Byok-Model. The
+    // older X-Anthropic-Key / X-Anthropic-Model pair is still honored
+    // for backward compatibility (treated as the anthropic provider).
+    //
+    // Format-check now; live-test below (after Turnstile, before DB writes).
+    // Never log the raw key value — only the provider and a boolean.
+    const providerHeader = req.headers.get("x-byok-provider");
+    const newKeyHeader = req.headers.get("x-byok-key");
+    const newModelHeader = req.headers.get("x-byok-model");
+    const reasoningHeader = req.headers.get("x-byok-reasoning");
+    const legacyKeyHeader = req.headers.get("x-anthropic-key");
+    const legacyModelHeader = req.headers.get("x-anthropic-model");
+
+    let byokProvider: Provider | null = null;
     let byokKey: string | null = null;
-    if (byokHeader && byokHeader.length > 0) {
-      const fmt = validateApiKeyFormat(byokHeader);
+    let byokModel: string | null = null;
+    // Provider-specific reasoning hint forwarded to the orchestrator:
+    //   - OpenAI:    a ReasoningEffort enum value
+    //   - Anthropic: true when the user enabled extended thinking
+    //   - OpenRouter: never set (we don't manage cross-provider reasoning)
+    let byokReasoningEffort: ReasoningEffort | null = null;
+    let byokThinking = false;
+
+    const rawKey = newKeyHeader ?? legacyKeyHeader;
+    if (rawKey && rawKey.length > 0) {
+      // Pick the provider: explicit header > legacy implies anthropic.
+      const rawProvider = providerHeader ?? "anthropic";
+      if (!(PROVIDERS as readonly string[]).includes(rawProvider)) {
+        return NextResponse.json(
+          {
+            error: `Unknown BYOK provider '${rawProvider}'.`,
+            code: ErrorCode.BYOK_INVALID,
+          },
+          { status: 400 },
+        );
+      }
+      byokProvider = rawProvider as Provider;
+
+      const fmt = validateApiKeyFormat(rawKey, byokProvider);
       if (!fmt.ok) {
         return NextResponse.json(
           { error: fmt.reason!, code: ErrorCode.BYOK_INVALID },
           { status: 400 },
         );
       }
-      byokKey = byokHeader.trim();
+      byokKey = rawKey.trim();
+
+      // Model resolution depends on provider:
+      //   - Anthropic: alias via the legacy resolver (back-compat)
+      //   - OpenAI: alias → full ID; unknown aliases are passed through
+      //   - OpenRouter: must be in the cached structured-output allowlist
+      const modelInput = newModelHeader ?? legacyModelHeader ?? null;
+      if (byokProvider === "anthropic") {
+        byokModel = resolveByokModel(modelInput) ?? null;
+      } else if (modelInput) {
+        const resolved = resolveModelId(byokProvider, modelInput);
+        if (byokProvider === "openrouter") {
+          const allowed = await isAllowedOpenRouterModel(resolved);
+          if (!allowed) {
+            return NextResponse.json(
+              {
+                error: `OpenRouter model '${resolved}' is not in the structured-output allowlist.`,
+                code: ErrorCode.BYOK_INVALID,
+              },
+              { status: 400 },
+            );
+          }
+        }
+        byokModel = resolved;
+      }
+
+      // Reasoning hint — only meaningful for Anthropic + OpenAI. The hook
+      // sends nothing for OpenRouter; if a header somehow shows up we
+      // silently ignore it rather than failing the request.
+      if (reasoningHeader) {
+        if (byokProvider === "openai") {
+          if (
+            (REASONING_EFFORT_OPTIONS as readonly string[]).includes(
+              reasoningHeader,
+            )
+          ) {
+            byokReasoningEffort = reasoningHeader as ReasoningEffort;
+          }
+        } else if (byokProvider === "anthropic") {
+          byokThinking = reasoningHeader === "on";
+        }
+      }
     }
     const isByok = byokKey !== null;
-
-    // BYOK-only: optional X-Anthropic-Model header. Ignored without a key
-    // (platform key runs are locked to the env-configured model). Unknown
-    // aliases fall through to the orchestrator default rather than failing.
-    let byokModel: string | null = null;
-    if (isByok) {
-      byokModel = resolveByokModel(req.headers.get("x-anthropic-model"));
-    }
 
     // Resolve client IP from trusted proxy headers (cf-connecting-ip > x-real-ip > x-forwarded-for rightmost).
     const clientIp = resolveClientIp(req);
@@ -478,23 +553,25 @@ export async function POST(req: NextRequest) {
     }
 
     // Confirm the BYOK key actually works before we persist anything or
-    // burn the queue slot. Cheap auth check via models.list — no token spend.
-    if (byokKey) {
-      const test = await testApiKey(byokKey);
+    // burn the queue slot. Cheap auth check via the provider's cheapest
+    // authenticated endpoint — no token spend.
+    if (byokKey && byokProvider) {
+      const test = await testApiKey(byokKey, byokProvider);
       if (!test.ok) {
-        log.warn("byok key rejected by Anthropic", {
+        log.warn("byok key rejected by provider", {
           event: "byok.test_failed",
           endpoint: "POST /api/generate",
           ownerType: owner.type,
           ...(owner.type === "user"
             ? { userId: owner.userId }
             : { guestSessionId: owner.guestSessionId }),
-          anthropicStatus: test.status,
+          provider: byokProvider,
+          providerStatus: test.status,
           status: 401,
         });
         return NextResponse.json(
           {
-            error: "Anthropic rejected that API key.",
+            error: `${byokProvider} rejected that API key.`,
             code: ErrorCode.BYOK_INVALID,
           },
           { status: test.status === 401 ? 401 : 400 },
@@ -668,10 +745,13 @@ export async function POST(req: NextRequest) {
         referenceContentType,
         referenceFileSize,
         // BYOK: forwarded to the worker so the orchestrator can call
-        // Anthropic with the user's key. Worker scrubs this after the job
-        // completes so it doesn't linger in Redis beyond the run.
+        // the user's provider with their key. Worker scrubs the key
+        // after the job completes so it doesn't linger in Redis.
+        userProvider: byokProvider ?? undefined,
         userApiKey: byokKey ?? undefined,
         userModel: byokModel ?? undefined,
+        userReasoningEffort: byokReasoningEffort ?? undefined,
+        userThinking: byokThinking || undefined,
       },
       {
         jobId: versionId,
@@ -688,6 +768,7 @@ export async function POST(req: NextRequest) {
       versionNumber,
       isRefinement,
       byok: isByok,
+      provider: byokProvider,
     });
 
     return NextResponse.json({

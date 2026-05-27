@@ -25,18 +25,19 @@ const additions = {
     notificationsHeading: "Notifications",
     notificationsDescription:
       "Get a desktop notification when your generation finishes, even when you're working in another tab.",
-    byokHeading: "Anthropic API key",
+    byokHeading: "API key",
     byokDescription:
       "Bring your own key to skip per-account limits and pick the model. Keys are stored in this browser only — they never reach our server except as a per-request header on your own generations.",
   },
   Byok: {
-    modalTitle: "Anthropic API key",
+    modalTitle: "API key",
     close: "Close",
     newKeyDescription:
       "Your key stays in this browser. It's sent only with your own generation requests and never stored on the server.",
     apiKeyLabel: "API key",
     apiKeyPlaceholder: "sk-ant-…",
-    consoleLink: "Get a key from the Anthropic console",
+    // {provider} interpolates with the provider's display label.
+    consoleLink: "Get a key from the {provider} console",
     encryptToggle: "Encrypt with a passphrase",
     encryptHint:
       "You'll re-enter the passphrase once per session. Without one, the key is stored unencrypted in this browser.",
@@ -62,6 +63,27 @@ const additions = {
     confirmRemoveMessage:
       "Your saved key will be deleted from this browser. You can paste it again any time.",
     confirmRemoveButton: "Remove",
+    // Multi-provider additions
+    providerLabel: "Provider",
+    unlockDescriptionWithProvider:
+      "Your {provider} key is encrypted in this browser. Enter your passphrase to unlock it for this session.",
+    activeStatusWithProvider: "Using your {provider} key",
+    anthropicModelHint:
+      "Haiku is fastest and cheapest. Opus is highest quality. Sonnet is the balanced default.",
+    openaiModelHint:
+      "GPT-5.5 is the latest. GPT-5.4 is the balanced default. Nano/mini variants are cheaper; GPT-4 models are still available for compatibility.",
+    openrouterModelHint:
+      "{count} structured-output-capable models. Switching changes which model handles your generations.",
+    openrouterModelsFailed:
+      "Couldn't load the OpenRouter model list. Try again in a moment.",
+    loadingModels: "Loading models…",
+    openrouterDefault: "Default (anthropic/claude-sonnet-4)",
+    searchModels: "Search models…",
+    noMatches: "No matches",
+    reasoningEffortLabel: "Reasoning effort",
+    thinkingLabel: "Extended thinking",
+    thinkingHint:
+      "Let the model spend extra tokens reasoning before it answers. Slower; can improve complex output.",
     activeStatus: "Using your Anthropic key",
     encryptedLabel: "encrypted",
     modelLabel: "Model",

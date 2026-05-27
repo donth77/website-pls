@@ -19,16 +19,27 @@ type GenerateJobData = {
   referenceFileName?: string;
   referenceContentType?: string;
   referenceFileSize?: number;
-  /** BYOK Anthropic key. Scrubbed from job data on completion. */
+  /** BYOK provider — "anthropic" | "openai" | "openrouter". Defaults to anthropic. */
+  userProvider?: string;
+  /** BYOK API key. Scrubbed from job data on completion. */
   userApiKey?: string;
-  /** BYOK-only model override (full Anthropic ID, already allowlist-resolved). */
+  /** BYOK-only model override (alias or full ID, already allowlist-resolved). */
   userModel?: string;
+  /** OpenAI reasoning effort — "minimal"|"low"|"medium"|"high". */
+  userReasoningEffort?: string;
+  /** Anthropic extended-thinking toggle. */
+  userThinking?: boolean;
 };
 
 const baseLog = createLogger("worker");
 const queueConnection = createWorkerRedis();
 
-const JOB_TIMEOUT_MS = 300_000; // 5 minutes — matches lockDuration
+// Hard ceiling on a single job. The OpenAI SDK's default per-request
+// timeout is 10 min; we sit at 12 min so the SDK fails first with a
+// clean APIConnectionError instead of us cutting the job out from
+// under it. lockDuration below must stay in sync — if it expires
+// before JOB_TIMEOUT_MS, BullMQ marks the job stalled and double-runs.
+const JOB_TIMEOUT_MS = 720_000; // 12 minutes
 
 const OPENROUTER_API = "https://openrouter.ai/api/v1/chat/completions";
 const TITLE_MODEL =
@@ -91,8 +102,11 @@ const worker = new Worker(
       referenceFileName,
       referenceContentType,
       referenceFileSize,
+      userProvider,
       userApiKey,
       userModel,
+      userReasoningEffort,
+      userThinking,
     } = data;
     const log = baseLog.child({
       requestId,
@@ -105,6 +119,7 @@ const worker = new Worker(
       isRefinement: !!refinementPrompt,
       hasReferenceFile: !!referenceFileStorageKey,
       byok: !!userApiKey,
+      provider: userProvider,
     });
 
     // Hard timeout — rejects if the job exceeds JOB_TIMEOUT_MS.
@@ -200,8 +215,21 @@ const worker = new Worker(
             previousHtml,
             refinementPrompt,
             requestId,
+            provider: userProvider as
+              | "anthropic"
+              | "openai"
+              | "openrouter"
+              | undefined,
             apiKey: userApiKey,
             model: userModel,
+            reasoningEffort: userReasoningEffort as
+              | "none"
+              | "low"
+              | "medium"
+              | "high"
+              | "xhigh"
+              | undefined,
+            thinking: userThinking ?? false,
             onProgress: (step, percent) => {
               job.updateProgress({ step, percent }).catch((e) => {
                 log.warn("Progress update failed", { error: String(e) });
@@ -360,9 +388,13 @@ const worker = new Worker(
         }
       }
 
-      // Scrub the BYOK key on failure too — removeOnFail keeps the last 50
-      // failed jobs for debugging, and we don't want the key sitting there.
-      if (userApiKey) {
+      // Scrub the BYOK key ONLY on the final attempt. Intermediate
+      // failures used to scrub too, which broke retries: attempt 2 read
+      // the job data, saw userProvider="openai" but no key, and the
+      // orchestrator threw "requires a per-request API key". On the
+      // final attempt the job is done (no more retries), so wiping
+      // the key from removeOnFail-preserved data is safe.
+      if (isFinalAttempt && userApiKey) {
         try {
           await job.updateData({ ...data, userApiKey: undefined });
         } catch {
@@ -375,7 +407,7 @@ const worker = new Worker(
   },
   {
     connection: queueConnection,
-    lockDuration: 300_000,
+    lockDuration: 720_000, // must stay >= JOB_TIMEOUT_MS
     stalledInterval: 60_000,
   },
 );

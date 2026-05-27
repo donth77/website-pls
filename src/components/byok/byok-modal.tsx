@@ -50,7 +50,13 @@ export function ByokModal() {
         </DialogDismiss>
       </div>
 
-      <ByokPanel onAfterMutation={closeModal} onCancel={closeModal} />
+      {/* No onAfterMutation: keep the modal open after save so the user
+          can see the model picker (which only appears in ActiveKeyView,
+          post-save) and tweak their default model before closing. The
+          X button / backdrop / Esc still close it.
+          onAfterRemove DOES close — once the key is gone there's nothing
+          left to configure in the modal. */}
+      <ByokPanel onCancel={closeModal} onAfterRemove={closeModal} />
     </Dialog>
   );
 }

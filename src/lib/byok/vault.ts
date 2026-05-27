@@ -1,30 +1,51 @@
 /**
- * Client-side vault for the user's Anthropic API key.
+ * Client-side vault for BYOK provider keys.
  *
  * Two storage modes:
- *   - **plain**: key is written to localStorage as-is. Persists across
- *     sessions; trivially readable by any script with same-origin access.
+ *   - **plain**: key (+ provider) is written to localStorage as-is.
+ *     Persists across sessions; trivially readable by any same-origin script.
  *   - **encrypted**: PBKDF2 derives an AES-GCM key from a passphrase + salt;
- *     ciphertext + salt + IV are stored. The passphrase itself is never
+ *     ciphertext + salt + IV + provider are stored. Passphrase is never
  *     persisted — the user enters it once per session to unlock.
  *
  * All operations are local; nothing here talks to the network. The runtime
  * cache of the unlocked plaintext lives in the BYOK context, not here.
+ *
+ * Schema versioning:
+ *   - v1: legacy Anthropic-only shape (no provider field). Decoded as
+ *     {provider: "anthropic"} on read so users who saved a key before the
+ *     multi-provider release keep working.
+ *   - v2: provider-aware shape.
  */
+
+import type { Provider } from "./providers";
 
 const STORAGE_KEY = "websitepls:byok";
 const PBKDF2_ITERATIONS = 600_000;
 const SALT_BYTES = 16;
 const IV_BYTES = 12;
 
-type StoredKey =
+type StoredKeyV1 =
   | { v: 1; kind: "plain"; key: string }
   | { v: 1; kind: "encrypted"; salt: string; iv: string; ciphertext: string };
 
+type StoredKeyV2 =
+  | { v: 2; kind: "plain"; provider: Provider; key: string }
+  | {
+      v: 2;
+      kind: "encrypted";
+      provider: Provider;
+      salt: string;
+      iv: string;
+      ciphertext: string;
+    };
+
+type StoredKey = StoredKeyV1 | StoredKeyV2;
+
 export type VaultStatus =
   | { kind: "none" }
-  | { kind: "plain" }
-  | { kind: "encrypted" };
+  | { kind: "plain"; provider: Provider }
+  | { kind: "encrypted"; provider: Provider };
 
 // Web Crypto APIs expect `BufferSource`, which under TS's stricter typed-array
 // generics means a typed array backed by `ArrayBuffer` (not the broader
@@ -63,7 +84,7 @@ function readRaw(): StoredKey | null {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as StoredKey;
-    if (parsed.v !== 1) return null;
+    if (parsed.v !== 1 && parsed.v !== 2) return null;
     return parsed;
   } catch {
     return null;
@@ -74,20 +95,32 @@ function writeRaw(value: StoredKey): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
 }
 
+/**
+ * Backward-compat: a v1 entry is decoded as Anthropic. New writes always
+ * go out as v2, so v1 entries naturally migrate the next time the user
+ * saves or removes the key.
+ */
+function entryProvider(entry: StoredKey): Provider {
+  if (entry.v === 1) return "anthropic";
+  return entry.provider;
+}
+
 export function loadVaultStatus(): VaultStatus {
   const stored = readRaw();
   if (!stored) return { kind: "none" };
-  return { kind: stored.kind };
+  return { kind: stored.kind, provider: entryProvider(stored) };
 }
 
-export function loadPlainKey(): string | null {
+export function loadPlainKey(): { key: string; provider: Provider } | null {
   const stored = readRaw();
-  if (stored?.kind === "plain") return stored.key;
+  if (stored?.kind === "plain") {
+    return { key: stored.key, provider: entryProvider(stored) };
+  }
   return null;
 }
 
-export function savePlainKey(key: string): void {
-  writeRaw({ v: 1, kind: "plain", key });
+export function savePlainKey(provider: Provider, key: string): void {
+  writeRaw({ v: 2, kind: "plain", provider, key });
 }
 
 export function removeKey(): void {
@@ -124,6 +157,7 @@ async function deriveAesKey(
 }
 
 export async function saveEncryptedKey(
+  provider: Provider,
   apiKey: string,
   passphrase: string,
 ): Promise<void> {
@@ -140,8 +174,9 @@ export async function saveEncryptedKey(
   );
   const ciphertext = new Uint8Array(ciphertextBuf) as Bytes;
   writeRaw({
-    v: 1,
+    v: 2,
     kind: "encrypted",
+    provider,
     salt: b64encode(salt),
     iv: b64encode(iv),
     ciphertext: b64encode(ciphertext),
@@ -151,8 +186,11 @@ export async function saveEncryptedKey(
 /**
  * Decrypts the stored key with the given passphrase. Throws on wrong
  * passphrase (AES-GCM auth tag mismatch) or if no encrypted key exists.
+ * Returns both the plaintext key and the provider it belongs to.
  */
-export async function unlockEncryptedKey(passphrase: string): Promise<string> {
+export async function unlockEncryptedKey(
+  passphrase: string,
+): Promise<{ key: string; provider: Provider }> {
   const stored = readRaw();
   if (!stored || stored.kind !== "encrypted") {
     throw new Error("No encrypted key in this browser.");
@@ -167,7 +205,10 @@ export async function unlockEncryptedKey(passphrase: string): Promise<string> {
       key,
       ciphertext,
     );
-    return new TextDecoder().decode(plaintext);
+    return {
+      key: new TextDecoder().decode(plaintext),
+      provider: entryProvider(stored),
+    };
   } catch {
     throw new Error("Wrong passphrase.");
   }
