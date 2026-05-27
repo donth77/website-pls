@@ -655,6 +655,8 @@ export async function runGenerationPipeline(input: {
   refinementPrompt?: string;
   /** Correlation ID for structured logging. */
   requestId?: string;
+  /** BYOK: caller-supplied Anthropic key; falls back to ANTHROPIC_API_KEY env. */
+  apiKey?: string;
   onProgress?: ProgressCallback;
 }): Promise<{ html: string; commentary: string | null }> {
   const progress = input.onProgress ?? (() => {});
@@ -691,7 +693,7 @@ export async function runGenerationPipeline(input: {
     throw new Error(promptError);
   }
 
-  const apiKey = getRequiredEnv("ANTHROPIC_API_KEY");
+  const apiKey = input.apiKey ?? getRequiredEnv("ANTHROPIC_API_KEY");
   const configured =
     process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5-20250514";
   const { model, supportsStructured } = resolveModel(configured);

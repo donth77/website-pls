@@ -7,6 +7,7 @@ import { createWorkerRedis } from "@/lib/queue/redis";
 import { uploadFile, downloadFile } from "@/lib/storage/r2";
 import { runGenerationPipeline } from "@/lib/ai/orchestrator";
 import { ingestDocument } from "@/lib/rag/ingest";
+import { ErrorCode } from "@/lib/types";
 
 type GenerateJobData = {
   projectId: string;
@@ -18,6 +19,8 @@ type GenerateJobData = {
   referenceFileName?: string;
   referenceContentType?: string;
   referenceFileSize?: number;
+  /** BYOK Anthropic key. Scrubbed from job data on completion. */
+  userApiKey?: string;
 };
 
 const baseLog = createLogger("worker");
@@ -86,6 +89,7 @@ const worker = new Worker(
       referenceFileName,
       referenceContentType,
       referenceFileSize,
+      userApiKey,
     } = data;
     const log = baseLog.child({
       requestId,
@@ -97,6 +101,7 @@ const worker = new Worker(
     log.info("Job started", {
       isRefinement: !!refinementPrompt,
       hasReferenceFile: !!referenceFileStorageKey,
+      byok: !!userApiKey,
     });
 
     // Hard timeout — rejects if the job exceeds JOB_TIMEOUT_MS.
@@ -192,6 +197,7 @@ const worker = new Worker(
             previousHtml,
             refinementPrompt,
             requestId,
+            apiKey: userApiKey,
             onProgress: (step, percent) => {
               job.updateProgress({ step, percent }).catch((e) => {
                 log.warn("Progress update failed", { error: String(e) });
@@ -229,6 +235,20 @@ const worker = new Worker(
             where: { id: projectId },
             data: { status: "READY" },
           });
+
+          // Scrub the BYOK key from Redis. removeOnComplete keeps the last
+          // 100 jobs around for debugging; the key must not be one of the
+          // fields preserved there.
+          if (userApiKey) {
+            try {
+              await job.updateData({ ...data, userApiKey: undefined });
+            } catch (scrubErr) {
+              log.warn("Failed to scrub BYOK key from job data", {
+                error: String(scrubErr),
+              });
+            }
+          }
+
           log.info("Job completed", { storageKey });
           return { storageKey, commentary };
         })(),
@@ -237,14 +257,46 @@ const worker = new Worker(
       const errorMessage = (
         err instanceof Error ? err.message : String(err)
       ).slice(0, 1000);
-      const isFinalAttempt = job.attemptsMade >= (job.opts?.attempts ?? 1) - 1;
+
+      // Anthropic 429 on a platform-key run = we're out of credits/rate.
+      // BYOK 429 is the user's own quota, surface as a normal failure.
+      // Either way, retrying in 5s won't help — discard so BullMQ doesn't
+      // burn another slot.
+      const status = (err as { status?: number })?.status;
+      const isPlatformBudgetLow = status === 429 && !userApiKey;
+      if (status === 429) {
+        try {
+          await job.discard();
+        } catch {
+          /* best-effort */
+        }
+      }
+
+      const isFinalAttempt =
+        status === 429 ||
+        job.attemptsMade >= (job.opts?.attempts ?? 1) - 1;
 
       log.error("Job failed", {
         error: errorMessage,
         attempt: job.attemptsMade + 1,
         maxAttempts: job.opts?.attempts ?? 1,
         isFinalAttempt,
+        anthropicStatus: status,
+        platformBudgetLow: isPlatformBudgetLow,
       });
+
+      // Make the error code observable to the poll endpoint.
+      if (isPlatformBudgetLow) {
+        try {
+          await job.updateProgress({
+            step: "error",
+            percent: 100,
+            errorCode: ErrorCode.PLATFORM_BUDGET_LOW,
+          });
+        } catch {
+          /* best-effort */
+        }
+      }
 
       if (isFinalAttempt) {
         // Only mark ERROR and refund on the last attempt — earlier attempts
@@ -254,29 +306,46 @@ const worker = new Worker(
           data: { status: "ERROR", errorMessage },
         });
 
-        try {
-          const project = await prisma.project.findUnique({
-            where: { id: projectId },
-            select: { userId: true, guestSessionId: true },
-          });
-          if (project?.userId && process.env.ENABLE_MONETIZATION === "true") {
-            await prisma.user.update({
-              where: { id: project.userId },
-              data: { credits: { increment: 1 } },
+        // BYOK runs never consumed a guest generation or user credit
+        // (see /api/generate), so there's nothing to refund there.
+        if (!userApiKey) {
+          try {
+            const project = await prisma.project.findUnique({
+              where: { id: projectId },
+              select: { userId: true, guestSessionId: true },
             });
-            log.info("Refunded credit to user", { userId: project.userId });
-          } else if (project?.guestSessionId) {
-            await prisma.$executeRaw`
-              UPDATE guest_sessions
-              SET generations_used = GREATEST(generations_used - 1, 0)
-              WHERE id = ${project.guestSessionId}
-            `;
-            log.info("Refunded generation to guest", {
-              guestSessionId: project.guestSessionId,
-            });
+            if (
+              project?.userId &&
+              process.env.ENABLE_MONETIZATION === "true"
+            ) {
+              await prisma.user.update({
+                where: { id: project.userId },
+                data: { credits: { increment: 1 } },
+              });
+              log.info("Refunded credit to user", { userId: project.userId });
+            } else if (project?.guestSessionId) {
+              await prisma.$executeRaw`
+                UPDATE guest_sessions
+                SET generations_used = GREATEST(generations_used - 1, 0)
+                WHERE id = ${project.guestSessionId}
+              `;
+              log.info("Refunded generation to guest", {
+                guestSessionId: project.guestSessionId,
+              });
+            }
+          } catch (refundErr) {
+            log.warn("Credit refund failed", { error: String(refundErr) });
           }
-        } catch (refundErr) {
-          log.warn("Credit refund failed", { error: String(refundErr) });
+        }
+      }
+
+      // Scrub the BYOK key on failure too — removeOnFail keeps the last 50
+      // failed jobs for debugging, and we don't want the key sitting there.
+      if (userApiKey) {
+        try {
+          await job.updateData({ ...data, userApiKey: undefined });
+        } catch {
+          /* best-effort */
         }
       }
 

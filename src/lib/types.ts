@@ -24,6 +24,8 @@ export const ErrorCode = {
   FORBIDDEN: "FORBIDDEN",
   GUEST_BLOCKED_AUTH_IP: "GUEST_BLOCKED_AUTH_IP",
   EMAIL_NOT_VERIFIED: "EMAIL_NOT_VERIFIED",
+  PLATFORM_BUDGET_LOW: "PLATFORM_BUDGET_LOW",
+  BYOK_INVALID: "BYOK_INVALID",
 } as const;
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];
@@ -52,6 +54,10 @@ export function errorCodeToMessage(code: string | undefined | null): string {
       return "An account has already been used from this network. Please sign in to continue.";
     case ErrorCode.EMAIL_NOT_VERIFIED:
       return "Please verify your email address before generating. Check your inbox for a verification link.";
+    case ErrorCode.PLATFORM_BUDGET_LOW:
+      return "Free generations are temporarily unavailable. Add your own Anthropic API key to continue.";
+    case ErrorCode.BYOK_INVALID:
+      return "That Anthropic API key didn't work. Check it and try again.";
     default:
       return "Something went wrong. Please try again.";
   }
