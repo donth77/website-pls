@@ -1,20 +1,15 @@
-# WebsitePls (MVP)
+# WebsitePls 
 
 An **AI-powered website generator**: describe what you want in plain language, and the system produces a complete, styled HTML page with real stock photos. Preview it instantly, iterate with refinement prompts, and download the result.
 
-## What it does today
+## What it does 
 
-- **Prompt → website**: enter a description, get a full responsive HTML page with Tailwind CSS, real Unsplash images, and photo credits.
+- **Prompt → website**: enter a description, get a full responsive HTML page with Tailwind CSS, real stock images, and photo credits.
 - **Iterate**: after generation, describe changes ("make the hero larger", "change colors to blue") and the AI modifies your existing page.
 - **Preview**: live iframe preview with fullscreen and open-in-new-tab options.
-- **Download**: one-click HTML download of any generated site.
-- **Safety**: optional Lakera Guard prompt screening, per-IP rate limiting, delimiter-based prompt injection defense.
+- **Export**: one-click HTML download of any generated site.
+- **Accounts**: sign in to save, revisit, and manage your projects.
 
-## Product direction
-
-- **Near term**: anonymous tech demo with a path to user accounts, credits/paywall, and publishing (vanity URLs).
-- **Planned**: Phase 1 RAG (attach a document for context-aware generation), auth + guest sessions, publish flow.
-- **Later**: bring-your-own API keys, multi-page sites, version history UI.
 
 ## Tech stack
 
@@ -29,7 +24,7 @@ An **AI-powered website generator**: describe what you want in plain language, a
 | AI              | [Anthropic SDK](https://docs.anthropic.com) (Claude)                    |
 | Images          | [Unsplash](https://unsplash.com/developers), Pexels, Pixabay (cascade)  |
 | Storage         | [Cloudflare R2](https://developers.cloudflare.com/r2/) (S3-compatible)  |
-| Screening       | [Lakera Guard](https://www.lakera.ai) (optional)                        |
+| Auth            | [Auth.js v5](https://authjs.dev) (credentials + OAuth)                  |
 
 ## Prerequisites
 
@@ -77,24 +72,6 @@ Open [http://localhost:3000](http://localhost:3000). Health check: [http://local
 | `pnpm db:migrate`      | Create/apply migrations (`prisma migrate dev`)         |
 | `pnpm db:studio`       | Open Prisma Studio                                     |
 
-## Environment variables
-
-See [`.env.example`](.env.example) for full documentation. At minimum:
-
-| Variable                | Required    | Purpose                                                |
-| ----------------------- | ----------- | ------------------------------------------------------ |
-| `DATABASE_URL`          | Yes         | PostgreSQL connection string                           |
-| `REDIS_URL`             | Yes         | Redis for BullMQ (`redis://` or `rediss://`)           |
-| `ANTHROPIC_API_KEY`     | Yes         | Claude API for generation                              |
-| `R2_ACCOUNT_ID`         | Yes         | Cloudflare account ID                                  |
-| `R2_ACCESS_KEY_ID`      | Yes         | R2 API token (Object Read & Write)                     |
-| `R2_SECRET_ACCESS_KEY`  | Yes         | R2 API token secret                                    |
-| `R2_BUCKET_NAME`        | Yes         | R2 bucket name (defaults to `generated-sites`)         |
-| `AUTH_SECRET`           | Yes         | HMAC secret for guest cookies + NextAuth sessions      |
-| `UNSPLASH_ACCESS_KEY`   | Recommended | Real stock photos; without it, images are placeholders |
-| `LAKERA_API_KEY`        | Optional    | Prompt screening; skipped if unset (warning logged)    |
-| `ANTHROPIC_MODEL`       | Optional    | Defaults to `claude-sonnet-4-6`                        |
-
 ## Troubleshooting
 
 ### pnpm / Corepack
@@ -116,10 +93,3 @@ pnpm install
 
 Normal for full-page generation with Claude Sonnet. The progress bar updates as the model streams. For faster (simpler) results, set `ANTHROPIC_MODEL=claude-haiku-4-5-20251001` in `.env`.
 
-## Documentation for agents / LLMs
-
-See [`AGENTS.md`](./AGENTS.md) for dense, repo-specific context: architecture, conventions, what's implemented, what's planned, and where to extend.
-
-## License
-
-Private project (`"private": true` in `package.json`).
