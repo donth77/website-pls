@@ -71,7 +71,14 @@
     "generating": "Ihre Website wird generiert…",
     "placeholder": "Ihre Vorschau wird hier angezeigt",
     "loading": "Vorschau wird geladen…",
-    "iframeTitle": "Vorschau der generierten Website"
+    "iframeTitle": "Vorschau der generierten Website",
+    "inspect": "Inspect element",
+    "inspectExit": "Exit inspect",
+    "inspectHint": "Click an element to edit it",
+    "editPlaceholder": "Describe the change to this element…",
+    "applyEdit": "Apply",
+    "clearSelection": "Clear selection",
+    "editingElement": "Editing selected element"
   },
   "Publish": {
     "titlePublish": "Publish your site",

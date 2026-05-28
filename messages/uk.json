@@ -71,7 +71,14 @@
     "generating": "Генеруємо ваш вебсайт…",
     "placeholder": "Тут з'явиться попередній перегляд",
     "loading": "Завантаження попереднього перегляду…",
-    "iframeTitle": "Попередній перегляд створеного сайту"
+    "iframeTitle": "Попередній перегляд створеного сайту",
+    "inspect": "Inspect element",
+    "inspectExit": "Exit inspect",
+    "inspectHint": "Click an element to edit it",
+    "editPlaceholder": "Describe the change to this element…",
+    "applyEdit": "Apply",
+    "clearSelection": "Clear selection",
+    "editingElement": "Editing selected element"
   },
   "Publish": {
     "titlePublish": "Publish your site",

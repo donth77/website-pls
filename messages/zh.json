@@ -71,7 +71,14 @@
     "generating": "正在生成你的网站…",
     "placeholder": "预览将在此处显示",
     "loading": "加载预览…",
-    "iframeTitle": "生成网站预览"
+    "iframeTitle": "生成网站预览",
+    "inspect": "Inspect element",
+    "inspectExit": "Exit inspect",
+    "inspectHint": "Click an element to edit it",
+    "editPlaceholder": "Describe the change to this element…",
+    "applyEdit": "Apply",
+    "clearSelection": "Clear selection",
+    "editingElement": "Editing selected element"
   },
   "Publish": {
     "titlePublish": "Publish your site",

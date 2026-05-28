@@ -525,6 +525,7 @@ export function useGeneration() {
     prompt: string;
     projectId?: string;
     refinementPrompt?: string;
+    selector?: string;
   }) {
     lastRequestRef.current = params;
     setIsSubmitting(true);
@@ -781,6 +782,48 @@ export function useGeneration() {
     await executeGeneration(last);
   }
 
+  /**
+   * Targeted element edit from the preview inspector. Behaves like a
+   * refinement (new version, polling, preview reload) but scopes the change
+   * to the selected element via `selector`. `prompt` is the user's plain
+   * change request — we never surface the underlying HTML/selector in chat.
+   */
+  async function editElement(
+    selector: string,
+    prompt: string,
+    targetTag?: string,
+  ) {
+    if (!projectId || isSubmitting || status === "GENERATING") return;
+
+    const userMsg: ChatMessage = {
+      id: crypto.randomUUID(),
+      role: "user",
+      content: prompt,
+      timestamp: Date.now(),
+      targetTag,
+    };
+    const assistantMsg: ChatMessage = {
+      id: crypto.randomUUID(),
+      role: "assistant",
+      content: tMsg("applyingChanges"),
+      timestamp: Date.now(),
+      status: "GENERATING",
+      progressStep: "starting",
+      progressPercent: 0,
+    };
+
+    currentAssistantMsgId.current = assistantMsg.id;
+    setMessages((prev) => [...prev, userMsg, assistantMsg]);
+    setMobileView("preview");
+
+    await executeGeneration({
+      prompt: originalPrompt,
+      projectId,
+      refinementPrompt: prompt,
+      selector,
+    });
+  }
+
   function handleNewProject() {
     clearSession();
     setPhase("landing");
@@ -898,6 +941,7 @@ export function useGeneration() {
     handleSubmit,
     handleRetry,
     handleNewProject,
+    editElement,
     togglePreviewFullscreen,
     openPreviewInNewTab,
     downloadPreviewHtml,

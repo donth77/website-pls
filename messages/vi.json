@@ -71,7 +71,14 @@
     "generating": "Đang tạo trang web của bạn…",
     "placeholder": "Bản xem trước sẽ xuất hiện ở đây",
     "loading": "Đang tải bản xem trước…",
-    "iframeTitle": "Xem trước trang web đã tạo"
+    "iframeTitle": "Xem trước trang web đã tạo",
+    "inspect": "Inspect element",
+    "inspectExit": "Exit inspect",
+    "inspectHint": "Click an element to edit it",
+    "editPlaceholder": "Describe the change to this element…",
+    "applyEdit": "Apply",
+    "clearSelection": "Clear selection",
+    "editingElement": "Editing selected element"
   },
   "Publish": {
     "titlePublish": "Publish your site",

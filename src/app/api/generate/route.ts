@@ -111,6 +111,9 @@ export async function POST(req: NextRequest) {
     let refinementPrompt: string | undefined;
     let turnstileToken: string | undefined;
     let uploadedFile: File | undefined;
+    // Inspect-element edit: CSS selector of the element to edit in-place.
+    // JSON-only (element edits never carry a file upload).
+    let elementSelector: string | undefined;
 
     if (isMultipart) {
       const form = await req.formData();
@@ -133,6 +136,9 @@ export async function POST(req: NextRequest) {
         ? String(body.refinementPrompt).trim()
         : undefined;
       turnstileToken = body?.turnstileToken as string | undefined;
+      elementSelector = body?.selector
+        ? String(body.selector).slice(0, 2000)
+        : undefined;
     }
 
     const isRefinement = !!(existingProjectId && refinementPrompt);
@@ -812,6 +818,9 @@ export async function POST(req: NextRequest) {
         userModel: byokModel ?? undefined,
         userReasoningEffort: byokReasoningEffort ?? undefined,
         userThinking: byokThinking || undefined,
+        // Inspect-element edit: only meaningful on a refinement.
+        elementSelector:
+          isRefinement && elementSelector ? elementSelector : undefined,
       },
       {
         jobId: versionId,

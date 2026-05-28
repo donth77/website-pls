@@ -71,7 +71,14 @@
     "generating": "Je website wordt gegenereerd…",
     "placeholder": "Je voorbeeld verschijnt hier",
     "loading": "Voorbeeld laden…",
-    "iframeTitle": "Voorbeeld van de gegenereerde website"
+    "iframeTitle": "Voorbeeld van de gegenereerde website",
+    "inspect": "Inspect element",
+    "inspectExit": "Exit inspect",
+    "inspectHint": "Click an element to edit it",
+    "editPlaceholder": "Describe the change to this element…",
+    "applyEdit": "Apply",
+    "clearSelection": "Clear selection",
+    "editingElement": "Editing selected element"
   },
   "Publish": {
     "titlePublish": "Publish your site",

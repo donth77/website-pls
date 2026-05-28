@@ -5,7 +5,11 @@ import { createLogger } from "@/lib/logger";
 import { GENERATION_QUEUE_NAME } from "@/lib/queue/generationQueue";
 import { createWorkerRedis } from "@/lib/queue/redis";
 import { uploadFile, downloadFile } from "@/lib/storage/r2";
-import { runGenerationPipeline } from "@/lib/ai/orchestrator";
+import {
+  runGenerationPipeline,
+  runElementEdit,
+  ElementNotFoundError,
+} from "@/lib/ai/orchestrator";
 import { ingestDocument } from "@/lib/rag/ingest";
 import { ErrorCode } from "@/lib/types";
 
@@ -29,6 +33,9 @@ type GenerateJobData = {
   userReasoningEffort?: string;
   /** Anthropic extended-thinking toggle. */
   userThinking?: boolean;
+  /** Inspect-element edit: CSS selector of the element to edit in-place.
+   *  Present → targeted edit; falls back to full refinement if not found. */
+  elementSelector?: string;
 };
 
 const baseLog = createLogger("worker");
@@ -107,6 +114,7 @@ const worker = new Worker(
       userModel,
       userReasoningEffort,
       userThinking,
+      elementSelector,
     } = data;
     const log = baseLog.child({
       requestId,
@@ -209,33 +217,87 @@ const worker = new Worker(
             }
           }
 
-          const { html, commentary } = await runGenerationPipeline({
-            projectId,
-            userPrompt,
-            previousHtml,
-            refinementPrompt,
-            requestId,
-            provider: userProvider as
-              | "anthropic"
-              | "openai"
-              | "openrouter"
-              | undefined,
-            apiKey: userApiKey,
-            model: userModel,
-            reasoningEffort: userReasoningEffort as
-              | "none"
-              | "low"
-              | "medium"
-              | "high"
-              | "xhigh"
-              | undefined,
-            thinking: userThinking ?? false,
-            onProgress: (step, percent) => {
-              job.updateProgress({ step, percent }).catch((e) => {
-                log.warn("Progress update failed", { error: String(e) });
+          const provider = userProvider as
+            | "anthropic"
+            | "openai"
+            | "openrouter"
+            | undefined;
+          const reasoningEffort = userReasoningEffort as
+            | "none"
+            | "low"
+            | "medium"
+            | "high"
+            | "xhigh"
+            | undefined;
+          const onProgress = (step: string, percent: number) => {
+            job.updateProgress({ step, percent }).catch((e) => {
+              log.warn("Progress update failed", { error: String(e) });
+            });
+          };
+
+          let html: string;
+          let commentary: string | null;
+
+          // Inspect-element targeted edit: swap just the selected element.
+          // Falls back to a full refinement if the selector can't be found
+          // in the current HTML (e.g. the page changed since selection).
+          if (elementSelector && previousHtml && refinementPrompt) {
+            try {
+              const result = await runElementEdit({
+                previousHtml,
+                selector: elementSelector,
+                prompt: refinementPrompt,
+                requestId,
+                provider,
+                apiKey: userApiKey,
+                model: userModel,
+                reasoningEffort,
+                thinking: userThinking ?? false,
+                onProgress,
               });
-            },
-          });
+              html = result.html;
+              commentary = result.commentary;
+            } catch (editErr) {
+              if (editErr instanceof ElementNotFoundError) {
+                log.warn("Element selector not found, falling back to full refinement", {
+                  selector: elementSelector,
+                });
+                const result = await runGenerationPipeline({
+                  projectId,
+                  userPrompt,
+                  previousHtml,
+                  refinementPrompt,
+                  requestId,
+                  provider,
+                  apiKey: userApiKey,
+                  model: userModel,
+                  reasoningEffort,
+                  thinking: userThinking ?? false,
+                  onProgress,
+                });
+                html = result.html;
+                commentary = result.commentary;
+              } else {
+                throw editErr;
+              }
+            }
+          } else {
+            const result = await runGenerationPipeline({
+              projectId,
+              userPrompt,
+              previousHtml,
+              refinementPrompt,
+              requestId,
+              provider,
+              apiKey: userApiKey,
+              model: userModel,
+              reasoningEffort,
+              thinking: userThinking ?? false,
+              onProgress,
+            });
+            html = result.html;
+            commentary = result.commentary;
+          }
 
           await job.updateProgress({ step: "Uploading…", percent: 95 });
 

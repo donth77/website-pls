@@ -10,6 +10,9 @@ export type ChatMessage = {
   progressPercent?: number;
   error?: string;
   errorCode?: string;
+  /** Tag of the element targeted by an inspect-element edit (e.g. "h1").
+   *  Renders a small badge on the user message so the edit's scope is clear. */
+  targetTag?: string;
 };
 
 export const ErrorCode = {

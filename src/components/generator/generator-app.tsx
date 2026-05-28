@@ -102,6 +102,7 @@ function GeneratorAppInner() {
     handleSubmit,
     handleRetry,
     handleNewProject,
+    editElement,
     togglePreviewFullscreen,
     openPreviewInNewTab,
     downloadPreviewHtml,
@@ -643,6 +644,12 @@ function GeneratorAppInner() {
                 }
                 isPublished={!!publishedState}
                 hasUnpublishedChanges={hasUnpublishedChanges}
+                onElementEdit={
+                  projectId
+                    ? (sel, prompt) =>
+                        editElement(sel.selector, prompt, sel.tagName)
+                    : undefined
+                }
               />
             </div>
           </div>

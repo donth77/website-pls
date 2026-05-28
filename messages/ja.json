@@ -71,7 +71,14 @@
     "generating": "ウェブサイトを生成中…",
     "placeholder": "プレビューがここに表示されます",
     "loading": "プレビューを読み込み中…",
-    "iframeTitle": "生成されたサイトのプレビュー"
+    "iframeTitle": "生成されたサイトのプレビュー",
+    "inspect": "Inspect element",
+    "inspectExit": "Exit inspect",
+    "inspectHint": "Click an element to edit it",
+    "editPlaceholder": "Describe the change to this element…",
+    "applyEdit": "Apply",
+    "clearSelection": "Clear selection",
+    "editingElement": "Editing selected element"
   },
   "Publish": {
     "titlePublish": "Publish your site",

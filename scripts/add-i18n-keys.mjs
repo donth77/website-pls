@@ -21,6 +21,15 @@ const enPath = join(
 const en = JSON.parse(readFileSync(enPath, "utf-8"));
 
 const additions = {
+  Preview: {
+    inspect: "Inspect element",
+    inspectExit: "Exit inspect",
+    inspectHint: "Click an element to edit it",
+    editingElement: "Editing selected element",
+    editPlaceholder: "Describe the change to this element…",
+    applyEdit: "Apply",
+    clearSelection: "Clear selection",
+  },
   Settings: {
     notificationsHeading: "Notifications",
     notificationsDescription:

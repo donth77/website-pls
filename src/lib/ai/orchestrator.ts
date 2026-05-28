@@ -8,6 +8,7 @@ import {
 } from "@/lib/ai/promptSafety";
 import { buildContextForAgent } from "@/lib/ai/context";
 import { createLogger } from "@/lib/logger";
+import { parseHTML } from "linkedom";
 import { generateStructured } from "@/lib/ai/providers/structured";
 import {
   DEFAULT_PROVIDER,
@@ -15,6 +16,15 @@ import {
   type Provider,
   type ReasoningEffort,
 } from "@/lib/byok/providers";
+
+/** Raised when the selector doesn't resolve in the source HTML, so the
+ *  caller (worker) can fall back to a full refinement. */
+export class ElementNotFoundError extends Error {
+  constructor(selector: string) {
+    super(`Element not found for selector: ${selector}`);
+    this.name = "ElementNotFoundError";
+  }
+}
 
 const log = createLogger("orchestrator");
 
@@ -60,6 +70,29 @@ const GenerationResultSchema = z.object({
 });
 
 type GenerationResult = z.infer<typeof GenerationResultSchema>;
+
+// Element-scoped schema for inspect-element edits. The `html` field
+// description is critical: structured-output models weight it heavily, so
+// reusing GenerationResultSchema (whose html says "Complete, self-contained
+// HTML document") would make the model return the WHOLE page. Here we tell
+// it to return ONLY the replacement for the single element.
+const ElementEditResultSchema = z.object({
+  commentary: z
+    .string()
+    .describe(
+      "A brief 1–2 sentence, past-tense description of the change you made to this element.",
+    ),
+  html: z
+    .string()
+    .describe(
+      "Replacement HTML for the SINGLE given element ONLY — its own root tag and everything inside it. Do NOT return <html>, <head>, <body>, or any surrounding page markup. New images use placeholder ids like src=\"__IMG_1__\" matching the images array.",
+    ),
+  images: z
+    .array(ImageSlotSchema)
+    .describe(
+      "Image slots used in the replacement element, one entry per unique placeholder. Empty if the element has no new images.",
+    ),
+});
 
 // ---------------------------------------------------------------------------
 // Model resolution
@@ -201,6 +234,26 @@ const SYSTEM_REFINEMENT = [
   "Interactivity preservation:",
   "- If the existing HTML has JS features (language toggle, dark mode, tabs, etc.), keep them working. When you add new translatable copy or toggleable content, update the translations object / data-i18n attributes / dark: variants so the existing handlers cover the new nodes.",
   "- If the user asks you to add a new interactive feature, follow the same rules as the initial build: handlers bound on DOMContentLoaded, data-* attributes, every labelled control must actually do what it says, persist choices to localStorage.",
+  SECURITY_INSTRUCTIONS,
+].join("\n");
+
+const SYSTEM_ELEMENT_EDIT = [
+  "You are a front-end engineer editing ONE element of an existing page.",
+  "You are given the current outerHTML of a single element and a change request.",
+  "Return the COMPLETE replacement outerHTML for that ONE element only.",
+  "",
+  "Commentary:",
+  "- In the 'commentary' field, write a brief 1–2 sentence past-tense description of what you changed.",
+  "",
+  "Hard constraints:",
+  "- Output ONLY the replacement for the given element — its own tag and everything inside it. Do NOT return the surrounding page, <html>, <head>, or <body>.",
+  "- Keep the SAME root tag and the same overall role/position as the original element unless the change explicitly requires a different tag.",
+  "- Match the page's existing visual language: reuse the same Tailwind utility conventions, color palette, spacing, and typography as the original element.",
+  "- Do NOT introduce <script> tags or inline event handlers.",
+  "",
+  "Image handling:",
+  "- For NEW images, use placeholder ids like __IMG_1__, __IMG_2__ as the src, and describe each in the images array for stock-photo search.",
+  "- Keep existing image src URLs unchanged unless the change requires replacing them.",
   SECURITY_INSTRUCTIONS,
 ].join("\n");
 
@@ -935,4 +988,170 @@ export async function runGenerationPipeline(input: {
 
   progress("finalizing", 90);
   return { html: validateAndRepairHtml(html), commentary: null };
+}
+
+/**
+ * Targeted single-element edit. Locates `selector` in `previousHtml`, asks
+ * the model for a replacement for just that element, resolves any new image
+ * placeholders, swaps the fragment back into the document, and returns the
+ * full modified HTML. Throws `ElementNotFoundError` if the selector doesn't
+ * resolve so the worker can fall back to a full refinement.
+ */
+export async function runElementEdit(input: {
+  previousHtml: string;
+  selector: string;
+  prompt: string;
+  requestId?: string;
+  provider?: Provider;
+  apiKey?: string;
+  model?: string;
+  reasoningEffort?: ReasoningEffort;
+  thinking?: boolean;
+  onProgress?: ProgressCallback;
+}): Promise<{ html: string; commentary: string | null }> {
+  const progress = input.onProgress ?? (() => {});
+
+  const promptError = validateUserPrompt(input.prompt);
+  if (promptError) throw new Error(promptError);
+
+  // Locate the element first — fail fast (and let the worker fall back to a
+  // full refinement) before spending an LLM call.
+  const { document } = parseHTML(input.previousHtml);
+  const target = document.querySelector(input.selector);
+  if (!target) {
+    throw new ElementNotFoundError(input.selector);
+  }
+  const currentOuterHtml = target.outerHTML;
+  const parentTag = target.parentElement?.tagName?.toLowerCase() ?? "body";
+
+  // Resolve provider/key/model (mirrors runGenerationPipeline).
+  const provider: Provider = input.provider ?? DEFAULT_PROVIDER;
+  const apiKey =
+    input.apiKey ??
+    (provider === "anthropic" ? getRequiredEnv("ANTHROPIC_API_KEY") : "");
+  if (!apiKey) {
+    throw new Error(
+      `BYOK provider '${provider}' requires a per-request API key.`,
+    );
+  }
+  const model =
+    provider === "anthropic"
+      ? resolveModel(
+          input.model ??
+            process.env.ANTHROPIC_MODEL ??
+            "claude-sonnet-4-5-20250514",
+        ).model
+      : resolveModelId(provider, input.model);
+
+  progress("applying", 25);
+
+  const userContent = [
+    "Current element outerHTML (parent is <" + parentTag + ">):",
+    "```html",
+    currentOuterHtml,
+    "```",
+    "",
+    "Requested change:",
+    wrapRefinementPromptForModel(input.prompt.trim()),
+  ].join("\n");
+
+  const { parsed } = await generateStructured({
+    provider,
+    apiKey,
+    model,
+    systemBlocks: [
+      {
+        type: "text" as const,
+        text: SYSTEM_ELEMENT_EDIT,
+        cache_control: { type: "ephemeral" as const },
+      },
+    ],
+    userContent,
+    schema: ElementEditResultSchema,
+    schemaName: "element_edit_result",
+    maxTokens: provider === "anthropic" ? 8192 : 8192,
+    temperature: 0.7,
+    reasoningEffort: input.reasoningEffort,
+    anthropicThinking: provider === "anthropic" && input.thinking === true,
+  });
+
+  if (!parsed?.html) {
+    throw new Error("Model returned no replacement HTML for the element.");
+  }
+
+  progress("processing", 55);
+
+  // Don't trust the model to scope its output — weaker models (e.g. Haiku)
+  // return the whole page even when told to return one element. So instead
+  // of using whatever it returned wholesale, we EXTRACT just the replacement
+  // for the target element:
+  //   - if it returned a full document → re-find the element by the same
+  //     selector inside that document and take its outerHTML
+  //   - otherwise → the output is already the element fragment
+  // Either way we then inject only that one element into the ORIGINAL page,
+  // so every other byte of the page is preserved.
+  let replacement: string;
+  // When we extract from a full-doc response, the model's commentary
+  // describes whole-page changes we did NOT apply — replace it with an
+  // accurate one-liner. When the model returned a true fragment, its
+  // commentary is about that element and we keep it.
+  let commentaryReliable = true;
+  const looksLikeDoc =
+    /<html[\s>]/i.test(parsed.html) || /^\s*<!doctype/i.test(parsed.html);
+
+  if (looksLikeDoc) {
+    const modelDoc = parseHTML(parsed.html).document;
+    const edited = modelDoc.querySelector(input.selector);
+    if (edited) {
+      log.info("Element edit returned a full doc; extracted target element", {
+        selector: input.selector,
+      });
+      replacement = edited.outerHTML;
+      commentaryReliable = false;
+    } else {
+      // Can't locate the element in the model's output (it restructured the
+      // page). Last resort: use the full document as the new page.
+      log.warn(
+        "Element edit returned a full doc and selector no longer matches; using full page",
+        { selector: input.selector },
+      );
+      return {
+        html: validateAndRepairHtml(parsed.html),
+        commentary: parsed.commentary ?? null,
+      };
+    }
+  } else {
+    replacement = parsed.html;
+  }
+
+  progress("searchingPhotos", 70);
+
+  // Resolve any new image placeholders in the extracted element.
+  // skipAttribution: the surrounding page keeps its existing credits.
+  const images = parsed.images ?? [];
+  if (images.length > 0) {
+    const resolved = await resolveImageSlots(replacement, images, {
+      skipAttribution: true,
+    });
+    replacement = resolved.html;
+  }
+  replacement = replaceUnresolvedPlaceholders(replacement);
+
+  progress("finalizing", 85);
+
+  // Swap the single element into the original document and serialize, then
+  // preserve the leading doctype which linkedom's serializer drops.
+  target.outerHTML = replacement;
+  let out = document.toString();
+  const hadDoctype = /^\s*<!doctype html>/i.test(input.previousHtml);
+  if (hadDoctype && !/^\s*<!doctype/i.test(out)) {
+    out = "<!DOCTYPE html>\n" + out;
+  }
+
+  return {
+    html: validateAndRepairHtml(out),
+    commentary: commentaryReliable
+      ? (parsed.commentary ?? null)
+      : "Updated the selected element.",
+  };
 }

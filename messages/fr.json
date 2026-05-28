@@ -71,7 +71,14 @@
     "generating": "Génération de votre site web…",
     "placeholder": "Votre aperçu apparaîtra ici",
     "loading": "Chargement de l'aperçu…",
-    "iframeTitle": "Aperçu du site généré"
+    "iframeTitle": "Aperçu du site généré",
+    "inspect": "Inspect element",
+    "inspectExit": "Exit inspect",
+    "inspectHint": "Click an element to edit it",
+    "editPlaceholder": "Describe the change to this element…",
+    "applyEdit": "Apply",
+    "clearSelection": "Clear selection",
+    "editingElement": "Editing selected element"
   },
   "Publish": {
     "titlePublish": "Publish your site",

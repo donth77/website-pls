@@ -71,7 +71,14 @@
     "generating": "กำลังสร้างเว็บไซต์ของคุณ…",
     "placeholder": "ตัวอย่างจะปรากฏที่นี่",
     "loading": "กำลังโหลดตัวอย่าง…",
-    "iframeTitle": "ตัวอย่างเว็บไซต์ที่สร้าง"
+    "iframeTitle": "ตัวอย่างเว็บไซต์ที่สร้าง",
+    "inspect": "Inspect element",
+    "inspectExit": "Exit inspect",
+    "inspectHint": "Click an element to edit it",
+    "editPlaceholder": "Describe the change to this element…",
+    "applyEdit": "Apply",
+    "clearSelection": "Clear selection",
+    "editingElement": "Editing selected element"
   },
   "Publish": {
     "titlePublish": "Publish your site",

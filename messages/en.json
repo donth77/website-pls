@@ -251,7 +251,14 @@
     "generating": "Generating your website…",
     "placeholder": "Your preview will appear here",
     "loading": "Loading preview…",
-    "iframeTitle": "Generated site preview"
+    "iframeTitle": "Generated site preview",
+    "inspect": "Inspect element",
+    "inspectExit": "Exit inspect",
+    "inspectHint": "Click an element to edit it",
+    "editPlaceholder": "Describe the change to this element…",
+    "applyEdit": "Apply",
+    "clearSelection": "Clear selection",
+    "editingElement": "Editing selected element"
   },
   "Privacy": {
     "heading": "Privacy Policy",

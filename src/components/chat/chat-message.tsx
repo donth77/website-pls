@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+import { MousePointerClick, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   Button,
@@ -119,7 +119,13 @@ export function ChatMessageBubble({
             />
           </div>
         )}
-        <div className="flex justify-end">
+        <div className="flex flex-col items-end gap-1">
+          {message.targetTag && (
+            <span className="inline-flex items-center gap-1 rounded-md bg-indigo-50 px-1.5 py-0.5 text-[10px] font-medium text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
+              <MousePointerClick className="h-2.5 w-2.5" aria-hidden="true" />
+              <span className="font-mono">{`<${message.targetTag}>`}</span>
+            </span>
+          )}
           <div className="max-w-[85%] rounded-2xl rounded-br-md bg-zinc-900 px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap text-white dark:bg-zinc-100 dark:text-zinc-900">
             {message.content}
           </div>

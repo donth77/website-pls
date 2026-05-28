@@ -71,7 +71,14 @@
     "generating": "आपकी वेबसाइट बनाई जा रही है…",
     "placeholder": "आपका प्रीव्यू यहां दिखाई देगा",
     "loading": "प्रीव्यू लोड हो रहा है…",
-    "iframeTitle": "जनरेट किए गए साइट का पूर्वावलोकन"
+    "iframeTitle": "जनरेट किए गए साइट का पूर्वावलोकन",
+    "inspect": "Inspect element",
+    "inspectExit": "Exit inspect",
+    "inspectHint": "Click an element to edit it",
+    "editPlaceholder": "Describe the change to this element…",
+    "applyEdit": "Apply",
+    "clearSelection": "Clear selection",
+    "editingElement": "Editing selected element"
   },
   "Publish": {
     "titlePublish": "Publish your site",
