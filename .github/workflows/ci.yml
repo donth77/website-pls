@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # Corepack activates the pnpm version pinned in package.json
       # ("packageManager"). Must run before setup-node so its pnpm cache works.
