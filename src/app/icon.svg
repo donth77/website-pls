@@ -1,6 +1,9 @@
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
   <rect width="32" height="32" rx="7" fill="#18181b"/>
-  <path d="M6 9.5 L11 23 L16 13.5 L21 23 L26 9.5"
-        stroke="#fafaf9" stroke-width="3.2"
-        stroke-linecap="round" stroke-linejoin="round"/>
+  <g stroke="#fafaf9" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- W -->
+    <path d="M4 10.5 L6.8 21.5 L9.5 14.5 L12.2 21.5 L15 10.5"/>
+    <!-- P: stem + bowl -->
+    <path d="M18.5 21.5 L18.5 10.5 L22.5 10.5 C25.4 10.5 25.4 16 22.5 16 L18.5 16"/>
+  </g>
 </svg>
