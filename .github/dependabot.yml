@@ -1,0 +1,31 @@
+version: 2
+updates:
+  # JavaScript dependencies. Dependabot reads pnpm-lock.yaml directly.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      # One PR for all dev-dependency bumps — low review stakes.
+      dev-dependencies:
+        dependency-type: "development"
+      # One PR for prod minor/patch bumps. Majors are excluded here so they
+      # arrive as individual PRs (e.g. Next 16 -> 17) and get reviewed alone.
+      prod-minor-patch:
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+    # unpdf parses untrusted PDFs — keep it pinned to an exact version so each
+    # bump is a deliberate, reviewed PR rather than an auto-widened range.
+    # (Security CVE updates still come through regardless of this.)
+    ignore:
+      - dependency-name: "unpdf"
+        update-types: ["version-update:semver-major"]
+
+  # Keep the CI workflow's actions (checkout, setup-node) patched.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

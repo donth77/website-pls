@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs on the same ref (e.g. rapid pushes / Dependabot rebases).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      # Corepack activates the pnpm version pinned in package.json
+      # ("packageManager"). Must run before setup-node so its pnpm cache works.
+      - name: Enable Corepack
+        run: corepack enable
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      # `next build` runs with NODE_ENV=production, which trips the fail-closed
+      # module-load guards in lakera.ts / turnstile.ts (and Resend/Prisma client
+      # construction). These DUMMY values only need to be present — they're
+      # never used to make real calls during a build, so fake strings satisfy
+      # the presence checks. Real secrets live in the deploy platform's env.
+      - name: Build
+        env:
+          DATABASE_URL: "postgresql://user:pass@localhost:5432/db?schema=public"
+          REDIS_URL: "redis://localhost:6379"
+          ANTHROPIC_API_KEY: "sk-ant-ci-dummy"
+          AUTH_SECRET: "0000000000000000000000000000000000000000000000000000000000000000"
+          AUTH_RESEND_KEY: "re_ci_dummy"
+          R2_ACCOUNT_ID: "ci-dummy"
+          R2_ACCESS_KEY_ID: "ci-dummy"
+          R2_SECRET_ACCESS_KEY: "ci-dummy"
+          R2_BUCKET_NAME: "ci-dummy"
+          LAKERA_API_KEY: "ci-dummy"
+          TURNSTILE_SECRET_KEY: "ci-dummy"
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: "1x00000000000000000000AA"
+        run: pnpm build
