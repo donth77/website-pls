@@ -11,12 +11,6 @@ const intlMiddleware = createMiddleware(routing);
 // surfaces either render LLM-generated HTML (which has its own stricter CSP
 // in src/lib/security/htmlResponseHeaders.ts), are JSON APIs (headers like
 // X-Frame-Options don't apply), or are operator-only (admin sets its own).
-//
-// Deliberately omitted: Content-Security-Policy. A wrong CSP on the app
-// surface silently breaks pages (missed inline script, missed font origin)
-// and is harder to recover from than discovering it's missing. The
-// high-risk surface — LLM-generated HTML — already has a tight CSP. Adding
-// CSP here is a separate, browser-tested change.
 const SECURITY_HEADERS: Record<string, string> = {
   // HSTS: tell browsers to use HTTPS for this origin for the next year.
   // No `preload` directive — preload is hard to roll back and we want to
@@ -35,11 +29,50 @@ const SECURITY_HEADERS: Record<string, string> = {
     "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), accelerometer=(), gyroscope=()",
 };
 
+// Content-Security-Policy for the app surface (not the LLM-generated HTML —
+// that has its own stricter policy in src/lib/security/htmlResponseHeaders.ts).
+//
+// External dependencies the app actually loads:
+//   - Cloudflare Turnstile widget: script + iframe + XHR to challenges.cloudflare.com
+//   - Fonts: next/font/google SELF-HOSTS at build time → served from 'self',
+//     so no fonts.googleapis.com / fonts.gstatic.com entry is needed.
+//   - OAuth avatars + stock photos: loaded via next/image (served from 'self'
+//     as /_next/image) or directly over https — covered by `img-src https:`.
+//
+// 'unsafe-inline' in script-src is required by Next.js App Router's inlined
+// RSC/bootstrap scripts. The robust alternative is a per-request nonce, which
+// needs deeper middleware plumbing — tracked as a follow-up in
+// .claude/plans/app-route-csp.md. 'unsafe-inline' in style-src is required by
+// Tailwind / styled-jsx inline styles.
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: https:",
+  "font-src 'self'",
+  "frame-src https://challenges.cloudflare.com",
+  "connect-src 'self' https://challenges.cloudflare.com",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  "object-src 'none'",
+].join("; ");
+
+// Report-Only during rollout: the browser REPORTS violations but still loads
+// everything, so a missed directive can't break a page. Once the observation
+// window (see .claude/plans/go-live-runbook.md Phase 5) confirms no violations
+// across all routes, flip this to false to enforce.
+const CSP_REPORT_ONLY = true;
+const CSP_HEADER_NAME = CSP_REPORT_ONLY
+  ? "Content-Security-Policy-Report-Only"
+  : "Content-Security-Policy";
+
 export function proxy(req: NextRequest) {
   const res = intlMiddleware(req);
   for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
     res.headers.set(name, value);
   }
+  res.headers.set(CSP_HEADER_NAME, CSP);
   return res;
 }
 
