@@ -43,7 +43,7 @@ export default async function ProjectsPage() {
   });
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-12">
+    <div className="mx-auto max-w-4xl px-6 pb-12 pt-20 sm:pt-12">
       <BackButton />
       <div className="mb-8 flex items-center justify-between">
         <div>
