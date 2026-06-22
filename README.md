@@ -1,5 +1,13 @@
 # WebsitePls 
 
+[![CI](https://img.shields.io/github/actions/workflow/status/donth77/website-pls/ci.yml?branch=main&label=CI&logo=githubactions&logoColor=white)](https://github.com/donth77/website-pls/actions/workflows/ci.yml)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs&logoColor=white)](https://nextjs.org)
+[![React](https://img.shields.io/badge/React-19-149ECA?logo=react&logoColor=white)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38BDF8?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org)
+
 An **AI-powered website generator**: describe what you want in plain language, and the system produces a complete, styled HTML page with real stock photos. Preview it instantly, iterate with refinement prompts, and download the result.
 
 ## What it does 
